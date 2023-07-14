@@ -29,7 +29,7 @@
  * It then breaks this bounding volume into a user-specified number of
  * spatial bins.  It then reads each triangle from the input and hashes its
  * vertices into these bins. Then, if 2 or more vertices of
- * the triangle fall in the same bin, the triangle is dicarded.  If the
+ * the triangle fall in the same bin, the triangle is discarded.  If the
  * triangle is not discarded, it adds the triangle to the list of output
  * triangles as a list of vertex identifiers.  (There is one vertex id per
  * bin.)  After all the triangles have been read, the representative vertex
@@ -49,7 +49,9 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmLevelOfDetail : public vtkPolyDataAlgorithm
 {
 public:
@@ -90,6 +92,8 @@ private:
 
   vtkmLevelOfDetail(const vtkmLevelOfDetail&) = delete;
   void operator=(const vtkmLevelOfDetail&) = delete;
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmLevelOfDetail_h

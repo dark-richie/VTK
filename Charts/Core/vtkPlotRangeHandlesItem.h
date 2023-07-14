@@ -25,7 +25,7 @@
  * an InteractionEvent when interacting with a handle and an EndInteractionEvent
  * when releasing a handle.
  * It emits a LeftMouseButtonDoubleClickEvent when double clicked.
- * Options can be used to change the appearence or behavior of handles:
+ * Options can be used to change the appearance or behavior of handles:
  * - SynchronizeHandlesRange: When enabled, moving the minimum handle triggers
  * the modification of the whole range, resulting in the maximum handle being
  * moved too. Disabled by default.
@@ -43,6 +43,7 @@
 #include "vtkCommand.h"          // For vtkCommand enum
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBrush;
 
 class VTKCHARTSCORE_EXPORT vtkPlotRangeHandlesItem : public vtkPlot
@@ -186,10 +187,8 @@ protected:
    */
   using vtkPlot::TransformDataToScreen;
   using vtkPlot::TransformScreenToData;
-  void TransformScreenToData(
-    const double inX, const double inY, double& outX, double& outY) override;
-  void TransformDataToScreen(
-    const double inX, const double inY, double& outX, double& outY) override;
+  void TransformScreenToData(double inX, double inY, double& outX, double& outY) override;
+  void TransformDataToScreen(double inX, double inY, double& outX, double& outY) override;
   ///@}
 
   /**
@@ -253,4 +252,5 @@ protected:
   int HandleOrientation = VERTICAL;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotRangeHandlesItem_h

@@ -40,6 +40,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkCellArray;
 class vtkPolyData;
@@ -142,8 +143,8 @@ public:
   /**
    * Methods supporting the rendering process.
    */
-  void GetActors(vtkPropCollection*) override;
-  void ReleaseGraphicsResources(vtkWindow*) override;
+  void GetActors(vtkPropCollection* propCollections) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
   int RenderOverlay(vtkViewport*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   ///@}
@@ -199,4 +200,5 @@ private:
   void operator=(const vtkCenteredSliderRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

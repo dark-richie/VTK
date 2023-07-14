@@ -36,6 +36,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericStreamTracer);
 vtkCxxSetObjectMacro(vtkGenericStreamTracer, Integrator, vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(
@@ -782,7 +783,7 @@ void vtkGenericStreamTracer::Integrate(vtkGenericDataSet* input0, vtkPolyData* o
   vtkIdType numPtsTotal = 0;
   double velocity[3];
 
-  int shouldAbort = 0;
+  bool shouldAbort = false;
 
   for (int currentLine = 0; currentLine < numLines; currentLine++)
   {
@@ -916,9 +917,9 @@ void vtkGenericStreamTracer::Integrate(vtkGenericDataSet* input0, vtkPolyData* o
         progress = (currentLine + propagation / this->MaximumPropagation.Interval) / numLines;
         this->UpdateProgress(progress);
 
-        if (this->GetAbortExecute())
+        if (this->CheckAbort())
         {
-          shouldAbort = 1;
+          shouldAbort = true;
           break;
         }
       }
@@ -1351,3 +1352,4 @@ void vtkGenericStreamTracer::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
+VTK_ABI_NAMESPACE_END

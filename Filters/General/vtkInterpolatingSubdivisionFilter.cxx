@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 
 // Construct object with number of subdivisions set to 1.
+VTK_ABI_NAMESPACE_BEGIN
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter() = default;
 
 int vtkInterpolatingSubdivisionFilter::RequestData(
@@ -60,6 +61,10 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
 
   for (level = 0; level < this->NumberOfSubdivisions; level++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Generate topology for the input dataset
     inputDS->BuildLinks();
     numCells = inputDS->GetNumberOfCells();
@@ -239,3 +244,4 @@ void vtkInterpolatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

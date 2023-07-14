@@ -24,6 +24,7 @@
 #include "vtkTextRenderer.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTextRepresentationObserver : public vtkCommand
 {
 public:
@@ -144,7 +145,10 @@ void vtkTextRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkTextRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->TextActor);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->TextActor);
+  }
   this->Superclass::GetActors2D(pc);
 }
 
@@ -359,3 +363,4 @@ void vtkTextRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Text Actor: " << this->TextActor << "\n";
 }
+VTK_ABI_NAMESPACE_END

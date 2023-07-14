@@ -24,6 +24,7 @@
 #include "vtkTextureObject.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 
 //------------------------------------------------------------------------------
@@ -138,8 +139,11 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 
       // Render texture to current write buffer. Texel x,y is rendered at
       // pixel x,y (instead of pixel 0,0 to work around pixel ownership test).
-      GLint savedDrawBuffer;
+      GLint savedDrawBuffer = GL_BACK_LEFT;
+
+#ifdef GL_DRAW_BUFFER
       glGetIntegerv(GL_DRAW_BUFFER, &savedDrawBuffer);
+#endif
 
       vtkOpenGLState::ScopedglEnableDisable dsaver(ostate, GL_DEPTH_TEST);
       vtkOpenGLState::ScopedglEnableDisable ssaver(ostate, GL_STENCIL_TEST);
@@ -198,3 +202,4 @@ void vtkOpenGLContextBufferId::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -24,6 +24,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriangleFilter);
 
 //-------------------------------------------------------------------------
@@ -50,7 +51,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellArray* cells;
   vtkPoints* inPts = input->GetPoints();
 
-  int abort = 0;
+  bool abort = false;
   updateInterval = numCells / 100 + 1;
   outCD->CopyAllocate(inCD, numCells);
 
@@ -69,7 +70,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (!(cellNum % updateInterval)) // manage progress reports / early abort
         {
           this->UpdateProgress((float)cellNum / numCells);
-          abort = this->GetAbortExecute();
+          abort = this->CheckAbort();
         }
         if (npts > 1)
         {
@@ -107,7 +108,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (!(cellNum % updateInterval)) // manage progress reports / early abort
         {
           this->UpdateProgress((float)cellNum / numCells);
-          abort = this->GetAbortExecute();
+          abort = this->CheckAbort();
         }
         if (npts > 2)
         {
@@ -158,7 +159,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(cellNum % updateInterval)) // manage progress reports / early abort
       {
         this->UpdateProgress((float)cellNum / numCells);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
       if (npts == 0)
       {
@@ -211,7 +212,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(cellNum % updateInterval)) // manage progress reports / early abort
       {
         this->UpdateProgress((float)cellNum / numCells);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
       vtkTriangleStrip::DecomposeStrip(npts, pts, newPolys);
       for (i = 0; i < (npts - 2); i++)
@@ -240,3 +241,4 @@ void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pass Verts: " << (this->PassVerts ? "On\n" : "Off\n");
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

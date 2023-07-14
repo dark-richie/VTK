@@ -28,6 +28,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChartXY;
 class vtkContext2D;
 class vtkTable;
@@ -148,7 +149,7 @@ protected:
   /**
    * Test if the internal cache requires an update.
    */
-  virtual bool CacheRequiresUpdate() override;
+  bool CacheRequiresUpdate() override;
 
   // Descript:
   // For stacked plots the Extent data must be greater than (or equal to) the
@@ -187,4 +188,5 @@ private:
   vtkPlotStackedPrivate* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotStacked_h

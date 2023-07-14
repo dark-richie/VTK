@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBorderRepresentation);
 
 //------------------------------------------------------------------------------
@@ -175,7 +176,7 @@ void vtkBorderRepresentation::ComputeRoundCorners()
 
 //------------------------------------------------------------------------------
 void vtkBorderRepresentation::ComputeOneRoundCorner(vtkCellArray* polys, vtkPoints* points,
-  const double radius, vtkIdType idCenterX, vtkIdType idCenterY, const double startAngle)
+  double radius, vtkIdType idCenterX, vtkIdType idCenterY, double startAngle)
 {
   double xPoint[3], yPoint[3];
   points->GetPoint(idCenterX, xPoint);
@@ -771,8 +772,12 @@ void vtkBorderRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkBorderRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->BWActorEdges);
-  pc->AddItem(this->BWActorPolygon);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->BWActorEdges);
+    pc->AddItem(this->BWActorPolygon);
+  }
+  this->Superclass::GetActors2D(pc);
 }
 
 //------------------------------------------------------------------------------
@@ -904,32 +909,29 @@ void vtkBorderRepresentation::GetPolygonRGBA(double& r, double& g, double& b, do
 //------------------------------------------------------------------------------
 void vtkBorderRepresentation::UpdateWindowLocation()
 {
-  if (this->WindowLocation != vtkBorderRepresentation::AnyLocation)
+  double* pos2 = this->Position2Coordinate->GetValue();
+  switch (this->WindowLocation)
   {
-    double* pos2 = this->Position2Coordinate->GetValue();
-    switch (this->WindowLocation)
-    {
-      case vtkBorderRepresentation::LowerLeftCorner:
-        this->SetPosition(0.01, 0.01);
-        break;
-      case vtkBorderRepresentation::LowerRightCorner:
-        this->SetPosition(0.99 - pos2[0], 0.01);
-        break;
-      case vtkBorderRepresentation::LowerCenter:
-        this->SetPosition((1 - pos2[0]) / 2.0, 0.01);
-        break;
-      case vtkBorderRepresentation::UpperLeftCorner:
-        this->SetPosition(0.01, 0.99 - pos2[1]);
-        break;
-      case vtkBorderRepresentation::UpperRightCorner:
-        this->SetPosition(0.99 - pos2[0], 0.99 - pos2[1]);
-        break;
-      case vtkBorderRepresentation::UpperCenter:
-        this->SetPosition((1 - pos2[0]) / 2.0, 0.99 - pos2[1]);
-        break;
-      default:
-        break;
-    }
+    case vtkBorderRepresentation::LowerLeftCorner:
+      this->SetPosition(0.01, 0.01);
+      break;
+    case vtkBorderRepresentation::LowerRightCorner:
+      this->SetPosition(0.99 - pos2[0], 0.01);
+      break;
+    case vtkBorderRepresentation::LowerCenter:
+      this->SetPosition((1 - pos2[0]) / 2.0, 0.01);
+      break;
+    case vtkBorderRepresentation::UpperLeftCorner:
+      this->SetPosition(0.01, 0.99 - pos2[1]);
+      break;
+    case vtkBorderRepresentation::UpperRightCorner:
+      this->SetPosition(0.99 - pos2[0], 0.99 - pos2[1]);
+      break;
+    case vtkBorderRepresentation::UpperCenter:
+      this->SetPosition((1 - pos2[0]) / 2.0, 0.99 - pos2[1]);
+      break;
+    default:
+      break;
   }
 }
 
@@ -942,11 +944,11 @@ void vtkBorderRepresentation::SetWindowLocation(int enumLocation)
   }
 
   this->WindowLocation = enumLocation;
-
   if (this->WindowLocation != vtkBorderRepresentation::AnyLocation)
   {
     this->UpdateWindowLocation();
   }
+
   this->Modified();
 }
 
@@ -1067,3 +1069,4 @@ void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

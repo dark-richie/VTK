@@ -21,6 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()
@@ -48,7 +49,7 @@ int vtkMaskPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numCells;
   const vtkIdType* pts = nullptr;
   vtkIdType npts = 0;
-  int abortExecute = 0;
+  bool abortExecute = false;
 
   // Check input / pass data through
   //
@@ -71,7 +72,7 @@ int vtkMaskPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(id % tenth))
     {
       this->UpdateProgress((float)id / numCells);
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
     input->GetCellPoints(id, npts, pts);
     output->InsertNextCell(input->GetCellType(id), npts, pts);
@@ -95,3 +96,4 @@ void vtkMaskPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
 }
+VTK_ABI_NAMESPACE_END

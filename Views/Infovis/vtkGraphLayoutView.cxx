@@ -35,6 +35,7 @@
 #include "vtkSimple2DLayoutStrategy.h"
 #include "vtkTextProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGraphLayoutView);
 //------------------------------------------------------------------------------
 vtkGraphLayoutView::vtkGraphLayoutView()
@@ -483,7 +484,7 @@ bool vtkGraphLayoutView::GetIconVisibility()
 }
 
 //------------------------------------------------------------------------------
-void vtkGraphLayoutView::SetVertexLabelFontSize(const int size)
+void vtkGraphLayoutView::SetVertexLabelFontSize(int size)
 {
   this->GetGraphRepresentation()->GetVertexLabelTextProperty()->SetFontSize(size);
 }
@@ -495,7 +496,7 @@ int vtkGraphLayoutView::GetVertexLabelFontSize()
 }
 
 //------------------------------------------------------------------------------
-void vtkGraphLayoutView::SetEdgeLabelFontSize(const int size)
+void vtkGraphLayoutView::SetEdgeLabelFontSize(int size)
 {
   this->GetGraphRepresentation()->GetEdgeLabelTextProperty()->SetFontSize(size);
 }
@@ -519,3 +520,4 @@ void vtkGraphLayoutView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

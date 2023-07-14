@@ -30,6 +30,7 @@
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 
 class VTKCOMMONMISC_EXPORT vtkContourValues : public vtkObject
@@ -71,7 +72,7 @@ public:
    * need to use this method to reduce list size. The method SetValue()
    * will automatically increase list size as needed.
    */
-  void SetNumberOfContours(const int number);
+  void SetNumberOfContours(int number);
 
   /**
    * Return the number of contours in the
@@ -106,4 +107,5 @@ private:
   void operator=(const vtkContourValues&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

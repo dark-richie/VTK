@@ -36,6 +36,7 @@
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeCutter);
 
 #ifdef DEBUGME
@@ -145,7 +146,7 @@ int vtkCompositeCutter::RequestData(
   }
 
   vtkNew<vtkAppendPolyData> append;
-  int numObjects(0);
+  append->SetContainerAlgorithm(this);
 
   using Opts = vtk::CompositeDataSetOptions;
   for (vtkDataObject* dObj : vtk::Range(inData, Opts::SkipEmptyNodes))
@@ -157,7 +158,6 @@ int vtkCompositeCutter::RequestData(
     outInfo->Set(vtkDataObject::DATA_OBJECT(), out);
     this->Superclass::RequestData(request, inputVector, outputVector);
     append->AddInputData(out);
-    numObjects++;
   }
   append->Update();
 
@@ -171,3 +171,4 @@ void vtkCompositeCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

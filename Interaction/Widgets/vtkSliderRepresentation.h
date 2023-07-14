@@ -31,8 +31,10 @@
 
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINTERACTIONWIDGETS_EXPORT vtkSliderRepresentation : public vtkWidgetRepresentation
 {
 public:
@@ -215,4 +217,5 @@ private:
   void operator=(const vtkSliderRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

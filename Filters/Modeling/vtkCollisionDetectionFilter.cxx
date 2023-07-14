@@ -71,6 +71,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollisionDetectionFilter);
 
 // Constructs with initial 0 values.
@@ -555,6 +556,10 @@ int vtkCollisionDetectionFilter::RequestData(vtkInformation* vtkNotUsed(request)
 
     for (int idx = 0; idx < 2; idx++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkUnsignedCharArray* scalars = vtkUnsignedCharArray::New();
       output[idx]->GetCellData()->SetScalars(scalars);
       vtkIdType numCells = input[idx]->GetNumberOfCells();
@@ -616,6 +621,8 @@ int vtkCollisionDetectionFilter::RequestData(vtkInformation* vtkNotUsed(request)
     }
   }
   this->InvokeEvent(vtkCommand::EndEvent, nullptr);
+
+  this->CheckAbort();
 
   return 1;
 }
@@ -803,3 +810,4 @@ void vtkCollisionDetectionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Matrix 0: " << this->GetMatrix(0) << "\n";
   os << indent << "Matrix 1: " << this->GetMatrix(1) << "\n";
 }
+VTK_ABI_NAMESPACE_END

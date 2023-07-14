@@ -27,6 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkVariantArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAreaContourSpectrumFilter);
 
 //------------------------------------------------------------------------------
@@ -155,6 +156,10 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
 
       do
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkEdgeType e = eIt->Next();
         if (e.Id == ArcId)
         {
@@ -189,6 +194,10 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
              max = scalarField->GetComponent(vertexIds[vertexIds.size() - 1], 0);
       for (unsigned int i = 0; i < vertexIds.size(); i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         scalarValues[i] = scalarField->GetComponent(vertexIds[i], 0);
 
         vtkIdList* starTriangleList = vtkIdList::New();
@@ -224,6 +233,10 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
       unsigned int pos = 0;
       for (int i = 0; i < NumberOfSamples; i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         samples[i].first = 0;
         samples[i].second = 0;
         double temp = min + (i + 1.0) * ((max - min) / ((double)NumberOfSamples));
@@ -256,6 +269,10 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
       int lastSample = 0;
       for (int i = 0; i < NumberOfSamples; i++)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         if (!samples[i].first)
         {
           // not enough vertices in the region for the number of desired
@@ -294,3 +311,4 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

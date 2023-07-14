@@ -1,5 +1,6 @@
 
 vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
+  TestVTKMAbort.cxx,NO_VALID
   TestVTKMCleanGrid.cxx
   TestVTKMCoordinateSystemTransform.cxx,NO_VALID
   TestVTKMClip.cxx
@@ -18,6 +19,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
   TestVTKMPointTransform.cxx
   TestVTKMProbe.cxx,NO_VALID
   TestVTKMPolyDataNormals.cxx
+  TestVTKMSlice.cxx,NO_VALID
   TestVTKMThreshold.cxx
   TestVTKMThreshold2.cxx
   TestVTKMTriangleMeshPointNormals.cxx
@@ -26,17 +28,11 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
   )
 
 if (TARGET vtkm::cuda)
-  #the enable_language call is scoped! so we have to re-enable
-  #cuda in the test directory
-  enable_language(CUDA)
   foreach(src IN LISTS tests)
     string(REPLACE "," ";" src ${src})
     list(GET src 0 src)
 
-    set_source_files_properties(${src} PROPERTIES
-      LANGUAGE CUDA
-      CUDA_SOURCE_PROPERTY_FORMAT OBJ
-      CUDA_SEPARABLE_COMPILATION ON)
+    set_source_files_properties(${src} PROPERTIES LANGUAGE CUDA)
   endforeach()
 
   #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmFilters
@@ -48,6 +44,7 @@ if (TARGET vtkm::cuda)
   # We are disabling all warnings as nvlink has no known way to suppress
   # individual warning types.
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
+
 endif()
 
 
@@ -56,10 +53,6 @@ vtk_test_cxx_executable(vtkAcceleratorsVTKmFiltersCxxTests tests
   )
 
 if (TARGET vtkm::cuda)
-  # When cuda is enabled VTK::AcceleratorsVTKmFilters is built statically but with fpic
-  # enabled so the tests are also built with fpic enabled
   set_target_properties(vtkAcceleratorsVTKmFiltersCxxTests PROPERTIES
-    CUDA_ARCHITECTURES OFF
-    POSITION_INDEPENDENT_CODE ON
-    )
+    CUDA_ARCHITECTURES OFF)
 endif()

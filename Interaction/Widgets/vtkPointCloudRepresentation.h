@@ -29,8 +29,10 @@
 
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkOutlineFilter;
@@ -180,7 +182,7 @@ public:
    * thousands of points. (See vtkHardwareSelector and vtkPointPicker for
    * further information.) The choice of picker also has implications on the
    * type of tolerancing used (as described in the following documentation).
-   * (Note also that the pickers may return slighty different results, this
+   * (Note also that the pickers may return slightly different results, this
    * is expected due to the different way tolerancing works.)
    */
   enum PickingModeType
@@ -271,4 +273,5 @@ private:
   void operator=(const vtkPointCloudRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

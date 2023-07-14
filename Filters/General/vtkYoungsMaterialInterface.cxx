@@ -58,6 +58,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkYoungsMaterialInterfaceCellCut
 {
 public:
@@ -593,6 +594,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 
   while (!inputIterator->IsDoneWithTraversal())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataSet* input = vtkDataSet::SafeDownCast(inputIterator->GetCurrentDataObject());
     // Composite indices begin at 1 (0 is the root)
     int composite_index = inputIterator->GetCurrentFlatIndex();
@@ -618,7 +623,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Perform parallel aggregation when needed (nothing in serial)
-  this->Aggregate(nmat, inputsPerMaterial);
+  if (!this->CheckAbort())
+  {
+    this->Aggregate(nmat, inputsPerMaterial);
+  }
 
   // map containing output blocks
   std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> outputBlocks;
@@ -628,6 +636,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   inputIterator->GoToFirstItem();
   while (inputIterator->IsDoneWithTraversal() == 0)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataSet* input = vtkDataSet::SafeDownCast(inputIterator->GetCurrentDataObject());
 
     // Composite indices begin at 1 (0 is the root)
@@ -802,6 +814,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 
     for (vtkIdType ci = 0; ci < nCells; ci++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       int interfaceEdges[MAX_CELL_POINTS * 2];
       double interfaceWeights[MAX_CELL_POINTS];
       int nInterfaceEdges;
@@ -1113,7 +1129,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
                 tetras[i][j] = cell.triangulation[i * 4 + j];
               }
 
-            // compute innterface polygon
+            // compute interface polygon
             vtkYoungsMaterialInterfaceCellCut::cellInterface3D(cell.np, cell.points, cell.nEdges,
               cell.edges, cell.ntri, tetras, fraction, normal, this->UseFractionAsDistance != 0,
               nInterfaceEdges, interfaceEdges, interfaceWeights, nInsidePoints, insidePointIds,
@@ -1317,6 +1333,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
               Mats[m].cells.push_back(nptId);
               Mats[m].cellArrayCount++;
             }
+            (void)prevMatInterfToBeAdded;
 
             Mats[m].pointCount += nInterfaceEdges + pointsCopied + prevMatInterfAdded;
 
@@ -1541,14 +1558,13 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkDebugMacro(<< "NoInterfaceFound " << debugStats_NoInterfaceFound << "\n");
   }
-
   // Build final composite output. also tagging blocks with their associated Id
   vtkDebugMacro(<< this->NumberOfDomains << " Domains, " << nmat << " Materials\n");
 
   output->SetNumberOfBlocks(0);
   output->SetNumberOfBlocks(nmat);
 
-  for (int m = 0; m < nmat; ++m)
+  for (int m = 0; m < nmat && !this->CheckAbort(); ++m)
   {
     vtkMultiBlockDataSet* matBlock = vtkMultiBlockDataSet::New();
     matBlock->SetNumberOfBlocks(this->NumberOfDomains);
@@ -1558,7 +1574,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 
   int blockIndex = 0;
   for (std::map<int, vtkSmartPointer<vtkUnstructuredGrid>>::iterator it = outputBlocks.begin();
-       it != outputBlocks.end(); ++it, ++blockIndex)
+       it != outputBlocks.end() && !this->CheckAbort(); ++it, ++blockIndex)
   {
     if (it->second->GetNumberOfCells() > 0)
     {
@@ -1574,6 +1590,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 
 #undef GET_POINT_DATA
 
+VTK_ABI_NAMESPACE_END
 /* ------------------------------------------------------------------------------------------
    --- Low level computations including interface placement and intersection line/polygon ---
    ------------------------------------------------------------------------------------------ */
@@ -1582,6 +1599,7 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
 // and a set of simplices
 namespace vtkYoungsMaterialInterfaceCellCutInternals
 {
+VTK_ABI_NAMESPACE_BEGIN
 #define REAL_PRECISION 64 // use double precision
 #define REAL_COORD REAL3
 
@@ -1716,6 +1734,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
  */
 
 // define base vector types and operators or use those provided by CUDA
+
 #ifndef __CUDACC__
 struct float2
 {
@@ -2279,7 +2298,7 @@ REAL evalPolynomialFunc(const REAL4 F, const REAL x)
 }
 
 /*****************************************
- *** Intergal of a polynomial function ***
+ *** Integral of a polynomial function ***
  *****************************************/
 FUNC_DECL
 REAL3 integratePolynomialFunc(REAL2 linearFunc)
@@ -3075,9 +3094,10 @@ struct CWVertex
   int eid[2];
   inline bool operator<(const CWVertex& v) const { return angle < v.angle; }
 };
-
+VTK_ABI_NAMESPACE_END
 } /* namespace vtkYoungsMaterialInterfaceCellCutInternals */
 
+VTK_ABI_NAMESPACE_BEGIN
 // ------------------------------------
 //         ####     ####
 //             #    #   #
@@ -3450,3 +3470,4 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
 
   return -d;
 }
+VTK_ABI_NAMESPACE_END

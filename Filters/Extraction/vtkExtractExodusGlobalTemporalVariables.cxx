@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractExodusGlobalTemporalVariables::vtkInternals
 {
   std::map<std::string, vtkSmartPointer<vtkAbstractArray>> Arrays;
@@ -364,7 +365,7 @@ int vtkExtractExodusGlobalTemporalVariables::RequestData(
   }
 
   internals.Accumulate(arrays);
-  if (internals.ContinueExecuting())
+  if (!this->CheckAbort() && internals.ContinueExecuting())
   {
     // if this is the first time we're executing and we didn't get all timesteps
     // for the global variable, we must discard current values and start from
@@ -414,3 +415,4 @@ void vtkExtractExodusGlobalTemporalVariables::PrintSelf(ostream& os, vtkIndent i
   os << indent << "AutoDetectGlobalTemporalDataArrays: " << this->AutoDetectGlobalTemporalDataArrays
      << endl;
 }
+VTK_ABI_NAMESPACE_END

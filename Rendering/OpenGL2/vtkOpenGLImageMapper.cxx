@@ -42,6 +42,7 @@
 
 #include "vtkOpenGLError.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 
 vtkOpenGLImageMapper::vtkOpenGLImageMapper()
@@ -596,6 +597,11 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data,
     return;
   }
 
+  if (!data->GetPointData()->GetScalars())
+  {
+    return;
+  }
+
   this->Actor->SetProperty(actor->GetProperty());
 
   // Make this window current. May have become not current due to
@@ -685,3 +691,4 @@ void vtkOpenGLImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

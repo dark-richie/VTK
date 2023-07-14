@@ -31,6 +31,7 @@
 #include "vtkUnstructuredGrid.h"
 
 // Needed to let vtkPDistributedDataFilter be instantiated when available
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkDistributedDataFilter);
 
 //------------------------------------------------------------------------------
@@ -274,7 +275,7 @@ int vtkDistributedDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (outputCD)
   {
-    outputCD->ShallowCopy(input);
+    outputCD->CompositeShallowCopy(vtkCompositeDataSet::SafeDownCast(input));
   }
   else
   {
@@ -343,3 +344,4 @@ void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

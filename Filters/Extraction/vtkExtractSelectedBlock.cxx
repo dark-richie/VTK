@@ -29,6 +29,7 @@
 #include "vtkUnsignedIntArray.h"
 
 #include <unordered_set>
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedBlock);
 //------------------------------------------------------------------------------
 vtkExtractSelectedBlock::vtkExtractSelectedBlock() = default;
@@ -97,7 +98,7 @@ void vtkCopySubTree(std::unordered_set<unsigned int>& ids, vtkCompositeDataItera
     assert(coutput != nullptr);
 
     // shallow copy..this pass the non-leaf nodes over.
-    coutput->ShallowCopy(cinput);
+    coutput->CompositeShallowCopy(cinput);
 
     // now, we need to remove all composite ids for the subtree from the set to
     // extract to avoid attempting to copy them multiple times (although it
@@ -190,7 +191,7 @@ int vtkExtractSelectedBlock::RequestData(vtkInformation* vtkNotUsed(request),
   if (has_root && !inverse)
   {
     // pass everything.
-    output->ShallowCopy(cd);
+    output->CompositeShallowCopy(cd);
     return 1;
   }
 
@@ -212,6 +213,10 @@ int vtkExtractSelectedBlock::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); citer->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     auto fiter = blocks.find(citer->GetCurrentFlatIndex());
     if ((inverse && fiter == blocks.end()) || (!inverse && fiter != blocks.end()))
     {
@@ -227,3 +232,4 @@ void vtkExtractSelectedBlock::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

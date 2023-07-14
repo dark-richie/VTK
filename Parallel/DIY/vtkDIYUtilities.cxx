@@ -46,6 +46,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //==============================================================================
@@ -492,7 +493,7 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkDataSet*& p)
     }
     else
     {
-      vtkLogF(ERROR, "Currrently type '%d' (%s) is not supported.", type,
+      vtkLogF(ERROR, "Currently type '%d' (%s) is not supported.", type,
         vtkDataObjectTypes::GetClassNameFromTypeId(type));
       // aborting for debugging purposes.
       abort();
@@ -642,3 +643,4 @@ void vtkDIYUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

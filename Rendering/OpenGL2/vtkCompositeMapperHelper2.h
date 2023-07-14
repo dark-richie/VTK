@@ -15,15 +15,30 @@
 #ifndef vtkCompositeMapperHelper2_h
 #define vtkCompositeMapperHelper2_h
 
-#include "vtkOpenGLPolyDataMapper.h"
+#include "vtkColor.h"                  // class uses vtkColor
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtk_glew.h"                  // for OpenGL enums
+// clang-format off
+// Must be included after vtk_glew.h for GL_ES_VERSION_3_0
+#ifndef GL_ES_VERSION_3_0
+#include "vtkOpenGLPolyDataMapper.h"
+#define vtkOpenGLPolyDataMapperImplementation vtkOpenGLPolyDataMapper
+#else
+#include "vtkOpenGLES30PolyDataMapper.h"
+#define vtkOpenGLPolyDataMapperImplementation vtkOpenGLES30PolyDataMapper
+#endif
+// clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkCompositePolyDataMapper2;
 
 // this class encapsulates values tied to a
 // polydata
-class vtkCompositeMapperHelperData
+
+class VTK_DEPRECATED_IN_9_3_0(
+  "Please use vtkCompositePolyDataMapper instead") vtkCompositeMapperHelperData
 {
 public:
   vtkPolyData* Data;
@@ -53,11 +68,13 @@ public:
 
 //===================================================================
 /// Helper class for vtkCompositePolyDataMapper2 that is a subclass of vtkOpenGLPolyDataMapper
-class VTKRENDERINGOPENGL2_EXPORT vtkCompositeMapperHelper2 : public vtkOpenGLPolyDataMapper
+class VTK_DEPRECATED_IN_9_3_0("Please use vtkCompositePolyDataMapper instead")
+  VTKRENDERINGOPENGL2_EXPORT vtkCompositeMapperHelper2
+  : public vtkOpenGLPolyDataMapperImplementation
 {
 public:
   static vtkCompositeMapperHelper2* New();
-  vtkTypeMacro(vtkCompositeMapperHelper2, vtkOpenGLPolyDataMapper);
+  vtkTypeMacro(vtkCompositeMapperHelper2, vtkOpenGLPolyDataMapperImplementation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetParent(vtkCompositePolyDataMapper2* p) { this->Parent = p; }
@@ -172,4 +189,5 @@ private:
   void operator=(const vtkCompositeMapperHelper2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

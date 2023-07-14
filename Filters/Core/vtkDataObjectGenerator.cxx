@@ -40,6 +40,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectGenerator);
 
 //============================================================================
@@ -671,7 +672,10 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       hbo->SetOrigin(origin);
       hbo->SetGridDescription(VTK_XYZ_GRID);
       vtkIdType gcnt = 0;
-      for (git = structure->children.begin(); git != structure->children.end(); ++git)
+      bool abort = false;
+      vtkIdType progressCounter = 0;
+      vtkIdType checkAbortInterval = 0;
+      for (git = structure->children.begin(); git != structure->children.end() && !abort; ++git)
       {
         // cerr << "LVL=" << gcnt  << endl;
 
@@ -692,12 +696,20 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
 
         int r2 = static_cast<int>(pow(static_cast<double>(refinement), static_cast<double>(gcnt)));
         // how many children across each dimension
+        checkAbortInterval = std::min((vtkIdType)(maxchildren / 10 + 1), (vtkIdType)1000);
+        progressCounter = 0;
 
         for (dit = gptr->children.begin();
              dit != gptr->children.end() && dcnt < maxchildren // ignore extra children
              ;
              ++dit)
         {
+          if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
+          progressCounter++;
           // cerr << "DS=" << dcnt  << endl;
           vtkInternalStructureCache* dptr = *dit;
           // dptr->type should be UF1
@@ -775,9 +787,15 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       mbo->SetNumberOfBlocks(static_cast<unsigned int>(structure->children.size()));
       std::vector<vtkInternalStructureCache*>::iterator git;
       vtkIdType gcnt = 0;
+      vtkIdType checkAbortInterval =
+        std::min((vtkIdType)structure->children.size() / 10 + 1, (vtkIdType)1000);
 
       for (git = structure->children.begin(); git != structure->children.end(); ++git)
       {
+        if (gcnt % checkAbortInterval == 0 && this->CheckAbort())
+        {
+          break;
+        }
         this->ZOffset += 1.0;
         vtkInternalStructureCache* gptr = *git;
         if (gptr->type == GS)
@@ -837,9 +855,13 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet* ds)
   zcoords->SetName("Cell Z");
   zcoords->SetNumberOfComponents(1);
   zcoords->SetNumberOfTuples(num);
-
+  vtkIdType checkAbortInterval = std::min(num / 10 + 1, (vtkIdType)1000);
   for (vtkIdType i = 0; i < num; i++)
   {
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     ids->SetValue(i, this->CellIdCounter++);
     const double* bds = ds->GetCell(i)->GetBounds();
     xcoords->SetValue(i, (bds[0] + bds[1]) * 0.5);
@@ -875,8 +897,13 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet* ds)
   zcoords->SetNumberOfComponents(1);
   zcoords->SetNumberOfTuples(num);
 
+  checkAbortInterval = std::min(num / 10 + 1, (vtkIdType)1000);
   for (vtkIdType i = 0; i < num; i++)
   {
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     ids->SetValue(i, this->PointIdCounter++);
     double* coords = ds->GetPoint(i);
     xcoords->SetValue(i, coords[0]);
@@ -1200,3 +1227,4 @@ void vtkDataObjectGenerator::MakeUnstructuredGrid4(vtkDataSet* ids)
 
   this->MakeValues(ds);
 }
+VTK_ABI_NAMESPACE_END

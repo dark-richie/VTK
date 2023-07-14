@@ -33,9 +33,9 @@ VTK_ITER_OPTIMIZE_START
 
 namespace vtk
 {
-
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 // Forward decs for friends/args
 template <typename ArrayType, ComponentIdType>
@@ -977,7 +977,7 @@ public:
   VTK_ITER_INLINE
   TupleReference(const TupleReference&) = default;
   VTK_ITER_INLINE
-  TupleReference(TupleReference&&) = default;
+  TupleReference(TupleReference&&) noexcept = default;
 
   // Allow this type to masquerade as a pointer, so that tupleIiter->foo works.
   VTK_ITER_INLINE
@@ -1743,6 +1743,7 @@ private:
 template <typename ArrayType, ComponentIdType TupleSize>
 TupleRange<ArrayType, TupleSize> DeclareTupleRangeSpecialization(vtkDataArray*);
 
+VTK_ABI_NAMESPACE_END
 } // end namespace detail
 } // end namespace vtk
 

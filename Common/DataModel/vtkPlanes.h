@@ -42,6 +42,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 class vtkPoints;
 class vtkDataArray;
@@ -137,9 +138,9 @@ private:
   double Planes[24];
   double Bounds[6];
 
-private:
   vtkPlanes(const vtkPlanes&) = delete;
   void operator=(const vtkPlanes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

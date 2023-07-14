@@ -31,6 +31,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 class vtkPlaneCollection;
 class vtkPlanes;
@@ -97,7 +98,7 @@ public:
    * NOTE: Note that a set of bounding planes must be supplied. The Oblique
    * plane, if supplied is ignored.
    */
-  int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[2],
+  int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[3],
     double worldPos[3], double worldOrient[9]) override;
 
   /**
@@ -107,12 +108,12 @@ public:
    */
   int ValidateWorldPosition(double worldPos[3]) override;
 
-  // Descrption:
+  // Description:
   // Orientationation is ignored, and the above method
   // is called instead.
   int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
-  // Descrption:
+  // Description:
   // The minimum distance the object should be from the faces of the object.
   // Must be greater than 0. Default is 0.
   vtkSetClampMacro(MinimumDistance, double, 0.0, VTK_DOUBLE_MAX);
@@ -141,4 +142,5 @@ private:
   void operator=(const vtkClosedSurfacePointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

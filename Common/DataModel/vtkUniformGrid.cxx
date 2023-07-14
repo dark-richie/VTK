@@ -33,6 +33,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUniformGrid);
 
 unsigned char vtkUniformGrid::MASKED_CELL_VALUE =
@@ -178,13 +179,11 @@ void vtkUniformGrid::CopyStructure(vtkDataSet* ds)
   {
     // there is blanking
     this->GetPointData()->AddArray(ds->GetPointGhostArray());
-    this->PointGhostArray = nullptr;
   }
   if (ds->HasAnyBlankCells())
   {
     // we assume there is blanking
     this->GetCellData()->AddArray(ds->GetCellGhostArray());
-    this->CellGhostArray = nullptr;
   }
 }
 
@@ -852,7 +851,7 @@ void vtkUniformGrid::BlankPoint(vtkIdType ptId)
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGrid::BlankPoint(const int i, const int j, const int k)
+void vtkUniformGrid::BlankPoint(int i, int j, int k)
 {
   int ijk[3];
   ijk[0] = i;
@@ -875,7 +874,7 @@ void vtkUniformGrid::UnBlankPoint(vtkIdType ptId)
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGrid::UnBlankPoint(const int i, const int j, const int k)
+void vtkUniformGrid::UnBlankPoint(int i, int j, int k)
 {
   int ijk[3];
   ijk[0] = i;
@@ -900,7 +899,7 @@ void vtkUniformGrid::BlankCell(vtkIdType cellId)
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGrid::BlankCell(const int i, const int j, const int k)
+void vtkUniformGrid::BlankCell(int i, int j, int k)
 {
   int ijk[3];
   ijk[0] = i;
@@ -925,7 +924,7 @@ void vtkUniformGrid::UnBlankCell(vtkIdType cellId)
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGrid::UnBlankCell(const int i, const int j, const int k)
+void vtkUniformGrid::UnBlankCell(int i, int j, int k)
 {
   int ijk[3];
   ijk[0] = i;
@@ -1076,12 +1075,13 @@ vtkUniformGrid* vtkUniformGrid::GetData(vtkInformationVector* v, int i)
 //------------------------------------------------------------------------------
 bool vtkUniformGrid::HasAnyBlankPoints()
 {
-  return IsAnyBitSet(this->GetPointGhostArray(), vtkDataSetAttributes::HIDDENPOINT);
+  return this->PointData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENPOINT);
 }
 
 //------------------------------------------------------------------------------
 bool vtkUniformGrid::HasAnyBlankCells()
 {
-  int cellBlanking = IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::HIDDENCELL);
+  int cellBlanking = this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
   return cellBlanking || this->HasAnyBlankPoints();
 }
+VTK_ABI_NAMESPACE_END

@@ -76,6 +76,7 @@ typedef ptrdiff_t GLsizeiptr;
  * structs working. We do not want to include XUtil.h in the header as
  * it populates the global namespace.
  */
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkXVisualInfo : public XVisualInfo
 {
 };
@@ -234,9 +235,10 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(Display* DisplayId, vtkType
 }
 
 template <int EventType>
-int XEventTypeEquals(Display*, XEvent* event, XPointer)
+int XEventTypeEquals(Display*, XEvent* event, XPointer winptr)
 {
-  return event->type == EventType;
+  return (event->type == EventType &&
+    *(reinterpret_cast<Window*>(winptr)) == reinterpret_cast<XAnyEvent*>(event)->window);
 }
 
 vtkXVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
@@ -407,7 +409,8 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       if (winattr.map_state == IsUnmapped)
       {
         XEvent e;
-        XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
+        XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>,
+          reinterpret_cast<XPointer>(&this->WindowId));
       }
       this->Mapped = 1;
     }
@@ -422,7 +425,8 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       if (winattr.map_state != IsUnmapped)
       {
         XEvent e;
-        XIfEvent(this->DisplayId, &e, XEventTypeEquals<UnmapNotify>, nullptr);
+        XIfEvent(this->DisplayId, &e, XEventTypeEquals<UnmapNotify>,
+          reinterpret_cast<XPointer>(&this->WindowId));
       }
       this->Mapped = 0;
     }
@@ -576,7 +580,10 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
         (const GLubyte*)"glXCreateContextAttribsARB");
 
     int context_attribs[] = { GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, 2,
-      // GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+    // GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+#ifdef GL_ES_VERSION_3_0
+      GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_ES_PROFILE_BIT_EXT,
+#endif
       0 };
 
     if (glXCreateContextAttribsARB)
@@ -598,7 +605,12 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
       // we believe that these later versions are all compatible with
       // OpenGL 3.2 so get a more recent context if we can.
+      // For GLES, version 3.0 is best supported by VTK shaders.
+#ifdef GL_ES_VERSION_3_0
+      int attemptedVersions[] = { 3, 0 };
+#else
       int attemptedVersions[] = { 4, 5, 4, 4, 4, 3, 4, 2, 4, 1, 4, 0, 3, 3, 3, 2 };
+#endif
 
       // try shared context first, the fallback to not shared
       bool done = false;
@@ -666,7 +678,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     XMapWindow(this->DisplayId, this->WindowId);
     XSync(this->DisplayId, False);
     XEvent e;
-    XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
+    XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>,
+      reinterpret_cast<XPointer>(&this->WindowId));
     XGetWindowAttributes(this->DisplayId, this->WindowId, &winattr);
     // if the specified window size is bigger than the screen size,
     // we have to reset the window size to the screen size
@@ -963,20 +976,62 @@ void vtkXOpenGLRenderWindow::SetSize(int width, int height)
         this->Interactor->SetSize(width, height);
       }
 
+      // get baseline serial number for X requests generated from XResizeWindow
+      unsigned long serial = NextRequest(this->DisplayId);
+
+      // request a new window size from the X server
       XResizeWindow(this->DisplayId, this->WindowId, static_cast<unsigned int>(width),
         static_cast<unsigned int>(height));
-      // this is an async call so we wait until we know it has been resized.
+
+      // flush output queue and wait for X server to processes the request
       XSync(this->DisplayId, False);
-      XWindowAttributes attribs;
-      XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
-      if (attribs.width != width || attribs.height != height)
+
+      // The documentation for XResizeWindow includes this important note:
+      //
+      //   If the override-redirect flag of the window is False and some
+      //   other client has selected SubstructureRedirectMask on the parent,
+      //   the X server generates a ConfigureRequest event, and no further
+      //   processing is performed.
+      //
+      // What this means, essentially, is that if this window is a top-level
+      // window, then it's the window manager (the "other client") that is
+      // responsible for changing this window's size.  So when we call
+      // XResizeWindow() on a top-level window, then instead of resizing
+      // the window immediately, the X server informs the window manager,
+      // and then the window manager sets our new size (usually it will be
+      // the size we asked for).  We receive a ConfigureNotify event when
+      // our new size has been set.
+
+      // check our override-redirect flag
+      XWindowAttributes attrs;
+      XGetWindowAttributes(this->DisplayId, this->WindowId, &attrs);
+      if (!attrs.override_redirect && this->ParentId)
       {
-        XEvent e;
-        XIfEvent(this->DisplayId, &e, XEventTypeEquals<ConfigureNotify>, nullptr);
+        // check if parent has SubstructureRedirectMask
+        XWindowAttributes parentAttrs;
+        XGetWindowAttributes(this->DisplayId, this->ParentId, &parentAttrs);
+        if ((parentAttrs.all_event_masks & SubstructureRedirectMask) == SubstructureRedirectMask)
+        {
+          // set the wait timeout to be 2 seconds from now
+          double maxtime = 2.0 + vtksys::SystemTools::GetTime();
+          // look for a ConfigureNotify that came *after* XResizeWindow
+          XEvent e;
+          while (!XCheckIfEvent(this->DisplayId, &e, XEventTypeEquals<ConfigureNotify>,
+                   reinterpret_cast<XPointer>(&this->WindowId)) ||
+            e.xconfigure.serial < serial)
+          {
+            // wait for 10 milliseconds and try again until time runs out
+            vtksys::SystemTools::Delay(10);
+            if (vtksys::SystemTools::GetTime() > maxtime)
+            {
+              vtkWarningMacro(<< "Timeout while waiting for response to XResizeWindow.");
+              return;
+            }
+          }
+          XPutBackEvent(this->DisplayId, &e);
+        }
       }
     }
-
-    this->Modified();
   }
 }
 
@@ -1465,9 +1520,11 @@ void vtkXOpenGLRenderWindow::CloseDisplay()
   if (this->OwnDisplay && this->DisplayId)
   {
     XCloseDisplay(this->DisplayId);
-    this->DisplayId = nullptr;
-    this->OwnDisplay = 0;
   }
+
+  // disconnect from the display, even if we didn't own it
+  this->DisplayId = nullptr;
+  this->OwnDisplay = false;
 }
 
 vtkTypeBool vtkXOpenGLRenderWindow::IsDirect()
@@ -1758,3 +1815,4 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

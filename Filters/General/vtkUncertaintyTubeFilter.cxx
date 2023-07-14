@@ -27,6 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUncertaintyTubeFilter);
 
 //
@@ -232,6 +233,10 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   double* normal;
   for (k = 0, inLines->InitTraversal(); inLines->GetNextCell(npts, pts); k++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     singlePolyline->Reset();                   // avoid instantiation
     singlePolyline->InsertNextCell(npts, pts); // avoid crossing confusion
     if (!vtkPolyLine::GenerateSlidingNormals(inPts, singlePolyline, newNormals))
@@ -347,6 +352,11 @@ int vtkUncertaintyTubeFilter::BuildTubes(
   //
   for (cellId = 0; cellId < this->NumberOfTubes; cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
+
     if ((numPts = this->Tubes[cellId].GetNumberOfPoints()) < 2)
     {
       continue;
@@ -425,3 +435,4 @@ void vtkUncertaintyTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Sides: " << this->NumberOfSides << "\n";
 }
+VTK_ABI_NAMESPACE_END

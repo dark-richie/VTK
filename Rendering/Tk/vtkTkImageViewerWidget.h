@@ -33,11 +33,9 @@
 #include "vtkImageViewer.h"
 #include "vtkTcl.h"
 #include "vtkTk.h"
-#ifndef VTK_PYTHON_BUILD
-#include "vtkTclUtil.h"
-#endif
 #include "vtkWindows.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkTkImageViewerWidget
 {
   Tk_Window TkWin;    /* Tk window structure */
@@ -51,5 +49,6 @@ struct vtkTkImageViewerWidget
 #endif
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkTkImageViewerWidget.h

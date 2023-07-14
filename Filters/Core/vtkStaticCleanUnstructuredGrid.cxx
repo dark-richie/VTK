@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStaticCleanUnstructuredGrid);
 
 namespace
@@ -364,6 +365,8 @@ vtkStaticCleanUnstructuredGrid::vtkStaticCleanUnstructuredGrid()
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 
   this->Locator = vtkSmartPointer<vtkStaticPointLocator>::New();
+
+  this->PieceInvariant = true;
 }
 
 //------------------------------------------------------------------------------
@@ -517,7 +520,7 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   }
 
   // At this point, we need to construct the unstructured grid topology using
-  // the point map. This means updating the connectivty arrays (including
+  // the point map. This means updating the connectivity arrays (including
   // possibly face connectivity for any polyhedra). Since the types of the
   // cells are not changing, offsets and type arrays do not need
   // modification.
@@ -544,6 +547,8 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
 
   // Free unneeded memory
   this->Locator->Initialize();
+
+  this->CheckAbort();
 
   return 1;
 }
@@ -707,3 +712,4 @@ void vtkStaticCleanUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Average Point Data: " << (this->AveragePointData ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

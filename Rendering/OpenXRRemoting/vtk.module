@@ -1,0 +1,12 @@
+NAME
+  VTK::RenderingOpenXRRemoting
+LIBRARY_NAME
+  vtkRenderingOpenXRRemoting
+LICENSE_FILES
+  LICENSE
+DEPENDS
+  VTK::RenderingOpenXR
+TEST_DEPENDS
+  VTK::TestingCore
+CONDITION
+  WIN32

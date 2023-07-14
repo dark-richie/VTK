@@ -37,6 +37,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor2D;
 class vtkDataObject;
 class vtkPolyData;
@@ -137,7 +138,7 @@ public:
    * Specify the names of each bar. If
    * not specified, then an integer number is automatically generated.
    */
-  void SetBarLabel(const int i, const char*);
+  void SetBarLabel(int i, const char*);
   const char* GetBarLabel(int i);
   ///@}
 
@@ -239,9 +240,9 @@ private:
   int PlaceAxes(vtkViewport* viewport, const int* size);
   int BuildPlot(vtkViewport*);
 
-private:
   vtkBarChartActor(const vtkBarChartActor&) = delete;
   void operator=(const vtkBarChartActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

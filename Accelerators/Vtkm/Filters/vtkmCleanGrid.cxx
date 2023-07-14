@@ -27,10 +27,9 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/filter/clean_grid/CleanGrid.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmCleanGrid);
 
 //------------------------------------------------------------------------------
@@ -100,3 +99,4 @@ int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

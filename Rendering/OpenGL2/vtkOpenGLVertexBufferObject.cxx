@@ -24,6 +24,7 @@
 
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVertexBufferObject);
 
 vtkOpenGLVertexBufferObject::vtkOpenGLVertexBufferObject()
@@ -35,7 +36,7 @@ vtkOpenGLVertexBufferObject::vtkOpenGLVertexBufferObject()
   this->DataType = 0;
   this->DataTypeSize = 0;
   this->SetType(vtkOpenGLBufferObject::ArrayBuffer);
-  this->CoordShiftAndScaleMethod = DISABLE_SHIFT_SCALE;
+  this->CoordShiftAndScaleMethod = ShiftScaleMethod::DISABLE_SHIFT_SCALE;
   this->CoordShiftAndScaleEnabled = false;
 }
 
@@ -59,20 +60,19 @@ bool vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleEnabled()
   return value;
 }
 
-vtkOpenGLVertexBufferObject::ShiftScaleMethod
-vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleMethod()
+int vtkOpenGLVertexBufferObject::GetCoordShiftAndScaleMethod()
 {
   auto value = GetGlobalCoordShiftAndScaleEnabled() ? this->CoordShiftAndScaleMethod
                                                     : ShiftScaleMethod::DISABLE_SHIFT_SCALE;
   vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): returning CoordShiftAndScaleMethod of " << value);
+                << "): returning CoordShiftAndScaleMethod of " << static_cast<int>(value));
   return value;
 }
 
-void vtkOpenGLVertexBufferObject::SetCoordShiftAndScaleMethod(ShiftScaleMethod meth)
+void vtkOpenGLVertexBufferObject::SetCoordShiftAndScaleMethod(int meth)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CoordShiftAndScaleMethod to "
-                << meth);
+                << static_cast<int>(meth));
   if (this->CoordShiftAndScaleMethod != meth)
   {
     if (!this->PackedVBO.empty())
@@ -421,7 +421,7 @@ void vtkOpenGLVertexBufferObject::UpdateShiftScale(vtkDataArray* array)
 {
   // first consider auto
   bool useSS = false;
-  if (this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+  if (this->GetCoordShiftAndScaleMethod() == ShiftScaleMethod::AUTO_SHIFT_SCALE)
   {
     // first compute the diagonal size and distance from origin for this data
     // we use squared values to avoid sqrt calls
@@ -454,8 +454,7 @@ void vtkOpenGLVertexBufferObject::UpdateShiftScale(vtkDataArray* array)
     }
   }
 
-  if (useSS ||
-    this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::ALWAYS_AUTO_SHIFT_SCALE)
+  if (useSS || this->GetCoordShiftAndScaleMethod() == ShiftScaleMethod::ALWAYS_AUTO_SHIFT_SCALE)
   {
     std::vector<double> shift;
     std::vector<double> scale;
@@ -479,7 +478,7 @@ void vtkOpenGLVertexBufferObject::UpdateShiftScale(vtkDataArray* array)
     return;
   }
 
-  if (this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::AUTO_SHIFT)
+  if (this->GetCoordShiftAndScaleMethod() == ShiftScaleMethod::AUTO_SHIFT)
   {
     std::vector<double> shift;
     for (int i = 0; i < array->GetNumberOfComponents(); ++i)
@@ -494,8 +493,8 @@ void vtkOpenGLVertexBufferObject::UpdateShiftScale(vtkDataArray* array)
   }
 
   if (this->Camera && this->Prop3D &&
-    (this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::NEAR_PLANE_SHIFT_SCALE ||
-      this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::FOCAL_POINT_SHIFT_SCALE))
+    (this->GetCoordShiftAndScaleMethod() == ShiftScaleMethod::NEAR_PLANE_SHIFT_SCALE ||
+      this->GetCoordShiftAndScaleMethod() == ShiftScaleMethod::FOCAL_POINT_SHIFT_SCALE))
   {
     vtkCamera* cam = this->Camera;
     double amatrix[16];
@@ -503,7 +502,7 @@ void vtkOpenGLVertexBufferObject::UpdateShiftScale(vtkDataArray* array)
 
     double* ishift = cam->GetNearPlaneShift();
     double iscale = cam->GetNearPlaneScale();
-    if (this->GetCoordShiftAndScaleMethod() == FOCAL_POINT_SHIFT_SCALE)
+    if (this->GetCoordShiftAndScaleMethod() == ShiftScaleMethod::FOCAL_POINT_SHIFT_SCALE)
     {
       ishift = cam->GetFocalPointShift();
       iscale = cam->GetFocalPointScale();
@@ -689,3 +688,4 @@ void vtkOpenGLVertexBufferObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stride: " << this->Stride << "\n";
   os << indent << "Number of Values (floats): " << this->PackedVBO.size() << "\n";
 }
+VTK_ABI_NAMESPACE_END

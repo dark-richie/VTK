@@ -34,6 +34,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 
 class VTKFILTERSGENERAL_EXPORT vtkGraphWeightFilter : public vtkGraphAlgorithm
@@ -52,7 +53,7 @@ protected:
    * Compute the weight on the 'graph' for a particular 'edge'.
    * This is a pure virtual function that must be implemented in subclasses.
    */
-  virtual float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const = 0;
+  virtual float ComputeWeight(vtkGraph* graph, const vtkEdgeType& edge) const = 0;
 
   /**
    * Ensure that the 'graph' is has all properties that are needed to compute
@@ -60,11 +61,12 @@ protected:
    * 'graph' must have Points set for each vertex, as the ComputeWeight
    * function calls GetPoint.
    */
-  virtual bool CheckRequirements(vtkGraph* const graph) const;
+  virtual bool CheckRequirements(vtkGraph* graph) const;
 
 private:
   vtkGraphWeightFilter(const vtkGraphWeightFilter&) = delete;
   void operator=(const vtkGraphWeightFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

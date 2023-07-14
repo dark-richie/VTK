@@ -27,6 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkStaticPointLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEuclideanClusterExtraction);
 vtkCxxSetObjectMacro(vtkEuclideanClusterExtraction, Locator, vtkAbstractPointLocator);
 
@@ -290,14 +291,17 @@ int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(reques
   delete[] this->PointMap;
   this->PointIds->Delete();
 
+#ifndef NDEBUG
   // print out some debugging information
   int num = this->GetNumberOfExtractedClusters();
   int count = 0;
+  (void)count; // Only used in Debug builds.
 
   for (int ii = 0; ii < num; ii++)
   {
     count += this->ClusterSizes->GetValue(ii);
   }
+#endif
   vtkDebugMacro(<< "Total # of points accounted for: " << count);
   vtkDebugMacro(<< "Extracted " << newPts->GetNumberOfPoints() << " points");
   newPts->Delete();
@@ -328,7 +332,7 @@ void vtkEuclideanClusterExtraction::InsertIntoWave(vtkIdList* wave, vtkIdType pt
 //------------------------------------------------------------------------------
 // Update current point information including updating cluster number.  Note:
 // traversal occurs across proximally located points, possibly limited by
-// scalar connectivty.
+// scalar connectivity.
 //
 void vtkEuclideanClusterExtraction::TraverseAndMark(vtkPoints* inPts)
 {
@@ -448,3 +452,4 @@ void vtkEuclideanClusterExtraction::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Locator: " << this->Locator << "\n";
 }
+VTK_ABI_NAMESPACE_END

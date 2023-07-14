@@ -43,6 +43,7 @@
 // README : Uncomment the line that reads "PrintTopology(cout) to
 //          understand what the class does. The goal of the class is succintly
 //          described in that one line.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkParallelopipedTopology
 {
 public:
@@ -543,7 +544,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
 
 //------------------------------------------------------------------------------
 // Node can be an integer within [0,7]. This will create a chair one one of
-// the handle corners. The '0 < scale < 1' value dicates the starting
+// the handle corners. The '0 < scale < 1' value dictates the starting
 // depth of the cavity.
 void vtkParallelopipedRepresentation::UpdateChairAtNode(int node)
 {
@@ -1621,3 +1622,4 @@ void vtkParallelopipedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors
 }
+VTK_ABI_NAMESPACE_END

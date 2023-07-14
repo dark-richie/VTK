@@ -32,6 +32,7 @@
 
 #include "vtkAssemblyPath.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 
 class VTKRENDERINGCORE_EXPORT vtkAssemblyPaths : public vtkCollection
@@ -88,7 +89,6 @@ private:
   void RemoveItem(int i) { this->vtkCollection::RemoveItem(i); }
   int IsItemPresent(vtkObject* o) { return this->vtkCollection::IsItemPresent(o); }
 
-private:
   vtkAssemblyPaths(const vtkAssemblyPaths&) = delete;
   void operator=(const vtkAssemblyPaths&) = delete;
 };
@@ -113,4 +113,5 @@ inline vtkAssemblyPath* vtkAssemblyPaths::GetNextItem()
   return static_cast<vtkAssemblyPath*>(this->GetNextItemAsObject());
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

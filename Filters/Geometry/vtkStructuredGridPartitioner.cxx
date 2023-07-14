@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridPartitioner);
 
 //------------------------------------------------------------------------------
@@ -151,6 +152,10 @@ int vtkStructuredGridPartitioner::RequestData(vtkInformation* vtkNotUsed(request
   unsigned int blockIdx = 0;
   for (; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     extentPartitioner->GetPartitionExtent(blockIdx, subext);
 
     vtkStructuredGrid* subgrid = vtkStructuredGrid::New();
@@ -172,3 +177,4 @@ int vtkStructuredGridPartitioner::RequestData(vtkInformation* vtkNotUsed(request
   extentPartitioner->Delete();
   return 1;
 }
+VTK_ABI_NAMESPACE_END

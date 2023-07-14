@@ -39,6 +39,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 void vtkDiscreteMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
@@ -117,7 +118,7 @@ void vtkDiscreteMarchingCubesComputeGradient(vtkDiscreteMarchingCubes* self, T* 
   for (k = 0; k < (dims[2] - 1); k++)
   {
     self->UpdateProgress(static_cast<double>(k) / (dims[2] - 1));
-    if (self->GetAbortExecute())
+    if (self->CheckAbort())
     {
       break;
     }
@@ -342,6 +343,7 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->ComputeScalars)
   {
     newCellScalars = vtkFloatArray::New();
+    newCellScalars->SetName("Scalars");
     newCellScalars->Allocate(estimatedSize, 3);
   }
   else
@@ -352,6 +354,7 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->ComputeAdjacentScalars)
   {
     newPointScalars = vtkFloatArray::New();
+    newPointScalars->SetName("AdjacentScalars");
     newPointScalars->Allocate(estimatedSize, estimatedSize / 2);
   }
   else
@@ -418,3 +421,4 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

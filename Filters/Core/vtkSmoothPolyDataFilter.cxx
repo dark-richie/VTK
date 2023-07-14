@@ -31,6 +31,7 @@
 #include <limits>
 #include <memory>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -138,6 +139,9 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 }
 
 //------------------------------------------------------------------------------
+vtkSmoothPolyDataFilter::~vtkSmoothPolyDataFilter() = default;
+
+//------------------------------------------------------------------------------
 void vtkSmoothPolyDataFilter::SetSourceData(vtkPolyData* source)
 {
   this->SetInputData(1, source);
@@ -199,7 +203,7 @@ void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
     if (iterationNumber && !(iterationNumber % 5))
     {
       params.spdf->UpdateProgress(0.5 + 0.5 * iterationNumber / params.numberOfIterations);
-      if (params.spdf->GetAbortExecute())
+      if (params.spdf->CheckAbort())
       {
         break;
       }
@@ -312,7 +316,6 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   double CosFeatureAngle; // Cosine of angle between adjacent polys
   double CosEdgeAngle;    // Cosine of angle between adjacent edges
   double closestPt[3], dist2;
-  std::vector<double> w;
   vtkIdType numSimple = 0, numBEdges = 0, numFixed = 0, numFEdges = 0;
   vtkPolyData* Mesh;
   vtkPoints* inPts;
@@ -374,10 +377,17 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
   this->UpdateProgress(0.10);
+  vtkIdType checkAbortInterval = std::min(input->GetNumberOfLines() / 10 + 1, (vtkIdType)1000);
+  vtkIdType progressCounter = 0;
 
   // now check lines. Only manifold lines can be smoothed------------
   for (inLines = input->GetLines(), inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
   {
+    if (progressCounter % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
+    progressCounter++;
     for (j = 0; j < npts; j++)
     {
       if (Verts[pts[j]].type == VTK_SIMPLE_VERTEX)
@@ -450,8 +460,14 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
     polys = Mesh->GetPolys();
     this->UpdateProgress(0.375);
 
+    checkAbortInterval = std::min(polys->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
+
     for (cellId = 0, polys->InitTraversal(); polys->GetNextCell(npts, pts); cellId++)
     {
+      if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       for (i = 0; i < npts; i++)
       {
         p1 = pts[i];
@@ -551,9 +567,15 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->UpdateProgress(0.50);
 
+  checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
+
   // post-process edge vertices to make sure we can smooth them
   for (i = 0; i < numPts; i++)
   {
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     if (Verts[i].type == VTK_SIMPLE_VERTEX)
     {
       numSimple++;
@@ -614,6 +636,10 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Found\n\t" << numSimple << " simple vertices\n\t" << numFEdges
                 << " feature edge vertices\n\t" << numBEdges << " boundary edge vertices\n\t"
                 << numFixed << " fixed vertices\n\t");
+  (void)numSimple;
+  (void)numBEdges;
+  (void)numFixed;
+  (void)numFEdges;
 
   vtkDebugMacro(<< "Beginning smoothing iterations...");
 
@@ -639,13 +665,15 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // If a Source is defined, we do constrained smoothing (that is, points are
   // constrained to the surface of the mesh object).
+  std::unique_ptr<double[]> w;
   vtkSmartPointer<vtkCellLocator> cellLocator;
   if (source)
   {
     this->SmoothPoints = std::unique_ptr<vtkSmoothPoints>(new vtkSmoothPoints);
     vtkSmoothPoint* sPtr;
     cellLocator.TakeReference(vtkCellLocator::New());
-    w.reserve(source->GetMaxCellSize());
+    auto maxCellSize = source->GetMaxCellSize();
+    w.reset(new double[maxCellSize]);
     cellLocator->SetDataSet(source);
     cellLocator->BuildLocator();
 
@@ -668,7 +696,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   if (newPts->GetDataType() == VTK_DOUBLE)
   {
     vtkSPDF_InternalParams<double> params = { this, this->NumberOfIterations, newPts,
-      this->RelaxationFactor, conv, numPts, Verts, source, this->SmoothPoints.get(), w.data(),
+      this->RelaxationFactor, conv, numPts, Verts, source, this->SmoothPoints.get(), w.get(),
       cellLocator };
 
     vtkSPDF_MovePoints(params);
@@ -677,7 +705,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkSPDF_InternalParams<float> params = { this, this->NumberOfIterations, newPts,
       static_cast<float>(this->RelaxationFactor), static_cast<float>(conv), numPts, Verts, source,
-      this->SmoothPoints.get(), w.data(), cellLocator };
+      this->SmoothPoints.get(), w.get(), cellLocator };
 
     vtkSPDF_MovePoints(params);
   }
@@ -782,3 +810,4 @@ void vtkSmoothPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -12,6 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+// Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkOSPRayCompositePolyDataMapper2Node.h"
 
 #include "vtkActor.h"
@@ -27,6 +30,7 @@
 #include "vtkSmartPointer.h"
 
 //============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayCompositePolyDataMapper2Node);
 
 //------------------------------------------------------------------------------
@@ -217,3 +221,4 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(vtkOSPRayRendererNode* o
     this->BlockState.Material.pop();
   }
 }
+VTK_ABI_NAMESPACE_END

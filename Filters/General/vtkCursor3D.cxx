@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
@@ -153,6 +154,7 @@ int vtkCursor3D::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
+    this->CheckAbort();
     return 1;
   }
 
@@ -399,6 +401,8 @@ int vtkCursor3D::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetLines(newLines);
   newLines->Delete();
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -514,3 +518,4 @@ void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Wrap: " << (this->Wrap ? "On\n" : "Off\n");
   os << indent << "Translation Mode: " << (this->TranslationMode ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

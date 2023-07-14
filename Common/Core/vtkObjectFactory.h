@@ -45,6 +45,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectFactoryCollection;
 class vtkOverrideInformationCollection;
 class vtkCollection;
@@ -264,7 +265,6 @@ private:
   char* LibraryVTKVersion;
   char* LibraryPath;
 
-private:
   vtkObjectFactory(const vtkObjectFactory&) = delete;
   void operator=(const vtkObjectFactory&) = delete;
 };
@@ -288,6 +288,7 @@ static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
 #define VTK_CREATE_CREATE_FUNCTION(classname)                                                      \
   static vtkObject* vtkObjectFactoryCreate##classname() { return classname::New(); }
 
+VTK_ABI_NAMESPACE_END
 #endif
 
 #define VTK_FACTORY_INTERFACE_EXPORT VTKCOMMONCORE_EXPORT

@@ -34,6 +34,7 @@
 #include "vtk_hdf5.h"
 
 #include "vtkAMRVelodyneReaderInternal.h"
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRVelodyneReader);
 
 //-------------------------------------------------------------------
@@ -190,7 +191,7 @@ int vtkAMRVelodyneReader::GetNumberOfLevels()
   return (this->Internal->nLevels);
 }
 
-int vtkAMRVelodyneReader::GetBlockLevel(const int blockIdx)
+int vtkAMRVelodyneReader::GetBlockLevel(int blockIdx)
 {
   assert("pre: Internal Velodyne Reader is nullptr" && (this->Internal != nullptr));
   if (!this->IsReady)
@@ -219,7 +220,7 @@ int vtkAMRVelodyneReader::FillMetaData()
   double spacing[3];
   for (int i = 0; i < this->Internal->nBlocks; i++)
   {
-    Block& theBlock = this->Internal->Blocks[i];
+    vtkAMRVelodyneReaderInternal::Block& theBlock = this->Internal->Blocks[i];
     int level = theBlock.Level;
     int id = theBlock.Index;
     CalculateBlockDims(this->Internal->blockDims.data(), theBlock.isFull, dims);
@@ -237,13 +238,13 @@ int vtkAMRVelodyneReader::FillMetaData()
   return 1;
 }
 
-vtkUniformGrid* vtkAMRVelodyneReader::GetAMRGrid(const int blockIdx)
+vtkUniformGrid* vtkAMRVelodyneReader::GetAMRGrid(int blockIdx)
 {
   if (!this->IsReady)
   {
     return nullptr;
   }
-  Block& theBlock = this->Internal->Blocks[blockIdx];
+  vtkAMRVelodyneReaderInternal::Block& theBlock = this->Internal->Blocks[blockIdx];
   int dims[3];
   CalculateBlockDims(this->Internal->blockDims.data(), theBlock.isFull, dims);
   vtkUniformGrid* ug = vtkUniformGrid::New();
@@ -256,8 +257,7 @@ vtkUniformGrid* vtkAMRVelodyneReader::GetAMRGrid(const int blockIdx)
   return ug;
 }
 
-void vtkAMRVelodyneReader::GetAMRGridData(
-  const int blockIdx, vtkUniformGrid* block, const char* field)
+void vtkAMRVelodyneReader::GetAMRGridData(int blockIdx, vtkUniformGrid* block, const char* field)
 {
   assert("pre: Internal Velodyne Reader is nullptr" && (this->Internal != nullptr));
   this->Internal->ReadMetaData();
@@ -352,3 +352,4 @@ vtkOverlappingAMR* vtkAMRVelodyneReader::GetOutput()
   amr->GenerateParentChildInformation();
   return amr;
 }
+VTK_ABI_NAMESPACE_END

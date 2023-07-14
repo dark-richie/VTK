@@ -29,6 +29,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.
@@ -471,6 +472,10 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     // do points
     for (p = 0; p < numPts; p++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // -------- points init ---------------
       inPts->GetPoint(p, inPt);
       if (this->AddInputValues)
@@ -643,6 +648,10 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     transformIndices = nullptr;
     for (p = 0; p < numCells; p++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // -------- normals init ---------------
       if (inCellNormals)
       {
@@ -827,3 +836,4 @@ void vtkWeightedTransformFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CellDataTransformIndexArray: "
      << (this->CellDataTransformIndexArray ? this->CellDataTransformIndexArray : "(none)") << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 #include "vtkPropCollection.h"
 #include "vtkRenderingImageModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGIMAGE_EXPORT vtkImageSliceCollection : public vtkPropCollection
 {
 public:
@@ -81,7 +82,6 @@ private:
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
 
-private:
   vtkImageSliceCollection(const vtkImageSliceCollection&) = delete;
   void operator=(const vtkImageSliceCollection&) = delete;
 };
@@ -96,4 +96,5 @@ inline vtkImageSlice* vtkImageSliceCollection::GetNextImage(vtkCollectionSimpleI
   return static_cast<vtkImageSlice*>(this->GetNextItemAsObject(cookie));
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -33,6 +33,7 @@
 #include <tuple>  // for tuple
 #include <vector> // for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkMatrix4x4;
@@ -60,6 +61,30 @@ public:
    * Implemented by sub classes. Actual rendering is done here.
    */
   void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
+
+  /**
+   * Unique hash based on availability of scalars, normals and tcoords.
+   * The maximum value of the hash is 15 and the minimum is 0.
+   *
+   * HasTCoords | HasNormals | HasCellScalars | HasPointScalars
+   *     0      |      0     |       0        |        0
+   *     0      |      0     |       0        |        1
+   *     0      |      0     |       1        |        0
+   *     0      |      0     |       1        |        1
+   *     0      |      1     |       0        |        0
+   *     0      |      1     |       0        |        1
+   *     0      |      1     |       1        |        0
+   *     0      |      1     |       1        |        1
+   *     1      |      0     |       0        |        0
+   *     1      |      0     |       0        |        1
+   *     1      |      0     |       1        |        0
+   *     1      |      0     |       1        |        1
+   *     1      |      1     |       0        |        0
+   *     1      |      1     |       0        |        1
+   *     1      |      1     |       1        |        0
+   *     1      |      1     |       1        |        1
+   */
+  MapperHashType GenerateHash(vtkPolyData* polydata) override;
 
   ///@{
   /**
@@ -141,26 +166,7 @@ public:
   /**\brief A convenience method for enabling/disabling
    *   the VBO's shift+scale transform.
    */
-  virtual void SetVBOShiftScaleMethod(int m);
-  virtual int GetVBOShiftScaleMethod() { return this->ShiftScaleMethod; }
-
-  /**\brief Pause per-render updates to VBO shift+scale parameters.
-   *
-   * For large datasets, re-uploading the VBO during user interaction
-   * can cause stutters in the framerate. Interactors can use this
-   * method to force UpdateCameraShiftScale to return immediately
-   * (without changes) while users are zooming/rotating/etc. and then
-   * re-enable shift-scale just before a still render.
-   *
-   * This setting has no effect unless the shift-scale method is set
-   * to NEAR_PLANE_SHIFT_SCALE or FOCAL_POINT_SHIFT_SCALE.
-   *
-   * Changing this setting does **not** mark the mapper as modified as
-   * that would force a VBO upload – defeating its own purpose.
-   */
-  virtual void SetPauseShiftScale(bool pauseShiftScale) { this->PauseShiftScale = pauseShiftScale; }
-  vtkGetMacro(PauseShiftScale, bool);
-  vtkBooleanMacro(PauseShiftScale, bool);
+  void SetVBOShiftScaleMethod(int method) override;
 
   /**
    * Allow the shader code to set the point size (with gl_PointSize variable)
@@ -450,8 +456,6 @@ protected:
   vtkMatrix3x3* TempMatrix3;
   vtkNew<vtkTransform> VBOInverseTransform;
   vtkNew<vtkMatrix4x4> VBOShiftScale;
-  int ShiftScaleMethod; // for points
-  bool PauseShiftScale;
   bool UseProgramPointSize;
 
   // if set to true, tcoords will be passed to the
@@ -512,7 +516,7 @@ protected:
   // used to occasionally invoke timers
   unsigned int TimerQueryCounter;
 
-  // stores the mapping from vtk cells to gl_PrimitiveId
+  // stores the mapping from OpenGL primitives IDs (gl_PrimitiveId) to VTK cells IDs
   vtkNew<vtkOpenGLCellToVTKCellMap> CellCellMap;
 
   // compute and set the maximum point and cell ID used in selection
@@ -530,4 +534,5 @@ private:
   void operator=(const vtkOpenGLPolyDataMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

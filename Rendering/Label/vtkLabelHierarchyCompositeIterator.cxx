@@ -26,6 +26,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLabelHierarchyCompositeIterator);
 
 class vtkLabelHierarchyCompositeIterator::Internal
@@ -53,8 +54,8 @@ vtkLabelHierarchyCompositeIterator::~vtkLabelHierarchyCompositeIterator()
 
 void vtkLabelHierarchyCompositeIterator::AddIterator(vtkLabelHierarchyIterator* it, int count)
 {
-  this->Implementation->Iterators.push_back(
-    std::make_pair(vtkSmartPointer<vtkLabelHierarchyIterator>(it), count));
+  this->Implementation->Iterators.emplace_back(
+    vtkSmartPointer<vtkLabelHierarchyIterator>(it), count);
 }
 
 void vtkLabelHierarchyCompositeIterator::ClearIterators()
@@ -168,3 +169,4 @@ void vtkLabelHierarchyCompositeIterator::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

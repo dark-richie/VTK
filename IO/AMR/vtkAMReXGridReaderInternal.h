@@ -30,6 +30,7 @@
 #include "vtkDataSet.h"
 #include "vtkSOADataArrayTemplate.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIndent;
 
 //==============================================================================
@@ -70,7 +71,7 @@ public:
   const std::vector<long>& formatarray() const&;
   const int* order() const&;
   const std::vector<int>& orderarray() const&;
-  int numBytes() const;
+  long numBytes() const;
   bool operator==(const RealDescriptor& rd) const;
 
 private:
@@ -79,7 +80,7 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-//                     Class  RealDecriptor ( end )
+//                     Class  RealDescriptor ( end )
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
@@ -143,7 +144,7 @@ public:
   bool ParseGenericHeader(const std::string& headerData);
 
   void SetVectorNamePrefix(const std::string& prefix);
-  void SetNameDelimiter(const char delim);
+  void SetNameDelimiter(char delim);
 
 private:
   // if the vectorNamePrefix is detected at the beginning of the name,
@@ -238,13 +239,13 @@ public:
   bool ReadLevelHeader();
   bool ReadExtraFabHeader();
   int GetNumberOfLevels();
-  int GetBlockLevel(const int blockIdx);
+  int GetBlockLevel(int blockIdx);
   int GetNumberOfBlocks();
   int GetBlockIndexWithinLevel(int blockIdx, int level);
   void GetBlockAttribute(const char* attribute, int blockIdx, vtkDataSet* pDataSet);
   void GetExtraMultiFabBlockAttribute(const char* attribute, int blockIdx, vtkDataSet* pDataSet);
   int GetOffsetOfAttribute(const char* attribute);
-  int GetAttributeOffsetExtraMultiFab(const char* attribute, const int fabIndex);
+  int GetAttributeOffsetExtraMultiFab(const char* attribute, int fabIndex);
   int GetExtraMultiFabIndex(const char* attribute);
   void ReadFAB(std::istream& is);
   int ReadVersion(std::istream& is);
@@ -253,10 +254,10 @@ public:
   void ReadFormat(std::istream& is, std::vector<long>& ar);
   void PrintFormat(std::vector<long>& ar);
   RealDescriptor* ReadRealDescriptor(std::istream& is);
-  int ReadBoxArray(std::istream& is, int* boxArray, int* boxArrayDim);
+  long ReadBoxArray(std::istream& is, int* boxArray, int* boxArrayDim);
   void PrintBoxArray(int* boxArray);
   int ReadNumberOfAttributes(std::istream& is);
-  void ReadBlockAttribute(std::istream& is, int numberOfPoints, int size, char* buffer);
+  void ReadBlockAttribute(std::istream& is, long numberOfPoints, long size, char* buffer);
   void Convert(
     void* out, const void* in, long nitems, const RealDescriptor& ord, const RealDescriptor& ird);
   void PermuteOrder(
@@ -264,8 +265,8 @@ public:
 
   template <typename T>
   void CreateVTKAttributeArray(vtkAOSDataArrayTemplate<T>* dataArray, const RealDescriptor* ord,
-    const RealDescriptor* ird, const std::vector<std::vector<char>>& buffers,
-    const int numberOfPoints, const std::string& attribute);
+    const RealDescriptor* ird, const std::vector<std::vector<char>>& buffers, int numberOfPoints,
+    const std::string& attribute);
 
   bool headersAreRead;
   bool extraMultiFabHeadersAreRead;
@@ -281,8 +282,7 @@ public:
 template <typename T>
 void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkAOSDataArrayTemplate<T>* dataArray,
   const RealDescriptor* ord, const RealDescriptor* ird,
-  const std::vector<std::vector<char>>& buffers, const int numberOfPoints,
-  const std::string& attribute)
+  const std::vector<std::vector<char>>& buffers, int numberOfPoints, const std::string& attribute)
 {
   int nComps = static_cast<int>(this->Header->parsedVariableNames[attribute].size());
   if (nComps == 0) // check if the variable is in an extra fab
@@ -313,5 +313,6 @@ void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkAOSDataArrayTemplate
 // ----------------------------------------------------------------------------
 //                     Class  vtkAMReXGridReaderInternal ( end )
 // ----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMReXGridReaderInternal_h */
 // VTK-HeaderTest-Exclude: vtkAMReXGridReaderInternal.h

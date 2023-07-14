@@ -34,6 +34,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
 
@@ -269,7 +270,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
     return false;
   }
 
-  vtkSmartPointer<vtkInformationIterator> iterSelf = vtkSmartPointer<vtkInformationIterator>::New();
+  vtkNew<vtkInformationIterator> iterSelf;
 
   iterSelf->SetInformation(this->Properties);
 
@@ -277,8 +278,7 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
   for (iterSelf->InitTraversal(); !iterSelf->IsDoneWithTraversal(); iterSelf->GoToNextItem())
   {
     vtkInformationKey* key = iterSelf->GetCurrentKey();
-    vtkInformationIntegerKey* ikey = vtkInformationIntegerKey::SafeDownCast(key);
-    vtkInformationObjectBaseKey* okey = vtkInformationObjectBaseKey::SafeDownCast(key);
+    auto ikey = static_cast<vtkInformationIntegerKey*>(key);
     if (ikey)
     {
       if (!otherProperties->Has(ikey) || this->Properties->Get(ikey) != otherProperties->Get(ikey))
@@ -286,11 +286,16 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare
         return false;
       }
     }
-    if (okey)
+    else
     {
-      if (!otherProperties->Has(okey) || this->Properties->Get(okey) != otherProperties->Get(okey))
+      auto okey = static_cast<vtkInformationObjectBaseKey*>(key);
+      if (okey)
       {
-        return false;
+        if (!otherProperties->Has(okey) ||
+          this->Properties->Get(okey) != otherProperties->Get(okey))
+        {
+          return false;
+        }
       }
     }
   }
@@ -551,3 +556,4 @@ int vtkSelectionNode::ConvertAttributeTypeToSelectionField(int attrType)
       return vtkSelectionNode::CELL;
   }
 }
+VTK_ABI_NAMESPACE_END

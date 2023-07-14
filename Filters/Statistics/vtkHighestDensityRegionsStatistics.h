@@ -42,6 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class vtkVariant;
 
@@ -55,7 +56,7 @@ public:
   /**
    * Given a collection of models, calculate aggregate model
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override { return; }
+  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override {}
 
   /**
    * Set the width of the gaussian kernel.
@@ -102,20 +103,17 @@ protected:
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override { return; }
+  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override { return; }
+  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
 
   /**
    * Provide the appropriate assessment functor.
    */
-  void SelectAssessFunctor(vtkTable*, vtkDataObject*, vtkStringArray*, AssessFunctor*&) override
-  {
-    return;
-  }
+  void SelectAssessFunctor(vtkTable*, vtkDataObject*, vtkStringArray*, AssessFunctor*&) override {}
 
   ///@{
   /**
@@ -143,9 +141,9 @@ private:
    */
   double ComputeSmoothGaussianKernel(int dimension, double khx, double khy);
 
-private:
   vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&) = delete;
   void operator=(const vtkHighestDensityRegionsStatistics&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

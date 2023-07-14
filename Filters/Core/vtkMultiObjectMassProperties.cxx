@@ -32,6 +32,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiObjectMassProperties);
 
 //------------------------------------------------------------------------------
@@ -59,11 +60,12 @@ private:
   vtkSMPThreadLocal<std::vector<double>> TLObjectAreas;
   vtkSMPThreadLocal<std::vector<double>> TLObjectVolumes;
   vtkSMPThreadLocal<std::vector<double>> TLObjectCentroids;
+  vtkMultiObjectMassProperties* Filter;
 
 public:
   ComputeProperties(vtkPolyData* mesh, double center[3], unsigned char* orient, double* areas,
     double* volumes, vtkIdType numberOfObjects, vtkIdType* objectIds, double* objectAreas,
-    double* objectVolumes, double* objectCentroids)
+    double* objectVolumes, double* objectCentroids, vtkMultiObjectMassProperties* filter)
     : Mesh(mesh)
     , Points(Mesh->GetPoints())
     , Orient(orient)
@@ -74,6 +76,7 @@ public:
     , ObjectAreas(objectAreas)
     , ObjectVolumes(objectVolumes)
     , ObjectCentroids(objectCentroids)
+    , Filter(filter)
   {
     this->Center[0] = center[0];
     this->Center[1] = center[1];
@@ -126,9 +129,22 @@ public:
     int i;
     double x0[3], x1[3], x2[3], tetVol;
     double v210, v120, v201, v021, v102, v012;
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPolyId - beginPolyId) / 10 + 1, (vtkIdType)1000);
 
     for (vtkIdType polyId = beginPolyId; polyId < endPolyId; ++polyId)
     {
+      if (polyId % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+      }
       vtkIdType& objectId = this->ObjectIds[polyId];
       this->Mesh->GetCellPoints(polyId, npts, pts);
 
@@ -228,10 +244,11 @@ public:
 
   static void Execute(vtkIdType numPolys, vtkPolyData* output, double center[3],
     unsigned char* orient, double* areas, double* volumes, vtkIdType numberOfObjects,
-    vtkIdType* objectIds, double* objectAreas, double* objectVolumes, double* objectCentroids)
+    vtkIdType* objectIds, double* objectAreas, double* objectVolumes, double* objectCentroids,
+    vtkMultiObjectMassProperties* filter)
   {
     ComputeProperties compute(output, center, orient, areas, volumes, numberOfObjects, objectIds,
-      objectAreas, objectVolumes, objectCentroids);
+      objectAreas, objectVolumes, objectCentroids, filter);
     vtkSMPTools::For(0, numPolys, compute);
   }
 };
@@ -473,7 +490,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
 
   // Compute areas and volumes in parallel
   ComputeProperties::Execute(numPolys, output, center, orient.data(), pAreas, pVolumes,
-    this->NumberOfObjects, objectIds, objectAreas, objectVolumes, objectCentroids);
+    this->NumberOfObjects, objectIds, objectAreas, objectVolumes, objectCentroids, this);
 
   // Volumes are always positive
   for (idx = 0; idx < this->NumberOfObjects; ++idx)
@@ -590,3 +607,4 @@ void vtkMultiObjectMassProperties::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Total Volume: " << this->TotalVolume << "\n";
   os << indent << "Total Area: " << this->TotalArea << "\n";
 }
+VTK_ABI_NAMESPACE_END

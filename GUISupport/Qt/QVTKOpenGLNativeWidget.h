@@ -111,6 +111,7 @@
 #include "vtkNew.h"                // needed for vtkNew
 #include "vtkSmartPointer.h"       // needed for vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class QVTKInteractor;
 class QVTKInteractorAdapter;
 class QVTKRenderWindowAdapter;
@@ -200,6 +201,15 @@ public:
   const QCursor& defaultCursor() const { return this->DefaultCursor; }
   ///@}
 
+  ///@{
+  /**
+   * Convenience method by symmetry with QVTKOpenGLStereoWidget.
+   * Internally just calls QWidget::setCursor / QWidget::cursor.
+   */
+  void setCursorCustom(const QCursor& cursor) { this->setCursor(cursor); }
+  QCursor cursorCustom() const { return this->cursor(); }
+  ///@}
+
 protected Q_SLOTS:
   /**
    * Called as a response to `QOpenGLContext::aboutToBeDestroyed`. This may be
@@ -210,12 +220,11 @@ protected Q_SLOTS:
 
   void updateSize();
 
-protected:
+protected: // NOLINT(readability-redundant-access-specifiers)
   bool event(QEvent* evt) override;
   void initializeGL() override;
   void paintGL() override;
 
-protected:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
   QScopedPointer<QVTKRenderWindowAdapter> RenderWindowAdapter;
 
@@ -228,4 +237,5 @@ private:
   QCursor DefaultCursor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

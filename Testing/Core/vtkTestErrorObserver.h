@@ -20,6 +20,7 @@
 
 namespace vtkTest
 {
+VTK_ABI_NAMESPACE_BEGIN
 class ErrorObserver : public ::vtkCommand
 {
 public:
@@ -28,8 +29,6 @@ public:
   ErrorObserver()
     : Error(false)
     , Warning(false)
-    , ErrorMessage("")
-    , WarningMessage("")
   {
   }
   static ErrorObserver* New() { return new ErrorObserver; }
@@ -120,6 +119,7 @@ private:
   std::string ErrorMessage;
   std::string WarningMessage;
 };
+VTK_ABI_NAMESPACE_END
 }
 #endif
 // VTK-HeaderTest-Exclude: vtkTestErrorObserver.h

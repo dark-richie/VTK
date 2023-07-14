@@ -27,6 +27,7 @@
 using namespace OT;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkOTFilter::vtkOTFilter()
 {
   this->SetInputArrayToProcess(
@@ -70,6 +71,8 @@ int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
     ret = this->Process(ns);
     delete ns;
   }
+
+  this->CheckAbort();
   return ret;
 }
 
@@ -78,3 +81,4 @@ void vtkOTFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

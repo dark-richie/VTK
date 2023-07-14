@@ -15,7 +15,7 @@
 /**
  * @class   vtkSMPContourGrid
  * @brief   a subclass of vtkContourGrid that works in parallel
- * vtkSMPContourGrid performs the same functionaliy as vtkContourGrid but does
+ * vtkSMPContourGrid performs the same functionality as vtkContourGrid but does
  * it using multiple threads. This will probably be merged with vtkContourGrid
  * in the future.
  */
@@ -26,6 +26,7 @@
 #include "vtkContourGrid.h"
 #include "vtkFiltersSMPModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSMP_EXPORT vtkSMPContourGrid : public vtkContourGrid
 {
 public:
@@ -74,4 +75,5 @@ private:
   void operator=(const vtkSMPContourGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -15,6 +15,7 @@
 #ifndef vtkType_h
 #define vtkType_h
 
+#include "vtkABINamespace.h"
 #include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkOptions.h"  // for VTK_USE_64BIT_IDS and VTK_USE_64BIT_TIMESTAMPS
 #include "vtk_kwiml.h"
@@ -122,6 +123,7 @@
 #define VTK_BSP_CUTS 46
 #define VTK_GEO_JSON_FEATURE 47
 #define VTK_IMAGE_STENCIL_DATA 48
+#define VTK_CELL_GRID 49
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */
@@ -359,11 +361,13 @@ typedef bool vtkTypeUBool;
  * is intended to handle vtkIdType, which does not have the same tag as its
  * underlying data type.
  * @note This method is only available when included from a C++ source file. */
+VTK_ABI_NAMESPACE_BEGIN
 inline vtkTypeBool vtkDataTypesCompare(int a, int b)
 {
   return (a == b ||
     ((a == VTK_ID_TYPE || a == VTK_ID_TYPE_IMPL) && (b == VTK_ID_TYPE || b == VTK_ID_TYPE_IMPL)));
 }
+VTK_ABI_NAMESPACE_END
 #endif
 
 /*--------------------------------------------------------------------------*/

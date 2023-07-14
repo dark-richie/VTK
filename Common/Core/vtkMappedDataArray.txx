@@ -21,6 +21,7 @@
 #include "vtkVariant.h" // for vtkVariant
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 vtkMappedDataArray<Scalar>::vtkMappedDataArray()
 {
@@ -89,7 +90,6 @@ void vtkMappedDataArray<Scalar>::SetVoidArray(void*, vtkIdType, int)
 {
   vtkErrorMacro(<< "SetVoidArray not supported for vtkMappedDataArray "
                    "subclasses.");
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -98,7 +98,6 @@ void vtkMappedDataArray<Scalar>::SetVoidArray(void*, vtkIdType, int, int)
 {
   vtkErrorMacro(<< "SetVoidArray not supported for vtkMappedDataArray "
                    "subclasses.");
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -173,4 +172,5 @@ void vtkMappedDataArray<Scalar>::Modified()
   this->TemporaryScalarPointerSize = 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkMappedDataArray_txx

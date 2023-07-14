@@ -36,6 +36,7 @@
 #pragma warning(disable : 4800)
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 int localVerbosity = 0;
@@ -245,8 +246,11 @@ bool tokenGetTexture(size_t& t, std::vector<Token>& tokens, vtkOBJImportedMateri
 }
 }
 
-// NOLINTNEXTLINE(bugprone-suspicious-include)
-#include "mtlsyntax.cxx"
+VTK_ABI_NAMESPACE_END
+
+#include "mtlsyntax.inl"
+
+VTK_ABI_NAMESPACE_BEGIN
 std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
   std::string Filename, int& result_code)
 {
@@ -552,3 +556,4 @@ vtkOBJImportedMaterial::vtkOBJImportedMaterial()
   this->name = "x";
   obj_set_material_defaults(this);
 }
+VTK_ABI_NAMESPACE_END

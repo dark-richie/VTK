@@ -37,6 +37,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataSetAttributes;
 class vtkFieldData;
@@ -103,8 +104,8 @@ public:
    * after being used by a filter.
    */
   static void SetGlobalReleaseDataFlag(int val);
-  void GlobalReleaseDataFlagOn() { this->SetGlobalReleaseDataFlag(1); }
-  void GlobalReleaseDataFlagOff() { this->SetGlobalReleaseDataFlag(0); }
+  void GlobalReleaseDataFlagOn() { vtkDataObject::SetGlobalReleaseDataFlag(1); }
+  void GlobalReleaseDataFlagOff() { vtkDataObject::SetGlobalReleaseDataFlag(0); }
   static int GetGlobalReleaseDataFlag();
   ///@}
 
@@ -216,14 +217,23 @@ public:
    */
   virtual void PrepareForNewData() { this->Initialize(); }
 
-  ///@{
   /**
-   * Shallow and Deep copy.  These copy the data, but not any of the
-   * pipeline connections.
+   * The goal of the method is to copy the data up to the array pointers only.
+   * The implementation is delegated to the differenent subclasses.
+   * If you want to copy the actual data, @see DeepCopy.
+   *
+   * This method shallow copy the field data and copy the internal structure.
    */
   virtual void ShallowCopy(vtkDataObject* src);
+
+  /**
+   * The goal of the method is to copy the complete data from src into this object.
+   * The implementation is delegated to the differenent subclasses.
+   * If you want to copy the data up to the array pointers only, @see ShallowCopy.
+   *
+   * This method deep copy the field data and copy the internal structure.
+   */
   virtual void DeepCopy(vtkDataObject* src);
-  ///@}
 
   /**
    * The ExtentType will be left as VTK_PIECES_EXTENT for data objects
@@ -436,9 +446,9 @@ private:
   // Helper method for the ShallowCopy and DeepCopy methods.
   void InternalDataObjectCopy(vtkDataObject* src);
 
-private:
   vtkDataObject(const vtkDataObject&) = delete;
   void operator=(const vtkDataObject&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

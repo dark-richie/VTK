@@ -34,6 +34,7 @@
 // STL headers
 #include <vector> // Needed for STL vector.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 
 //-----------------------------------------------------------------------------
@@ -44,8 +45,7 @@ public:
    * Default constructor.
    */
   vtkContextScenePrivate(vtkAbstractContextItem* item)
-    : std::vector<vtkAbstractContextItem*>()
-    , Scene(nullptr)
+    : Scene(nullptr)
     , Item(item)
   {
   }
@@ -139,6 +139,8 @@ public:
     {
       (*it)->SetParent(nullptr);
       (*it)->SetScene(nullptr);
+      // releases cache from 2D, 3D devices
+      (*it)->ReleaseGraphicsResources();
       (*it)->Delete();
     }
     this->clear();
@@ -177,5 +179,6 @@ public:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextScenePrivate_h
 // VTK-HeaderTest-Exclude: vtkContextScenePrivate.h

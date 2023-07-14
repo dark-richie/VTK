@@ -33,6 +33,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGlyph3D);
 vtkCxxSetObjectMacro(vtkGlyph3D, SourceTransform, vtkTransform);
 
@@ -413,7 +414,7 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
     if (!(inPtId % 10000))
     {
       this->UpdateProgress(static_cast<double>(inPtId) / numPts);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }
@@ -970,3 +971,4 @@ int vtkGlyph3D::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

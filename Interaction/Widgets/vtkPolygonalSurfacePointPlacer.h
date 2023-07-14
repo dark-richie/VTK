@@ -35,6 +35,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataPointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataCollection;
 class vtkCellPicker;
 class vtkPolygonalSurfacePointPlacerInternals;
@@ -69,7 +70,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
-  // Descuription:
+  // Description:
   // Add /remove a prop, to place points on
   void AddProp(vtkProp*) override;
   void RemoveViewProp(vtkProp* prop) override;
@@ -179,4 +180,5 @@ private:
   void operator=(const vtkPolygonalSurfacePointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

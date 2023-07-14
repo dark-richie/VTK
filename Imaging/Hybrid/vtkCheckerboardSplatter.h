@@ -46,7 +46,7 @@
  * where E is a user-defined eccentricity factor that controls the elliptical
  * shape of the splat; z is the distance of the current voxel sample point
  * along normal N; and rxy is the distance of x in the direction
- * prependicular to N.
+ * perpendicular to N.
  *
  * This class is typically used to convert point-valued distributions into
  * a volume representation. The volume is then usually iso-surfaced or
@@ -102,6 +102,7 @@
 #define VTK_ACCUMULATION_MODE_MAX 1
 #define VTK_ACCUMULATION_MODE_SUM 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkCompositeDataSet;
 
@@ -339,4 +340,5 @@ private:
   void operator=(const vtkCheckerboardSplatter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

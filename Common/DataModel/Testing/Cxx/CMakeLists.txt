@@ -37,14 +37,17 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestGraphAttributes.cxx
   TestHigherOrderCell.cxx
   TestHyperTreeGridBitmask.cxx
+  TestHyperTreeGridCursors.cxx
   TestHyperTreeGridElderChildIndex.cxx
   TestImageDataFindCell.cxx
   TestImageDataInterpolation.cxx
   TestImageDataOrientation.cxx
   TestImageIterator.cxx
+  TestInformationDataObjectKey.cxx
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
   TestMappedGridDeepCopy.cxx
+  TestMappedGridShallowCopy.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
   TestPiecewiseFunction.cxx
@@ -60,8 +63,11 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestPolyhedronCombinatorialContouring.cxx
   TestPolyhedronConvexity.cxx
   TestPolyhedronConvexityMultipleCells.cxx
+  TestPolyhedronTriangulateFaces.cxx
+  TestPyramid.cxx
   TestQuadraticPolygon.cxx
   TestRect.cxx
+  TestSMPFeatures.cxx
   TestSelectionExpression.cxx
   TestSelectionSubtract.cxx
   TestSimpleIncrementalOctreePointLocator.cxx
@@ -72,6 +78,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestTreeBFSIterator.cxx
   TestTreeDFSIterator.cxx
   TestTriangle.cxx
+  TestTetra.cxx
   TimePointLocators.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx
@@ -103,6 +110,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   )
 vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestImageDataOrientation2.cxx,NO_DATA
+  TestLagrangeCurveNonLinearLevel.cxx,NO_DATA
   TestLagrangeTriangle.cxx
   TestLagrangeTetra.cxx
   TestLagrangeWedge.cxx
@@ -113,6 +121,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestMeanValueCoordinatesInterpolation1.cxx
   TestMeanValueCoordinatesInterpolation2.cxx
   TestPolyhedron4.cxx,NO_VALID,NO_OUTPUT
+  TestPolyhedronDecompose.cxx,NO_DATA
   TestSmoothErrorMetric.cxx
   TestQuadraticPolygonFilters.cxx
   )
@@ -131,7 +140,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests output_tests
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::CommonDataModelCxxTests-TestCellLocatorsEdgeCases
   COMMAND vtkCommonDataModelCxxTests TestCellLocatorsEdgeCases
-  DATA{../Data/test_surface.vtp}
+  DATA{../Data/test_surface.vtp} DATA{../Data/cone.vtp}
   )
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::CommonDataModelCxxTests-TestPolyhedron2

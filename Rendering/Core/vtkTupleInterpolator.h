@@ -47,6 +47,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSpline;
 class vtkPiecewiseFunction;
 
@@ -91,6 +92,15 @@ public:
    * Reset the class so that it contains no (t,tuple) information.
    */
   void Initialize();
+
+  /**
+   * Add all the tuples to the list of tuples in one time,
+   * and then sort them only once. Much faster than using
+   * AddTuple for each tuple.
+   * t is the time values array, nb is the size of time values array,
+   * data is the array containings tuples to add (by default AOS ordering)
+   */
+  void FillFromData(int nb, double* t, double** data, bool isSOADataArray = false);
 
   /**
    * Add another tuple to the list of tuples to be interpolated.  Note that
@@ -176,4 +186,5 @@ private:
   void operator=(const vtkTupleInterpolator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

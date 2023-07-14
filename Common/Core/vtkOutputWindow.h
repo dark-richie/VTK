@@ -27,13 +27,16 @@
 
 #include "vtkCommonCoreModule.h"  // For export macro
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
+#include "vtkDeprecation.h"       // For `VTK_DEPRECATED_IN_9_3_0`
 #include "vtkObject.h"
 
-class VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
+VTK_ABI_NAMESPACE_BEGIN
+class VTK_DEPRECATED_IN_9_3_0(
+  "`vtkOutputWindowCleanup` is no longer necessary") VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
 {
 public:
-  vtkOutputWindowCleanup();
-  ~vtkOutputWindowCleanup();
+  vtkOutputWindowCleanup() = default;
+  ~vtkOutputWindowCleanup() = default;
 
 private:
   vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) = delete;
@@ -53,7 +56,7 @@ public:
 
   /**
    * Creates a new instance of vtkOutputWindow. Note this *will* create a new
-   * instance using the vtkObjectFactor. If you want to access the global
+   * instance using the vtkObjectFactory. If you want to access the global
    * instance, use `GetInstance` instead.
    */
   static vtkOutputWindow* New();
@@ -172,20 +175,16 @@ protected:
   bool PromptUser;
 
 private:
-  static vtkOutputWindow* Instance;
-  MessageTypes CurrentMessageType;
+  std::atomic<MessageTypes> CurrentMessageType;
   int DisplayMode;
-  int InStandardMacros; // used to suppress display to output streams from standard macros when
-                        // logging is enabled.
+  std::atomic<int> InStandardMacros; // used to suppress display to output streams from standard
+                                     // macros when logging is enabled.
 
   friend class vtkOutputWindowPrivateAccessor;
 
-private:
   vtkOutputWindow(const vtkOutputWindow&) = delete;
   void operator=(const vtkOutputWindow&) = delete;
 };
 
-// Uses schwartz counter idiom for singleton management
-static vtkOutputWindowCleanup vtkOutputWindowCleanupInstance;
-
+VTK_ABI_NAMESPACE_END
 #endif

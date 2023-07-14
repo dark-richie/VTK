@@ -23,6 +23,7 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGEOMETRY_EXPORT vtkStructuredNeighbor
 {
 public:
@@ -71,13 +72,13 @@ public:
    * Custom constructor. Constructs a neighbor with the prescribed neighbor
    * grid/block ID and overlap.
    */
-  vtkStructuredNeighbor(const int NeiID, int overlap[6]);
+  vtkStructuredNeighbor(int NeiID, int overlap[6]);
 
   /**
-   * Custom constructor. Constructs a neighbor with the prescribed neigbhor
+   * Custom constructor. Constructs a neighbor with the prescribed neighbor
    * grid/block ID, overlap extent, and orientation
    */
-  vtkStructuredNeighbor(const int NeiID, int overlap[6], int orient[3]);
+  vtkStructuredNeighbor(int NeiID, int overlap[6], int orient[3]);
 
   /**
    * Copy constructor
@@ -120,9 +121,10 @@ public:
    * Send and Rcv Extents for this neighbor instance.
    */
   virtual void ComputeSendAndReceiveExtent(int gridRealExtent[6], int gridGhostedExtent[6],
-    int neiRealExtent[6], int WholeExtent[6], const int N);
+    int neiRealExtent[6], int WholeExtent[6], int N);
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkStructuredNeighbor_h */
 // VTK-HeaderTest-Exclude: vtkStructuredNeighbor.h

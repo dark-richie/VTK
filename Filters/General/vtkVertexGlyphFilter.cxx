@@ -30,6 +30,7 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVertexGlyphFilter);
 
 //------------------------------------------------------------------------------
@@ -100,9 +101,14 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (vtkIdType i = 0; i < numPoints; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     cells->InsertNextCell(1, &i);
   }
   output->SetVerts(cells);
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

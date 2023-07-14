@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <boost/pending/disjoint_sets.hpp>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -307,7 +308,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
               // twice.
               //
               // High-index degenerate merge have a very very low probability of
-              // appearance which is roughly inversely proportionnal to way more
+              // appearance which is roughly inversely proportional to way more
               // than its index.
               if (representatives[k] == representative)
               {
@@ -430,3 +431,4 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

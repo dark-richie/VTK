@@ -35,7 +35,9 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkContourFilter.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmContour : public vtkContourFilter
 {
 public:
@@ -48,7 +50,7 @@ protected:
   ///
   /// Certain input and parameters combinations are not currently supported by vtkm.
   /// This information is internally used to determine if this filter should fall back to
-  /// Superclass implementaion.
+  /// Superclass implementation.
   bool CanProcessInput(vtkDataSet* input);
 
   vtkmContour();
@@ -59,6 +61,8 @@ protected:
 private:
   vtkmContour(const vtkmContour&) = delete;
   void operator=(const vtkmContour&) = delete;
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmContour_h

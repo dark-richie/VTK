@@ -42,6 +42,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereRepresentation);
 
 //------------------------------------------------------------------------------
@@ -117,6 +118,7 @@ vtkSphereRepresentation::vtkSphereRepresentation()
   this->CenterMapper->SetInputConnection(this->CenterCursorSource->GetOutputPort());
   this->CenterActor = vtkActor::New();
   this->CenterActor->SetMapper(this->CenterMapper);
+  this->CenterActor->SetProperty(this->HandleProperty);
 
   // Define the point coordinates
   double bounds[6];
@@ -429,6 +431,27 @@ void vtkSphereRepresentation::CreateDefaultProperties()
     this->RadialLineProperty = vtkProperty::New();
     this->RadialLineProperty->SetColor(1, 0, 0);
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkSphereRepresentation::SetInteractionColor(double r, double g, double b)
+{
+  this->SelectedHandleProperty->SetColor(r, g, b);
+  this->SelectedSphereProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkSphereRepresentation::SetHandleColor(double r, double g, double b)
+{
+  this->RadialLineProperty->SetColor(r, g, b);
+  this->HandleProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkSphereRepresentation::SetForegroundColor(double r, double g, double b)
+{
+  this->HandleTextProperty->SetColor(r, g, b);
+  this->SphereProperty->SetColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
@@ -932,3 +955,4 @@ void vtkSphereRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Radial Line Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

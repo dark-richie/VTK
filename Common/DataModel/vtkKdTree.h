@@ -59,6 +59,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLocator.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerLog;
 class vtkIdList;
 class vtkIdTypeArray;
@@ -750,7 +751,6 @@ protected:
   vtkGetMacro(Progress, double);
   ///@}
 
-protected:
   // So that each suboperation can report progress
   // in [0,1], yet we will be able to report a global
   // progress. Sub-operations must use UpdateSubOperationProgress()
@@ -912,4 +912,5 @@ protected:
   vtkKdTree(const vtkKdTree&) = delete;
   void operator=(const vtkKdTree&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

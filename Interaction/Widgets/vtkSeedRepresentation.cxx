@@ -27,6 +27,7 @@
 #include <iterator>
 #include <list>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSeedRepresentation);
 
 vtkCxxSetObjectMacro(vtkSeedRepresentation, HandleRepresentation, vtkHandleRepresentation);
@@ -290,14 +291,14 @@ void vtkSeedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkSeedRepresentation::GetActors(vtkPropCollection* pc)
 {
-  if (!pc)
+  if (pc != nullptr && this->GetVisibility())
   {
-    return;
-  }
-  vtkHandleListIterator iter = this->Handles->begin();
-  for (; iter != this->Handles->end(); ++iter)
-  {
-    pc->AddItem(*iter);
+    vtkHandleListIterator iter = this->Handles->begin();
+    for (; iter != this->Handles->end(); ++iter)
+    {
+      pc->AddItem(*iter);
+    }
   }
   this->Superclass::GetActors(pc);
 }
+VTK_ABI_NAMESPACE_END

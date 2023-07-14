@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiBlockDataGroupFilter);
 //------------------------------------------------------------------------------
 vtkMultiBlockDataGroupFilter::vtkMultiBlockDataGroupFilter() = default;
@@ -78,6 +79,10 @@ int vtkMultiBlockDataGroupFilter::RequestData(vtkInformation* vtkNotUsed(request
   output->SetNumberOfBlocks(numInputs);
   for (int idx = 0; idx < numInputs; ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     /*
     // This can be a vtkMultiPieceDataSet if we ever support it.
     vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::New();
@@ -109,7 +114,7 @@ int vtkMultiBlockDataGroupFilter::RequestData(vtkInformation* vtkNotUsed(request
   {
     vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(0));
     block->Register(this);
-    output->ShallowCopy(block);
+    output->CompositeShallowCopy(block);
     block->UnRegister(this);
   }
 
@@ -142,3 +147,4 @@ void vtkMultiBlockDataGroupFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

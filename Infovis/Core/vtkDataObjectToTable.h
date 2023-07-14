@@ -29,10 +29,13 @@
 #ifndef vtkDataObjectToTable_h
 #define vtkDataObjectToTable_h
 
+#include "vtkDeprecation.h"       // For deprecation macros
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-class VTKINFOVISCORE_EXPORT vtkDataObjectToTable : public vtkTableAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+class VTK_DEPRECATED_IN_9_3_0("Use vtkAttributeDataToTableFilter instead of vtkDataObjectToTable.")
+  VTKINFOVISCORE_EXPORT vtkDataObjectToTable : public vtkTableAlgorithm
 {
 public:
   static vtkDataObjectToTable* New();
@@ -72,4 +75,5 @@ private:
   void operator=(const vtkDataObjectToTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

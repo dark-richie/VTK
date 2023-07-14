@@ -8,7 +8,7 @@
         GIT_SUBMODULE_STRATEGY: none
 
 .manylinux2014_x86_64:
-    image: "quay.io/pypa/manylinux2014_x86_64@sha256:9b463efac479efbcab6dec77eca28c5cfa0c5ef64f13ac184eb7117dc1f8edda"
+    image: "quay.io/pypa/manylinux2014_x86_64"
 
     variables:
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
@@ -21,12 +21,24 @@
         CMAKE_CONFIGURATION: wheel_linux36_x86_64
         PYTHON_PREFIX: /opt/python/cp36-cp36m
 
+.wheel_linux36_x86_64_osmesa:
+    extends: .wheel_linux36_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux36_x86_64_osmesa
+
 .wheel_linux37_x86_64:
     extends: .manylinux2014_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux37_x86_64
         PYTHON_PREFIX: /opt/python/cp37-cp37m
+
+.wheel_linux37_x86_64_osmesa:
+    extends: .wheel_linux37_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux37_x86_64_osmesa
 
 .wheel_linux38_x86_64:
     extends: .manylinux2014_x86_64
@@ -35,12 +47,24 @@
         CMAKE_CONFIGURATION: wheel_linux38_x86_64
         PYTHON_PREFIX: /opt/python/cp38-cp38
 
+.wheel_linux38_x86_64_osmesa:
+    extends: .wheel_linux38_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux38_x86_64_osmesa
+
 .wheel_linux39_x86_64:
     extends: .manylinux2014_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux39_x86_64
         PYTHON_PREFIX: /opt/python/cp39-cp39
+
+.wheel_linux39_x86_64_osmesa:
+    extends: .wheel_linux39_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux39_x86_64_osmesa
 
 .wheel_linux310_x86_64:
     extends: .manylinux2014_x86_64
@@ -49,9 +73,32 @@
         CMAKE_CONFIGURATION: wheel_linux310_x86_64
         PYTHON_PREFIX: /opt/python/cp310-cp310
 
+.wheel_linux310_x86_64_osmesa:
+    extends: .wheel_linux310_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux310_x86_64_osmesa
+
+.wheel_linux311_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux311_x86_64
+        PYTHON_PREFIX: /opt/python/cp311-cp311
+
+.wheel_linux311_x86_64_osmesa:
+    extends: .wheel_linux311_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux311_x86_64_osmesa
+
 .fedora34:
     extends: .linux
-    image: "kitware/vtk:ci-fedora34-20220310"
+    image: "kitware/vtk:ci-fedora34-20230324"
+
+.el7_mindeps:
+    extends: .linux
+    image: "kitware/vtk:ci-el7-mindeps-20230216"
 
 .el8_icc:
     extends: .linux
@@ -63,7 +110,6 @@
         FC: ifx
 
 .fedora_cuda_addon:
-    image: "kitware/vtk:ci-fedora34-20210824"
     variables:
         CUDACC: "/usr/local/cuda-11.4/bin/nvcc"
         CUDACXX: "/usr/local/cuda-11.4/bin/nvcc"
@@ -83,19 +129,19 @@
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         MODULES: mpi/openmpi-x86_64
 
-.el8_intelmpi_addon:
-    variables:
-        CMAKE_PREFIX_PATH: /usr/local/intelmpi
-        # Disable shared memory; it doesn't work so well inside of containers.
-        I_MPI_SHM: disable
+.el7_mindeps_python_qt5:
+    extends:
+        - .el7_mindeps
 
-.el8_icc_mpi_python:
+    variables:
+        CMAKE_CONFIGURATION: el7_mindeps_python_qt5
+
+.el8_icc_python:
     extends:
         - .el8_icc
-        - .el8_intelmpi_addon
 
     variables:
-        CMAKE_CONFIGURATION: el8_icc_mpi_python
+        CMAKE_CONFIGURATION: el8_icc_python
 
 .fedora34_doxygen_mpi_python_qt_tbb:
     extends:
@@ -266,11 +312,24 @@
         # around ASan not being first in the initial library list.
         CMAKE_CONFIGURATION: fedora34_mpi_python_qt_tbb_ubsan
 
+.linux_fast_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux-x86_64-v3
+        - vtk
+
+.webassembly:
+    image: "dockcross/web-wasm:20230116-670f7f7"
+
+    variables:
+        CMAKE_CONFIGURATION: webassembly
+
 .linux_builder_tags:
     tags:
         - build
         - docker
-        - linux
+        - linux-x86_64
         - vtk
 
 .linux_cuda_builder_tags:
@@ -278,21 +337,13 @@
         - build
         - docker
         - large-memory
-        - linux
-        - vtk
-
-.linux_qt_builder_tags:
-    tags:
-        - build
-        - docker
-        - linux
-        - linux-3.17
+        - linux-x86_64
         - vtk
 
 .linux_tester_tags:
     tags:
         - docker
-        - linux
+        - linux-x86_64
         - x11
         - vtk
 
@@ -300,30 +351,13 @@
     tags:
         - cuda-rt
         - docker
-        - linux
-        - vtk
-
-.linux_qt_tester_tags:
-    tags:
-        - docker
-        - linux
-        - linux-3.17
-        - x11
-        - vtk
-
-.linux_qt_tester_priv_tags:
-    tags:
-        - docker
-        - linux
-        - linux-3.17
-        - privileged
-        - x11
+        - linux-x86_64
         - vtk
 
 .linux_tester_priv_tags:
     tags:
         - docker
-        - linux
+        - linux-x86_64
         - privileged
         - x11
         - vtk
@@ -351,6 +385,7 @@
 
     script:
         - *before_script_linux
+        - .gitlab/ci/clang-tidy-cache.sh
         - .gitlab/ci/sccache.sh
         - sccache --start-server
         - sccache --show-stats
@@ -397,9 +432,14 @@
         - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel mesa-libGL-devel mesa-libGLU-devel git-core git-lfs gcc-c++
         - *before_script_linux
         - .gitlab/ci/sccache.sh
+        - cmake -P .gitlab/ci/download_osmesa.cmake
         - sccache --start-server
         - sccache --show-stats
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+        # Set `LD_LIBRARY_PATH` for osmesa wheels. Note that we do *not* want
+        # to use rpaths here because we do not want the rpaths to end up in the
+        # wheel binaries and they should instead be bundled.
+        - '[[ "$CMAKE_CONFIGURATION" =~ "osmesa" ]] && export LD_LIBRARY_PATH=/opt/osmesa/lib'
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - cd build
@@ -420,18 +460,42 @@
     script:
         - yum install -y --setopt=install_weak_deps=False libXcursor
         - "$PYTHON_PREFIX/bin/python -m venv venv"
-        - venv/bin/pip install twine
-        - venv/bin/twine check build/dist/*.whl
-        - venv/bin/pip install build/dist/*.whl
-        - venv/bin/python -c "import vtk"
-        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then venv/bin/python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
+        - . venv/bin/activate
+        - pip install twine
+        - twine check build/dist/*.whl
+        - pip install build/dist/*.whl
+        - python -c "import vtk"
+        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
+        # Pull from `.cmake_test_wheel_linux_x11` when merging happens.
+    interruptible: true
+
+.cmake_test_wheel_linux_x11:
+    stage: test
+    image: "quay.io/pypa/manylinux_2_28_x86_64"
+
+    script:
+        - yum install -y --setopt=install_weak_deps=False libXcursor
+        - "$PYTHON_PREFIX/bin/python -m venv venv"
+        - . venv/bin/activate
+        - pip install twine
+        - twine check build/dist/*.whl
+        - pip install build/dist/*.whl
+        - python -c "import vtk"
+        - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
+        # Make sure that X11 can work in the container. Install per-job to:
+        # - show that it doesn't affect wheel installation and importing
+        # - we do not need to manually update the wheel for any manylinux* rebase
+        - yum install -y --setopt=install_weak_deps=False mesa-dri-drivers
+        - *before_script_linux
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
+        - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel
     interruptible: true
 
 .cmake_source_tarballs:
     stage: build
     image: "fedora:34"
     tags:
-        - linux
+        - linux-x86_64
         - docker
         - build
 
@@ -448,7 +512,7 @@
     stage: release-prep
     image: "fedora:34"
     tags:
-        - linux
+        - linux-x86_64
         - docker
         - build
 

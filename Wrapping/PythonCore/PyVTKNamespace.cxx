@@ -19,6 +19,7 @@
 -----------------------------------------------------------------------*/
 
 #include "PyVTKNamespace.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 // Silence warning like
@@ -38,7 +39,17 @@ static void PyVTKNamespace_Delete(PyObject* op)
   // remove from the map so that there is no dangling reference
   vtkPythonUtil::RemoveNamespaceFromMap(op);
   // call the superclass destructor
+#if PY_VERSION_HEX >= 0x030A0000
+  PyTypeObject* type = Py_TYPE(op);
+  PyTypeObject* base = (PyTypeObject*)PyType_GetSlot(type, Py_tp_base);
+  if (base)
+  {
+    destructor dtor = (destructor)PyType_GetSlot(base, Py_tp_dealloc);
+    dtor(op);
+  }
+#else
   PyVTKNamespace_Type.tp_base->tp_dealloc(op);
+#endif
 }
 
 #ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
@@ -116,8 +127,9 @@ PyObject* PyVTKNamespace_New(const char* name)
     // call the allocator provided by python for this type
     self = PyVTKNamespace_Type.tp_alloc(&PyVTKNamespace_Type, 0);
     // call the superclass init function
-    PyObject* args = PyTuple_New(1);
-    PyTuple_SET_ITEM(args, 0, PyString_FromString(name));
+    PyObject* pyname = PyUnicode_FromString(name);
+    PyObject* args = PyTuple_Pack(1, pyname);
+    Py_DECREF(pyname);
     PyVTKNamespace_Type.tp_base->tp_init(self, args, nullptr);
     Py_DECREF(args);
     // remember the object for later reference

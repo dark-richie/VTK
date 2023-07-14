@@ -26,6 +26,9 @@
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *
+ * This supercursor allows to traverse neighbors attached to coface of
+ * the current position.
+ *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien, 2014.
  * This class was re-written by Philippe Pebay, 2016.
@@ -40,6 +43,7 @@
 
 #include "vtkHyperTreeGridNonOrientedSuperCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedVonNeumannSuperCursor
@@ -74,4 +78,5 @@ private:
   void operator=(const vtkHyperTreeGridNonOrientedVonNeumannSuperCursor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -40,6 +40,7 @@
 #include "vtkColor.h"
 #include "vtkFreeTypeTools.h"
 #include "vtkGenericCell.h"
+#include "vtkOpenGLContextDeviceBufferObjectBuilder.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
@@ -54,6 +55,7 @@
 // .SECTION Description
 // Creating and initializing a texture can be time consuming,
 // vtkTextureImageCache offers the ability to reuse them as much as possible.
+VTK_ABI_NAMESPACE_BEGIN
 template <class Key>
 class vtkTextureImageCache
 {
@@ -315,7 +317,12 @@ public:
       this->SavedStencilTest = ostate->GetEnumState(GL_STENCIL_TEST);
       this->SavedBlend = ostate->GetEnumState(GL_BLEND);
       ostate->vtkglGetFloatv(GL_COLOR_CLEAR_VALUE, this->SavedClearColor);
+
+#ifdef GL_DRAW_BUFFER
       ostate->vtkglGetIntegerv(GL_DRAW_BUFFER, &this->SavedDrawBuffer);
+#else
+      this->SavedDrawBuffer = GL_BACK_LEFT;
+#endif
     }
   }
 
@@ -507,6 +514,7 @@ public:
    */
   mutable vtkTextureImageCache<UTF8TextPropertyKey> TextTextureCache;
   ///@}
+  vtkOpenGLContextDeviceBufferObjectBuilder BufferObjectBuilder;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -762,7 +770,8 @@ private:
 
     if (!cacheItem->Lines.empty())
     {
-      this->Device->DrawLines(&cacheItem->Lines[0], static_cast<int>(cacheItem->Lines.size() / 2),
+      this->Device->DrawLines(cacheItem->Lines.data(),
+        static_cast<int>(cacheItem->Lines.size() / 2),
         static_cast<unsigned char*>(cacheItem->LineColors->GetVoidPointer(0)),
         cacheItem->LineColors->GetNumberOfComponents());
     }
@@ -892,5 +901,6 @@ private:
 
   PolyDataCache* cache;
 };
+VTK_ABI_NAMESPACE_END
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H
 // VTK-HeaderTest-Exclude: vtkOpenGLContextDevice2DPrivate.h

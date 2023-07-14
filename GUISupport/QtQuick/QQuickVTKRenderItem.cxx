@@ -12,6 +12,9 @@
   PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// this class is deprecated, don't warn about deprecated classes it uses
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "QQuickVTKRenderItem.h"
 
 // vtk includes
@@ -24,6 +27,7 @@
 #include <QQuickWindow>
 
 //-------------------------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QQuickVTKRenderItem::QQuickVTKRenderItem(QQuickItem* parent)
   : Superclass(parent)
 {
@@ -324,3 +328,4 @@ void QQuickVTKRenderItem::removeWidgetByName(QString name)
 
   this->removeWidget(w);
 }
+VTK_ABI_NAMESPACE_END

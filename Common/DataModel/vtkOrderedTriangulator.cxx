@@ -34,6 +34,10 @@
 #include <stack>
 #include <vector>
 
+// Dumps insertion cavity when the cavity is invalid.
+// #define DEBUG_vtkOrderedTriangulator
+
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -49,12 +53,14 @@ inline void __cdecl operator delete(void*, void*)
 }
 #endif
 #else
+VTK_ABI_NAMESPACE_END
 #include <new>
 #endif
 
 // Classes are used to represent points, faces, and tetras-------------------
 // This data structure consists of points and tetras, with the face used
 // temporarily as a place holder during triangulation.
+VTK_ABI_NAMESPACE_BEGIN
 struct OTPoint;
 struct OTFace;
 struct OTTetra;
@@ -855,7 +861,10 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
   // Process queue of tetras until exhausted
   //
   int i, valid;
+#ifdef DEBUG_vtkOrderedTriangulator
+  // please leave this for debugging purposes
   int somethingNotValid = 0;
+#endif
   OTTetra *nei, *tetra;
   TetraQueueIterator t;
   for (int numCycles = 0; !this->TetraStack.empty(); numCycles++)
@@ -911,7 +920,10 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
     // check for validity
     if (!valid) // broke out due to invalid face
     {
+#ifdef DEBUG_vtkOrderedTriangulator
+      // please leave this for debugging purposes
       somethingNotValid++;
+#endif
       // add this tetra to queue
       this->DegenerateQueue.push_back(tetra);
 
@@ -965,12 +977,12 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra* initialTet, double[4])
     }
   }
 
-#if 0
-  //please leave this for debugging purposes
-  if ( somethingNotValid )
+#ifdef DEBUG_vtkOrderedTriangulator
+  // please leave this for debugging purposes
+  if (somethingNotValid)
   {
     this->DumpInsertionCavity(p->P);
-//    exit(1);
+    //    exit(1);
   }
 #endif
 
@@ -1669,3 +1681,4 @@ void vtkOrderedTriangulator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseTemplates: " << (this->UseTemplates ? "On\n" : "Off\n");
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;
 }
+VTK_ABI_NAMESPACE_END

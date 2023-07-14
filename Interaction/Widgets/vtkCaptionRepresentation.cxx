@@ -26,6 +26,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCaptionRepresentation);
 
 //------------------------------------------------------------------------------
@@ -228,7 +229,10 @@ void vtkCaptionRepresentation::AdjustCaptionBoundary()
 //------------------------------------------------------------------------------
 void vtkCaptionRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->CaptionActor2D);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->CaptionActor2D);
+  }
   this->Superclass::GetActors2D(pc);
 }
 
@@ -288,3 +292,4 @@ void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Anchor Representation:\n";
   this->AnchorRepresentation->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

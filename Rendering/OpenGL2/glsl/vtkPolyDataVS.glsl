@@ -49,8 +49,19 @@ in vec4 vertexMC;
 // picking support
 //VTK::Picking::Dec
 
+// Surface with edges on GLES 3.0
+//VTK::EdgesGLES30::Dec
+
+// PointSize on GLES 3.0
+//VTK::PointSizeGLES30::Dec
+
+// LineWidth on GLES 3.0
+//VTK::LineWidthGLES30::Dec
+
 void main()
 {
+  //VTK::PointSizeGLES30::Impl
+
   //VTK::CustomBegin::Impl
 
   //VTK::Color::Impl
@@ -65,6 +76,8 @@ void main()
 
   //VTK::PositionVC::Impl
 
+  //VTK::LineWidthGLES30::Impl
+
   //VTK::ValuePass::Impl
 
   //VTK::Light::Impl
@@ -72,4 +85,6 @@ void main()
   //VTK::Picking::Impl
 
   //VTK::CustomEnd::Impl
+
+  //VTK::EdgesGLES30::Impl
 }

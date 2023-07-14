@@ -77,6 +77,7 @@
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkVolumeMapper.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFixedPointVolumeRayCastMapper;
 class vtkGPUVolumeRayCastMapper;
 class vtkImageResample;
@@ -235,6 +236,17 @@ public:
 
   ///@{
   /**
+   * If UseJittering is on, each ray traversal direction will be
+   * perturbed slightly using a noise-texture to get rid of wood-grain
+   * effect. This is only used by the GPU mapper.
+   */
+  vtkSetClampMacro(UseJittering, vtkTypeBool, 0, 1);
+  vtkGetMacro(UseJittering, vtkTypeBool);
+  vtkBooleanMacro(UseJittering, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * If the DesiredUpdateRate of the vtkRenderWindow that caused the Render
    * falls at or above this rate, the render is considered interactive and
    * the mapper may be adjusted (depending on the render mode).
@@ -359,8 +371,25 @@ public:
   vtkGetStringMacro(Transfer2DYAxisArray);
   ///@}
 
-protected:
-  vtkSmartVolumeMapper();
+  ///@{
+  /**
+   * LowResDisable disables low res mode (default)
+   * LowResResample enable low res mode by automatically resampling the volume,
+   * this enable large volume to be displayed at higher frame rate at the cost of
+   * rendering quality
+   * Actual resample factor will be determined using MaxMemoryInBytes and MaxMemoryFraction
+   */
+  enum LowResModeType
+  {
+    LowResModeDisabled = 0,
+    LowResModeResample = 1,
+  };
+
+  vtkSetMacro(LowResMode, int);
+  vtkGetMacro(LowResMode, int)
+    ///@}
+
+    protected : vtkSmartVolumeMapper();
   ~vtkSmartVolumeMapper() override;
 
   /**
@@ -474,6 +503,11 @@ protected:
   int InitializedBlendMode;
 
   /**
+   * Enable / disable stochastic jittering
+   */
+  vtkTypeBool UseJittering;
+
+  /**
    * The distance between sample points along the ray
    */
   float SampleDistance;
@@ -539,6 +573,8 @@ protected:
    */
   char* Transfer2DYAxisArray;
 
+  int LowResMode = LowResModeDisabled;
+
 private:
   ///@{
   /**
@@ -561,4 +597,5 @@ private:
   vtkOSPRayVolumeInterface* OSPRayMapper;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

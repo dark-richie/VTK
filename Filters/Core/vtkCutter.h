@@ -57,6 +57,7 @@
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGridSynchronizedTemplates3D;
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
@@ -240,15 +241,15 @@ protected:
   vtkImplicitFunction* CutFunction;
   vtkTypeBool GenerateTriangles;
 
-  vtkSynchronizedTemplates3D* SynchronizedTemplates3D;
-  vtkSynchronizedTemplatesCutter3D* SynchronizedTemplatesCutter3D;
-  vtkGridSynchronizedTemplates3D* GridSynchronizedTemplates;
-  vtkRectilinearSynchronizedTemplates* RectilinearSynchronizedTemplates;
+  vtkNew<vtkSynchronizedTemplates3D> SynchronizedTemplates3D;
+  vtkNew<vtkSynchronizedTemplatesCutter3D> SynchronizedTemplatesCutter3D;
+  vtkNew<vtkGridSynchronizedTemplates3D> GridSynchronizedTemplates;
+  vtkNew<vtkRectilinearSynchronizedTemplates> RectilinearSynchronizedTemplates;
   vtkNew<vtkPlaneCutter> PlaneCutter;
 
   vtkIncrementalPointLocator* Locator;
   int SortBy;
-  vtkContourValues* ContourValues;
+  vtkNew<vtkContourValues> ContourValues;
   vtkTypeBool GenerateCutScalars;
   int OutputPointsPrecision;
 
@@ -272,4 +273,5 @@ inline const char* vtkCutter::GetSortByAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

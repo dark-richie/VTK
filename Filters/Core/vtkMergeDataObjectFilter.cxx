@@ -24,7 +24,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //------------------------------------------------------------------------------
@@ -102,8 +104,14 @@ int vtkMergeDataObjectFilter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkErrorMacro(<< "Field data size incompatible with number of cells");
       return 1;
     }
+
+    int checkAbortInterval = std::min(fd->GetNumberOfArrays() / 10 + 1, 1000);
     for (int i = 0; i < fd->GetNumberOfArrays(); i++)
     {
+      if (i % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       output->GetCellData()->AddArray(fd->GetArray(i));
     }
   }
@@ -117,6 +125,10 @@ int vtkMergeDataObjectFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     for (int i = 0; i < fd->GetNumberOfArrays(); i++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       output->GetPointData()->AddArray(fd->GetArray(i));
     }
   }
@@ -173,3 +185,4 @@ void vtkMergeDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << "CellDataField\n";
   }
 }
+VTK_ABI_NAMESPACE_END

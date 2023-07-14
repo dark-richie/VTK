@@ -34,6 +34,7 @@
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracerBase : public vtkParticleTracerBase
 {
 public:
@@ -62,7 +63,7 @@ protected:
   vtkPParticleTracerBase();
   ~vtkPParticleTracerBase() override;
 
-  virtual int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   //
@@ -119,4 +120,5 @@ private:
   vtkPParticleTracerBase(const vtkPParticleTracerBase&) = delete;
   void operator=(const vtkPParticleTracerBase&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkArrayRename);
 
 //------------------------------------------------------------------------------
@@ -154,7 +155,10 @@ int vtkArrayRename::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   output->ShallowCopy(input);
 
-  for (int type = vtkDataObject::POINT; type < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; type++)
+  bool abort = false;
+
+  for (int type = vtkDataObject::POINT; type < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES && !abort;
+       type++)
   {
     if (type == vtkDataObject::POINT_THEN_CELL)
     {
@@ -169,8 +173,15 @@ int vtkArrayRename::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     vtkFieldData::Iterator arrayIterator(inFd);
+    vtkIdType checkAbortInterval =
+      std::min(input->GetNumberOfElements(type) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType idx = arrayIterator.BeginIndex(); idx != -1; idx = arrayIterator.NextIndex())
     {
+      if (idx % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       vtkAbstractArray* array = inFd->GetAbstractArray(idx);
       vtkAbstractArray* newArray = array->NewInstance();
 
@@ -206,3 +217,4 @@ int vtkArrayRename::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

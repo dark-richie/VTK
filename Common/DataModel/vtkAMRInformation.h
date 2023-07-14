@@ -39,6 +39,7 @@
 
 typedef std::vector<vtkAMRBox> vtkAMRBoxList;
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedIntArray;
 class vtkIntArray;
 class vtkDoubleArray;
@@ -257,7 +258,7 @@ private:
 
   bool HasValidOrigin();
   bool HasValidBounds();
-  void UpdateBounds(const int level, const int id);
+  void UpdateBounds(int level, int id);
   void AllocateBoxes(unsigned int n);
   void GenerateBlockLevel();
   void CalculateParentChildRelationShip(unsigned int level,
@@ -290,4 +291,5 @@ private:
   std::vector<std::vector<std::vector<unsigned int>>> AllParents;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

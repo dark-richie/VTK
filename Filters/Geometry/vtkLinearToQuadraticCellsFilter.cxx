@@ -45,6 +45,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearToQuadraticCellsFilter);
 
 namespace
@@ -245,6 +246,10 @@ int vtkLinearToQuadraticCellsFilter::RequestData(vtkInformation* vtkNotUsed(requ
   vtkCellIterator* it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     it->GetCell(cell);
     DegreeElevate(cell, this->Locator, outputCellTypes, outputCellConnectivities,
       input->GetPointData(), output->GetPointData(), input->GetCellData(), it->GetCellId(),
@@ -266,3 +271,4 @@ void vtkLinearToQuadraticCellsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

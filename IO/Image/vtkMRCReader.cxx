@@ -37,6 +37,7 @@
 
 //#define VTK_DEBUG_MRC_HEADER
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //
@@ -203,8 +204,9 @@ int getFileDataNumComponents(int mode)
       return 1;
     case 3:
     case 4:
-    case 6:
       return 2;
+    case 6:
+      return 1;
     case 16:
       return 3;
     default:
@@ -403,3 +405,4 @@ void vtkMRCReader::ExecuteDataWithInformation(
       vtkErrorMacro("Unknown data type");
   }
 }
+VTK_ABI_NAMESPACE_END

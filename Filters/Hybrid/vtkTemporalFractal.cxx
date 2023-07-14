@@ -36,6 +36,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class TemporalFractalOutputUtil : public vtkObject
 {
 public:
@@ -1019,6 +1020,7 @@ void vtkTemporalFractal::AddTestArray(vtkHierarchicalBoxDataSet* output)
         }
       }
       assert("check: valid_debugcounter" && debugcounter == numCells);
+      (void)debugcounter;
       array->SetName("TestX");
       grid->GetCellData()->AddArray(array);
       array->Delete();
@@ -1101,6 +1103,10 @@ void vtkTemporalFractal::AddFractalArray(vtkCompositeDataSet* output)
 
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (!this->GenerateRectilinearGrids)
     {
       vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());
@@ -1213,7 +1219,6 @@ void vtkTemporalFractal::AddDepthArray(vtkHierarchicalBoxDataSet* output)
 {
   int levels = output->GetNumberOfLevels();
   int level = 0;
-  int blockId = 0;
   while (level < levels)
   {
     int blocks = output->GetNumberOfDataSets(level);
@@ -1237,7 +1242,6 @@ void vtkTemporalFractal::AddDepthArray(vtkHierarchicalBoxDataSet* output)
       grid->GetCellData()->AddArray(array);
       array->Delete();
       ++block;
-      ++blockId;
     }
     ++level;
   }
@@ -1566,3 +1570,4 @@ void vtkTemporalFractal::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "GenerateRectilinearGrids: " << (this->GenerateRectilinearGrids ? "True" : "False") << endl;
 }
+VTK_ABI_NAMESPACE_END

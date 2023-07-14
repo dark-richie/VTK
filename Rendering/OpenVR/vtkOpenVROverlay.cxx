@@ -29,6 +29,7 @@
 
 #include "OpenVRDashboard.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVROverlay);
 
 vtkOpenVROverlay::vtkOpenVROverlay()
@@ -321,7 +322,7 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow* win)
   }
   memcpy(this->CurrentTextureData, this->OriginalTextureData, dims[0] * dims[1] * 4);
   this->OverlayTexture->Create2DFromRaw(dims[0], dims[1], 4, VTK_UNSIGNED_CHAR,
-    const_cast<void*>(static_cast<const void* const>(this->OriginalTextureData)));
+    const_cast<void*>(static_cast<const void*>(this->OriginalTextureData)));
 
   this->SetupSpots();
 
@@ -346,7 +347,7 @@ void vtkOpenVROverlay::Render()
   dims[0] = this->OverlayTexture->GetWidth();
   dims[1] = this->OverlayTexture->GetHeight();
   this->OverlayTexture->Create2DFromRaw(dims[0], dims[1], 4, VTK_UNSIGNED_CHAR,
-    const_cast<void*>(static_cast<const void* const>(this->CurrentTextureData)));
+    const_cast<void*>(static_cast<const void*>(this->CurrentTextureData)));
   this->OverlayTexture->Bind();
   GLuint unTexture = this->OverlayTexture->GetHandle();
   if (unTexture != 0)
@@ -461,3 +462,4 @@ void vtkOpenVROverlay::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

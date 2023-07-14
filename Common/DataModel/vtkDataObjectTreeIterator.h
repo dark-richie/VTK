@@ -27,6 +27,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h" //to store data sets
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTree;
 class vtkDataObjectTreeInternals;
 class vtkDataObjectTreeIndex;
@@ -144,6 +145,10 @@ private:
   class vtkInternals;
   vtkInternals* Internals;
   friend class vtkInternals;
+  /**
+   * Used to improve the speed of vtkDataObjectTree::SafeDownCast().
+   */
+  static bool IsDataObjectTree(vtkDataObject* dataObject);
 
   vtkTypeBool TraverseSubTree;
   vtkTypeBool VisitOnlyLeaves;
@@ -158,4 +163,5 @@ private:
   void UpdateLocation();
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

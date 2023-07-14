@@ -29,7 +29,9 @@
 
 #include "vtkSmartPointer.h" // for smart pointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
+class vtkHyperTreeGrid;
 class vtkPlanes;
 class vtkSignedCharArray;
 
@@ -79,11 +81,15 @@ protected:
    * array with 1 for inside and 0 for outside.
    */
   void ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharArray* pointsInside);
+
+  ///@{
   /**
    * Computes which cells in the dataset are inside or intersect the frustum and populates
    * the cellsInside array with 1 for inside/intersecting and 0 for outside.
    */
   void ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellsInside);
+  void ComputeSelectedCells(vtkHyperTreeGrid* input, vtkSignedCharArray* cellsInside);
+  ///@}
 
   int OverallBoundsTest(double bounds[6]);
 
@@ -92,4 +98,5 @@ private:
   void operator=(const vtkFrustumSelector&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

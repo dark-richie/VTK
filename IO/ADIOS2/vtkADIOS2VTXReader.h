@@ -34,8 +34,12 @@
 // forward declaring to keep it private
 namespace vtx
 {
+VTK_ABI_NAMESPACE_BEGIN
 class VTXSchemaManager;
+VTK_ABI_NAMESPACE_END
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkIndent;
 class vtkInformation;
@@ -53,7 +57,7 @@ public:
 
 protected:
   vtkADIOS2VTXReader();
-  ~vtkADIOS2VTXReader();
+  ~vtkADIOS2VTXReader() override;
 
   vtkADIOS2VTXReader(const vtkADIOS2VTXReader&) = delete;
   void operator=(const vtkADIOS2VTXReader&) = delete;
@@ -70,4 +74,5 @@ private:
   std::unique_ptr<vtx::VTXSchemaManager> SchemaManager;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkADIOS2VTXReader_h */

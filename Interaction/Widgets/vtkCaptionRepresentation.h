@@ -39,6 +39,7 @@
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkCaptionActor2D;
 class vtkConeSource;
@@ -80,7 +81,7 @@ public:
 
   ///@{
   /**
-   * Set and get the instances of vtkPointHandleRepresention3D used to implement this
+   * Set and get the instances of vtkPointHandleRepresentation3D used to implement this
    * representation. Normally default representations are created, but you can
    * specify the ones you want to use.
    */
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkCaptionRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

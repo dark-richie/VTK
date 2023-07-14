@@ -64,6 +64,7 @@ constexpr double BOUNDING_BOX_INFLATION_RATIO = 0.01;
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 vtkBoundingBox GetBounds(vtkDataObject* dobj, diy::mpi::communicator& comm)
 {
   auto lbounds = vtkDIYUtilities::GetLocalBounds(dobj);
@@ -240,8 +241,10 @@ void SetPartitionCount(vtkPartitionedDataSet* pdc, unsigned int target)
   pdc->SetNumberOfPartitions(target);
 }
 
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRedistributeDataSetFilter);
 vtkCxxSetObjectMacro(vtkRedistributeDataSetFilter, Controller, vtkMultiProcessController);
 //------------------------------------------------------------------------------
@@ -496,25 +499,30 @@ int vtkRedistributeDataSetFilter::RequestData(
   // ******************************************************
   // Now, package the result into the output.
   // ******************************************************
-  if (vtkPartitionedDataSetCollection::SafeDownCast(outputDO))
+  vtkPartitionedDataSetCollection* outputPDSC =
+    vtkPartitionedDataSetCollection::SafeDownCast(outputDO);
+  vtkPartitionedDataSet* outputPDS = vtkPartitionedDataSet::SafeDownCast(outputDO);
+  vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast(outputDO);
+
+  if (outputPDSC)
   {
-    outputDO->ShallowCopy(result);
+    outputPDSC->CompositeShallowCopy(result);
   }
-  else if (vtkPartitionedDataSet::SafeDownCast(outputDO))
+  else if (outputPDS)
   {
     assert(result->GetNumberOfPartitionedDataSets() <= 1);
     if (result->GetNumberOfPartitionedDataSets() == 1)
     {
-      outputDO->ShallowCopy(result->GetPartitionedDataSet(0));
+      outputPDS->CompositeShallowCopy(result->GetPartitionedDataSet(0));
     }
   }
-  else if (vtkMultiBlockDataSet::SafeDownCast(outputDO))
+  else if (outputMB)
   {
     // convert result (vtkPartitionedDataSetCollection) to vtkMultiBlockDataSet.
     if (auto mbresult = vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
           result, result->GetDataAssembly()))
     {
-      outputDO->ShallowCopy(mbresult);
+      outputMB->CompositeShallowCopy(mbresult);
     }
     else
     {
@@ -524,9 +532,27 @@ int vtkRedistributeDataSetFilter::RequestData(
   else
   {
     assert(vtkUnstructuredGrid::SafeDownCast(outputDO) != nullptr);
-    // When the output is unstructured grid, the input is as well,
-    // and we necessarily have the data set below.
-    outputDO->ShallowCopy(result->GetPartitionedDataSet(0)->GetPartition(0));
+
+    vtkNew<vtkAppendFilter> appender;
+    appender->MergePointsOn();
+
+    using Opts = vtk::DataObjectTreeOptions;
+    for (vtkDataObject* part : vtk::Range(result.GetPointer(),
+           Opts::SkipEmptyNodes | Opts::VisitOnlyLeaves | Opts::TraverseSubTree))
+    {
+      assert(part != nullptr);
+      appender->AddInputDataObject(part);
+    }
+    if (appender->GetNumberOfInputConnections(0) > 1)
+    {
+      appender->Update();
+      outputDO->ShallowCopy(appender->GetOutputDataObject(0));
+    }
+    else if (appender->GetNumberOfInputConnections(0) == 1)
+    {
+      outputDO->ShallowCopy(appender->GetInputDataObject(0, 0));
+    }
+    outputDO->GetFieldData()->PassData(inputDO->GetFieldData());
   }
 
   this->SetProgressShiftScale(0.0, 1.0);
@@ -713,7 +739,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(vtkPartitionedDataSet* inputPDS,
       if (this->GenerateGlobalCellIds)
       {
         auto result = this->AssignGlobalCellIds(outputPDS, mb_offset);
-        outputPDS->ShallowCopy(result);
+        outputPDS->CompositeShallowCopy(result);
       }
       break;
 
@@ -763,7 +789,7 @@ bool vtkRedistributeDataSetFilter::RedistributeDataSet(
 
   auto pieces = vtkDIYKdTreeUtilities::Exchange(parts, this->GetController(), this->Assigner);
   assert(pieces->GetNumberOfPartitions() == parts->GetNumberOfPartitions());
-  outputPDS->ShallowCopy(pieces);
+  outputPDS->CompositeShallowCopy(pieces);
   return true;
 }
 
@@ -885,6 +911,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSe
 
   vtkNew<vtkExtractCells> extractor;
   extractor->SetInputDataObject(clone);
+  extractor->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   for (size_t region_idx = 0; region_idx < region_cell_ids.size(); ++region_idx)
   {
@@ -1118,3 +1145,4 @@ void vtkRedistributeDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EnableDebugging: " << this->EnableDebugging << endl;
   os << indent << "LoadBalanceAcrossAllBlocks: " << this->LoadBalanceAcrossAllBlocks << endl;
 }
+VTK_ABI_NAMESPACE_END

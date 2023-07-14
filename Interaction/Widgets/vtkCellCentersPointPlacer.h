@@ -41,6 +41,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkPropCollection;
 class vtkProp;
@@ -62,8 +63,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
-  // Descuription:
-  // Add an actor (that represents a terrain in a rendererd scene) to the
+  // Description:
+  // Add an actor (that represents a terrain in a rendered scene) to the
   // list. Only props in this list are considered by the PointPlacer
   virtual void AddProp(vtkProp*);
   virtual void RemoveViewProp(vtkProp* prop);
@@ -148,4 +149,5 @@ private:
   void operator=(const vtkCellCentersPointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

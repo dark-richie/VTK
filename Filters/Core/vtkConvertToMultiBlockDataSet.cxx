@@ -21,6 +21,7 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkConvertToMultiBlockDataSet);
 //----------------------------------------------------------------------------
 vtkConvertToMultiBlockDataSet::vtkConvertToMultiBlockDataSet() = default;
@@ -57,6 +58,10 @@ bool vtkConvertToMultiBlockDataSet::Execute(vtkDataObject* input, vtkMultiBlockD
     auto iter = vtk::TakeSmartPointer(inputCD->NewIterator());
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       output->SetDataSet(iter, iter->GetCurrentDataObject());
       if (iter->HasCurrentMetaData())
       {
@@ -66,6 +71,7 @@ bool vtkConvertToMultiBlockDataSet::Execute(vtkDataObject* input, vtkMultiBlockD
   }
   else
   {
+    this->CheckAbort();
     output->SetNumberOfBlocks(1);
     output->SetBlock(0, input);
   }
@@ -77,3 +83,4 @@ void vtkConvertToMultiBlockDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

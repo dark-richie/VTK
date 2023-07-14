@@ -27,6 +27,7 @@
 #include "vtkContextArea.h"
 #include "vtkNew.h" // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextTransform;
 class vtkRectd;
 
@@ -38,7 +39,7 @@ public:
   static vtkInteractiveArea* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  ////@{
+  ///@{
   /**
    * \brief vtkAbstractContextItem API
    */
@@ -47,13 +48,13 @@ public:
   bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
   bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
-  ////@}
+  ///@}
 
 protected:
   vtkInteractiveArea();
   ~vtkInteractiveArea() override;
 
-  ////@{
+  ///@{
   /**
    * \brief vtkContextArea API
    */
@@ -63,7 +64,7 @@ private:
   /**
    * Re-scale axis when interacting.
    */
-  void RecalculateTickSpacing(vtkAxis* axis, int const numClicks);
+  void RecalculateTickSpacing(vtkAxis* axis, int numClicks);
 
   /**
    * Re-computes the transformation expressing the current zoom, panning, etc.
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkInteractiveArea&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkInteractiveArea_h

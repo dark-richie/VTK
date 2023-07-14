@@ -29,6 +29,7 @@
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAngleRepresentation3D);
 
 //------------------------------------------------------------------------------
@@ -331,7 +332,8 @@ void vtkAngleRepresentation3D::BuildRepresentation()
       points->GetPoint(npoints / 2, this->TextPosition);
 
       char string[512];
-      snprintf(string, sizeof(string), this->LabelFormat, vtkMath::DegreesFromRadians(this->Angle));
+      snprintf(string, sizeof(string), this->LabelFormat,
+        vtkMath::DegreesFromRadians(this->Angle) * this->Scale);
 
       this->TextInput->SetText(string);
       this->TextActor->SetCamera(this->Renderer->GetActiveCamera());
@@ -482,3 +484,4 @@ void vtkAngleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

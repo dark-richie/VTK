@@ -29,6 +29,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHyperTreeGridMapper : public vtkHyperTreeGridMapper
 {
 public:
@@ -38,11 +39,12 @@ public:
 
 protected:
   vtkOpenGLHyperTreeGridMapper();
-  virtual ~vtkOpenGLHyperTreeGridMapper() override = default;
+  ~vtkOpenGLHyperTreeGridMapper() override = default;
 
 private:
   vtkOpenGLHyperTreeGridMapper(const vtkOpenGLHyperTreeGridMapper&) = delete;
   void operator=(const vtkOpenGLHyperTreeGridMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

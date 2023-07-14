@@ -24,7 +24,9 @@
 #include <iostream>
 #include <numeric>
 
+VTK_ABI_NAMESPACE_BEGIN
 constexpr int MAX_NCOMPS = 4;
+constexpr double DEFAULT_ERROR = 1000.;
 using max_ncomps_array_t = std::array<int, MAX_NCOMPS>;
 
 vtkStandardNewMacro(vtkImageDifference);
@@ -210,7 +212,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
   // results in max_ncomps_array_t.
   // nComp is not taken into account with std::copy and std::accumulate
   // as it is simplifying the code and because non-considered-component
-  // treshold value is always zero.
+  // threshold value is always zero.
   int nComp = inData[0][0]->GetNumberOfScalarComponents();
   int input1NComp = inData[1][0]->GetNumberOfScalarComponents();
   int outputNComp = outData[0]->GetNumberOfScalarComponents();
@@ -317,7 +319,6 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
         max_ncomps_array_t rgbaMax;
         rgbaMax.fill(0);
         max_ncomps_array_t rgbaTresh;
-        rgbaTresh.fill(1000);
 
         // ignore the boundary within two pixels as we cannot
         // do a good average calc on the boundary
@@ -326,6 +327,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
         {
           for (int direction = 0; direction <= 1; ++direction)
           {
+            rgbaTresh.fill(DEFAULT_ERROR);
             unsigned char* dir1Ptr0 = direction == 0 ? in1Ptr0 : in2Ptr0;
             unsigned char* dir2Ptr0 = direction == 0 ? in2Ptr0 : in1Ptr0;
             bool haveValues = false;
@@ -401,7 +403,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
 
         std::copy(rgbaMax.begin(), rgbaMax.end(), rgbaTresh.begin());
 
-        error += std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0) / (nComp * 255);
+        error += std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0.) / (nComp * 255.);
 
         for (int i = 0; i < nComp; i++)
         {
@@ -410,7 +412,7 @@ void vtkImageDifference::ThreadedRequestData(vtkInformation* vtkNotUsed(request)
           *outPtr0++ = static_cast<unsigned char>(rgbaTresh[i]);
         }
         thresholdedError +=
-          std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0) / (nComp * 255.0);
+          std::accumulate(rgbaTresh.begin(), rgbaTresh.end(), 0.) / (nComp * 255.);
 
         in1Ptr0 += nComp;
         in2Ptr0 += nComp;
@@ -489,8 +491,8 @@ int vtkImageDifference::RequestData(
     // Report errors here, do not report errors while multithreading!
     vtkErrorMacro("RequestData: " << this->ErrorMessage);
     this->ErrorMessage = nullptr;
-    this->Error = 1000.0;
-    this->ThresholdedError = 1000.0;
+    this->Error = DEFAULT_ERROR;
+    this->ThresholdedError = DEFAULT_ERROR;
     ret = 0;
   }
 
@@ -515,8 +517,8 @@ int vtkImageDifference::RequestInformation(vtkInformation* vtkNotUsed(request),
   if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] || in1Ext[2] != in2Ext[2] ||
     in1Ext[3] != in2Ext[3] || in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
   {
-    this->Error = 1000.0;
-    this->ThresholdedError = 1000.0;
+    this->Error = DEFAULT_ERROR;
+    this->ThresholdedError = DEFAULT_ERROR;
 
     vtkErrorMacro("ExecuteInformation: Input are not the same size.\n"
       << " Input1 is: " << in1Ext[0] << "," << in1Ext[1] << "," << in1Ext[2] << "," << in1Ext[3]
@@ -567,3 +569,4 @@ void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AllowShift: " << this->AllowShift << "\n";
   os << indent << "Averaging: " << this->Averaging << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -44,6 +44,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkPoints;
@@ -128,9 +129,9 @@ private:
   vtkIdTypeArray* PointIds;
   bool ExactMatch;
 
-private:
   vtkRemovePolyData(const vtkRemovePolyData&) = delete;
   void operator=(const vtkRemovePolyData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

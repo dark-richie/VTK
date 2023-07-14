@@ -27,6 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExplicitStructuredGridToUnstructuredGrid);
 
 //------------------------------------------------------------------------------
@@ -87,8 +88,13 @@ int vtkExplicitStructuredGridToUnstructuredGrid::RequestData(
   vtkNew<vtkCellArray> cells;
   cells->AllocateEstimate(nbCells, 8);
   int i, j, k;
+  vtkIdType checkAbortInterval = std::min(nbCells / 10 + 1, (vtkIdType)1000);
   for (vtkIdType cellId = 0; cellId < nbCells; cellId++)
   {
+    if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     if (input->IsCellVisible(cellId))
     {
       vtkNew<vtkIdList> ptIds;
@@ -124,3 +130,4 @@ int vtkExplicitStructuredGridToUnstructuredGrid::FillInputPortInformation(
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

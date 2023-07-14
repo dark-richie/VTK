@@ -34,6 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAffineRepresentation2D);
 
 vtkCxxSetObjectMacro(vtkAffineRepresentation2D, Property, vtkProperty2D);
@@ -1000,14 +1001,18 @@ void vtkAffineRepresentation2D::ShallowCopy(vtkProp* prop)
 //------------------------------------------------------------------------------
 void vtkAffineRepresentation2D::GetActors2D(vtkPropCollection* pc)
 {
-  this->BoxActor->GetActors2D(pc);
-  this->HBoxActor->GetActors2D(pc);
-  this->CircleActor->GetActors2D(pc);
-  this->HCircleActor->GetActors2D(pc);
-  this->XAxis->GetActors2D(pc);
-  this->YAxis->GetActors2D(pc);
-  this->HXAxis->GetActors2D(pc);
-  this->HYAxis->GetActors2D(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->BoxActor->GetActors2D(pc);
+    this->HBoxActor->GetActors2D(pc);
+    this->CircleActor->GetActors2D(pc);
+    this->HCircleActor->GetActors2D(pc);
+    this->XAxis->GetActors2D(pc);
+    this->YAxis->GetActors2D(pc);
+    this->HXAxis->GetActors2D(pc);
+    this->HYAxis->GetActors2D(pc);
+  }
+  this->Superclass::GetActors2D(pc);
 }
 
 //------------------------------------------------------------------------------
@@ -1115,3 +1120,4 @@ void vtkAffineRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Text Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

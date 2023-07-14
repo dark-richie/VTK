@@ -22,6 +22,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkParallelReaderInternal
 {
   using FileNamesType = std::vector<std::string>;
@@ -50,11 +51,11 @@ void vtkParallelReader::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkParallelReader::AddFileName(const char* fname)
 {
-  if (fname == nullptr || strlen(fname) == 0)
+  if (fname == nullptr || *fname == '\0')
   {
     return;
   }
-  this->Internal->FileNames.push_back(fname);
+  this->Internal->FileNames.emplace_back(fname);
   this->Modified();
 }
 
@@ -185,3 +186,4 @@ double vtkParallelReader::GetTimeValue(const std::string&)
 {
   return vtkMath::Nan();
 }
+VTK_ABI_NAMESPACE_END

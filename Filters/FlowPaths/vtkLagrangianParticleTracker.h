@@ -91,11 +91,13 @@
 #include "vtkBoundingBox.h" // For cached bounds
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersFlowPathsModule.h" // For export macro
+#include "vtkSmartPointer.h"           // For smart pointer
 
 #include <atomic> // for atomic
 #include <mutex>  // for mutexes
 #include <queue>  // for particle queue
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkCellArray;
 class vtkDataSet;
@@ -134,7 +136,7 @@ public:
    * Default is vtkLagrangianMatidaIntegrationModel
    */
   void SetIntegrationModel(vtkLagrangianBasicIntegrationModel* integrationModel);
-  vtkGetObjectMacro(IntegrationModel, vtkLagrangianBasicIntegrationModel);
+  vtkLagrangianBasicIntegrationModel* GetIntegrationModel();
   ///@}
 
   ///@{
@@ -143,7 +145,7 @@ public:
    * Default is vtkRungeKutta2
    */
   void SetIntegrator(vtkInitialValueProblemSolver* integrator);
-  vtkGetObjectMacro(Integrator, vtkInitialValueProblemSolver);
+  vtkInitialValueProblemSolver* GetIntegrator();
   ///@}
 
   ///@{
@@ -372,8 +374,8 @@ protected:
    */
   virtual void DeleteParticle(vtkLagrangianParticle* particle);
 
-  vtkLagrangianBasicIntegrationModel* IntegrationModel;
-  vtkInitialValueProblemSolver* Integrator;
+  vtkSmartPointer<vtkLagrangianBasicIntegrationModel> IntegrationModel;
+  vtkSmartPointer<vtkInitialValueProblemSolver> Integrator;
 
   int CellLengthComputationMode;
   double StepFactor;
@@ -397,8 +399,10 @@ protected:
   vtkDataObject* FlowCache;
   vtkMTimeType FlowTime;
   vtkBoundingBox FlowBoundsCache;
+  bool FlowCacheInvalid = true;
   vtkDataObject* SurfacesCache;
   vtkMTimeType SurfacesTime;
+  bool SurfaceCacheInvalid = true;
 
   std::mutex ProgressMutex;
   friend struct IntegratingFunctor;
@@ -410,4 +414,5 @@ private:
   void operator=(const vtkLagrangianParticleTracker&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

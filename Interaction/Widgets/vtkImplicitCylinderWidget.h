@@ -91,7 +91,9 @@
 #include "vtkAbstractWidget.h"
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitCylinderRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitCylinderWidget : public vtkAbstractWidget
@@ -167,4 +169,5 @@ private:
   void operator=(const vtkImplicitCylinderWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

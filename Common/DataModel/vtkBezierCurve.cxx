@@ -27,6 +27,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierCurve);
 
 vtkBezierCurve::vtkBezierCurve() = default;
@@ -40,8 +41,7 @@ void vtkBezierCurve::PrintSelf(ostream& os, vtkIndent indent)
 
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
-void vtkBezierCurve::SetRationalWeightsFromPointData(
-  vtkPointData* point_data, const vtkIdType numPts)
+void vtkBezierCurve::SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts)
 {
   vtkDataArray* v = point_data->GetRationalWeights();
   if (v)
@@ -114,7 +114,7 @@ void vtkBezierCurve::InterpolateFunctions(const double pcoords[3], double* weigh
 {
   vtkBezierInterpolation::Tensor1ShapeFunctions(this->GetOrder(), pcoords, weights);
 
-  // If the unit cell has rational weigths: weights_i = weights_i * rationalWeights / sum( weights_i
+  // If the unit cell has rational weights: weights_i = weights_i * rationalWeights / sum( weights_i
   // * rationalWeights )
   const bool has_rational_weights = RationalWeights->GetNumberOfTuples() > 0;
   if (has_rational_weights)
@@ -140,3 +140,4 @@ vtkDoubleArray* vtkBezierCurve::GetRationalWeights()
 {
   return RationalWeights.Get();
 }
+VTK_ABI_NAMESPACE_END

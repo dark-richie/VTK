@@ -36,6 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkExtractHistogram2D, RowMask, vtkDataArray);
 //------------------------------------------------------------------------------
@@ -175,6 +176,10 @@ void vtkExtractHistogram2D::Learn(
   this->MaximumBinCount = 0;
   for (int i = 0; i < numValues; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     v1 = col1->GetComponent(i, this->ComponentsToProcess[0]);
     v2 = col2->GetComponent(i, this->ComponentsToProcess[1]);
 
@@ -371,3 +376,4 @@ int vtkExtractHistogram2D::ComputeBinExtents(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

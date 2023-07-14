@@ -178,6 +178,7 @@
  * StopWords, SkippedWords and KeptWords.
 */
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISCORE_EXPORT vtkWordCloud : public vtkImageAlgorithm
 {
 public:
@@ -557,7 +558,7 @@ public:
 
   ///@{
   /**
-   * Get a vector of words that are skipped. Skipped wors do not fit
+   * Get a vector of words that are skipped. Skipped words do not fit
    * in the final image.
    */
   ///@}
@@ -629,6 +630,7 @@ private:
     int x, y;
   };
 };
+VTK_ABI_NAMESPACE_END
 #endif
 
 //  LocalWords:  vtkNamedColors SetMaskColorName

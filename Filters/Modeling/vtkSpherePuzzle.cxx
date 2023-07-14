@@ -30,6 +30,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //------------------------------------------------------------------------------
@@ -127,9 +128,11 @@ int vtkSpherePuzzle::RequestData(vtkInformation* vtkNotUsed(request),
 
   sphere->SetPhiResolution(4);
   sphere->SetThetaResolution(4);
+  sphere->SetContainerAlgorithm(this);
 
   tf->SetTransform(this->Transform);
   tf->SetInputConnection(sphere->GetOutputPort());
+  tf->SetContainerAlgorithm(this);
 
   for (j = 0; j < 4; ++j)
   {
@@ -177,6 +180,7 @@ int vtkSpherePuzzle::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  append->SetContainerAlgorithm(this);
   append->Update();
 
   // Move the data to the output.
@@ -462,3 +466,4 @@ void vtkSpherePuzzle::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

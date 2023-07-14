@@ -20,6 +20,7 @@
 #include <vtkCamera.h>
 #include <vtkCellData.h>
 #include <vtkCollectionIterator.h>
+#include <vtkCompositeDataDisplayAttributes.h>
 #include <vtkCompositeDataIterator.h>
 #include <vtkCompositeDataSet.h>
 #include <vtkCompositePolyDataMapper.h>
@@ -41,17 +42,13 @@
 #include <vtkViewNode.h>
 #include <vtksys/SystemTools.hxx>
 
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-#include <vtkCompositeDataDisplayAttributes.h>
-#include <vtkCompositePolyDataMapper2.h>
-#endif
-
 #include <array>
 #include <ios>
 #include <sstream>
 #include <unordered_map>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 const std::array<char, 13> arrayTypes = {
@@ -268,11 +265,7 @@ void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkActor* actor)
     auto const& children = node->GetChildren();
     for (auto child : children)
     {
-      if (vtkCompositePolyDataMapper::SafeDownCast(child->GetRenderable())
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-        || vtkCompositePolyDataMapper2::SafeDownCast(child->GetRenderable())
-#endif
-      )
+      if (vtkCompositePolyDataMapper::SafeDownCast(child->GetRenderable()))
       {
         return;
       }
@@ -321,13 +314,8 @@ void vtkVtkJSSceneGraphSerializer::Add(Json::Value* self, vtkAlgorithm* algorith
 //------------------------------------------------------------------------------
 namespace
 {
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-// vtkCompositePolyDataMapper2 provides an API for assigning color and opacity
-// to each block in the dataset, but vtkCompositePolyDataMapper does not. This
-// logic splits the code to apply per-block coloring when it is available.
-template <typename CompositeMapper>
-typename std::enable_if<std::is_base_of<vtkCompositePolyDataMapper2, CompositeMapper>::value>::type
-SetColorAndOpacity(Json::Value& property, CompositeMapper* mapper, vtkDataObject* block)
+void SetColorAndOpacity(
+  Json::Value& property, vtkCompositePolyDataMapper* mapper, vtkDataObject* block)
 {
   static const std::array<std::string, 4> colorProperties = { "ambientColor", "color",
     "diffuseColor", "specularColor" };
@@ -354,19 +342,11 @@ SetColorAndOpacity(Json::Value& property, CompositeMapper* mapper, vtkDataObject
     property["properties"]["visibility"] = atts->GetBlockVisibility(block);
   }
 }
-#endif
-
-template <typename CompositeMapper>
-typename std::enable_if<std::is_base_of<vtkCompositePolyDataMapper, CompositeMapper>::value>::type
-SetColorAndOpacity(Json::Value&, CompositeMapper*, vtkDataObject*)
-{
-}
 }
 
 //------------------------------------------------------------------------------
-template <typename CompositeMapper>
 void vtkVtkJSSceneGraphSerializer::Add(
-  vtkViewNode* node, vtkDataObject* dataObject, CompositeMapper* mapper)
+  vtkViewNode* node, vtkDataObject* dataObject, vtkCompositePolyDataMapper* mapper)
 {
   if (vtkPolyData::SafeDownCast(dataObject) != nullptr)
   {
@@ -446,7 +426,7 @@ void vtkVtkJSSceneGraphSerializer::Add(
     iter->InitTraversal();
     while (!iter->IsDoneWithTraversal())
     {
-      this->Add<CompositeMapper>(node, iter->GetCurrentDataObject(), mapper);
+      this->Add(node, iter->GetCurrentDataObject(), mapper);
       iter->GoToNextItem();
     }
   }
@@ -455,18 +435,7 @@ void vtkVtkJSSceneGraphSerializer::Add(
 //------------------------------------------------------------------------------
 void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkCompositePolyDataMapper* mapper)
 {
-  this->Add<vtkCompositePolyDataMapper>(node, mapper->GetInputDataObject(0, 0), mapper);
-}
-
-//------------------------------------------------------------------------------
-void vtkVtkJSSceneGraphSerializer::Add(vtkViewNode* node, vtkCompositePolyDataMapper2* mapper)
-{
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-  this->Add<vtkCompositePolyDataMapper2>(node, mapper->GetInputDataObject(0, 0), mapper);
-#else
-  (void)node;
-  (void)mapper;
-#endif
+  this->Add(node, mapper->GetInputDataObject(0, 0), mapper);
 }
 
 //------------------------------------------------------------------------------
@@ -1206,3 +1175,4 @@ void vtkVtkJSSceneGraphSerializer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -57,6 +57,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLFluidMapper);
 
 //------------------------------------------------------------------------------
@@ -230,7 +231,7 @@ void vtkOpenGLFluidMapper::SetDepthThicknessColorShaderParameters(
   }
 }
 
-void vtkOpenGLFluidMapper::SetupBuffers(vtkOpenGLRenderWindow* const renderWindow)
+void vtkOpenGLFluidMapper::SetupBuffers(vtkOpenGLRenderWindow* renderWindow)
 {
   // create textures we need if not done already
   if (this->TexBuffer[0]->GetHandle() == 0)
@@ -982,3 +983,4 @@ void vtkOpenGLFluidMapper::ReleaseGraphicsResources(vtkWindow* w)
 
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

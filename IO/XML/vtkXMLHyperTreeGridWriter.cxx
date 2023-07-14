@@ -36,6 +36,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
 
 //------------------------------------------------------------------------------
@@ -901,7 +902,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_2(vtkIndent indent)
     // Write the data or XML description for appended data
     if (this->DataMode == Appended)
     {
-      this->WriteArrayAppended(array, infoIndent, this->CellDataOMG->GetElement(0),
+      this->WriteArrayAppended(array, infoIndent, this->CellDataOMG->GetElement(i),
         array->GetName(),
         metaData.BreadthFirstIdMap->GetNumberOfIds() * array->GetNumberOfComponents());
     }
@@ -1005,3 +1006,4 @@ void vtkXMLHyperTreeGridWriter::HyperTreeGridMetaDataForVersion2::Initialize()
   this->DepthPerTree = nullptr;
   this->BreadthFirstIdMap = nullptr;
 }
+VTK_ABI_NAMESPACE_END

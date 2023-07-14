@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableToPolyData);
 //------------------------------------------------------------------------------
 vtkTableToPolyData::vtkTableToPolyData()
@@ -159,6 +160,10 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   // Add all other columns as point data.
   for (int cc = 0; cc < input->GetNumberOfColumns(); cc++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkAbstractArray* arr = input->GetColumn(cc);
     if (this->PreserveCoordinateColumnsAsDataArrays)
     {
@@ -189,3 +194,4 @@ void vtkTableToPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PreserveCoordinateColumnsAsDataArrays: "
      << (this->PreserveCoordinateColumnsAsDataArrays ? "true" : "false") << endl;
 }
+VTK_ABI_NAMESPACE_END

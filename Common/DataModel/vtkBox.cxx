@@ -23,6 +23,7 @@
 #include <limits> // for IntersectWithInfiniteLine
 #include <vector> // for IntersectWithPlane
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
@@ -320,7 +321,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
 // coordinate along line. (Notes: the intersection ray dir[3] is NOT
 // normalized.  Valid intersections will only occur between 0<=t<=1.)
 char vtkBox::IntersectBox(const double bounds[6], const double origin[3], const double dir[3],
-  double coord[3], double& t, const double tolerance)
+  double coord[3], double& t, double tolerance)
 {
   bool inside = true;
   char quadrant[3];
@@ -901,3 +902,4 @@ vtkTypeBool vtkBox::IsBoxInFrustum(double planes[24], double bounds[6])
   // not sure so return true
   return true;
 }
+VTK_ABI_NAMESPACE_END

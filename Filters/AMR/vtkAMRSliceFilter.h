@@ -29,6 +29,7 @@
 
 #include <vector> // For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkOverlappingAMR;
@@ -74,7 +75,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the Axis normal. The accpetable values are defined in the
+   * Set/Get the Axis normal. The acceptable values are defined in the
    * NormalTag enum.
    */
   vtkSetMacro(Normal, int);
@@ -83,7 +84,7 @@ public:
 
   ///@{
   /**
-   * Set/Get a multiprocess controller for paralle processing.
+   * Set/Get a multiprocess controller for parallel processing.
    * By default this parameter is set to nullptr by the constructor.
    */
   virtual void SetController(vtkMultiProcessController*);
@@ -127,7 +128,7 @@ protected:
    * Computes the cell center of the cell corresponding to the supplied
    * cell index w.r.t. the input uniform grid.
    */
-  void ComputeCellCenter(vtkUniformGrid* ug, const int cellIdx, double centroid[3]);
+  void ComputeCellCenter(vtkUniformGrid* ug, int cellIdx, double centroid[3]);
 
   /**
    * Gets the slice from the given grid given the plane origin & the
@@ -184,4 +185,5 @@ private:
   void operator=(const vtkAMRSliceFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRSliceFilter_h */

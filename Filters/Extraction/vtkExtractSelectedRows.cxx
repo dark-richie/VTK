@@ -50,6 +50,7 @@
 #include <map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedRows);
 //------------------------------------------------------------------------------
 vtkExtractSelectedRows::vtkExtractSelectedRows()
@@ -185,8 +186,15 @@ int vtkExtractSelectedRows::RequestData(vtkInformation* vtkNotUsed(request),
 
   output->GetRowData()->CopyStructure(input->GetRowData());
 
+  unsigned int checkAbortInterval =
+    std::min(converted->GetNumberOfNodes() / 10 + 1, (unsigned int)1000);
+
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
   {
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     vtkSelectionNode* node = converted->GetNode(i);
     if (node->GetFieldType() == vtkSelectionNode::ROW)
     {
@@ -241,3 +249,4 @@ void vtkExtractSelectedRows::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "AddOriginalRowIdsArray: " << this->AddOriginalRowIdsArray << endl;
 }
+VTK_ABI_NAMESPACE_END

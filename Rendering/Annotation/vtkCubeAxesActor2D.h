@@ -49,6 +49,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkCamera;
@@ -382,11 +383,12 @@ protected:
 
 private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
+  // NOLINTNEXTLINE(bugprone-parent-virtual-call)
   void ShallowCopy(vtkProp* prop) override { this->vtkProp::ShallowCopy(prop); }
 
-private:
   vtkCubeAxesActor2D(const vtkCubeAxesActor2D&) = delete;
   void operator=(const vtkCubeAxesActor2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -33,6 +33,7 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 JNIEXPORT jlong vtkJavaGetId(JNIEnv* env, jobject obj)
 {
   jfieldID id;
@@ -189,7 +190,7 @@ JNIEXPORT void vtkJavaVoidFunc(void* f)
   if (iprm->mid)
   {
     JNIEnv* e;
-    // it should already be atached
+    // it should already be attached
 #ifdef JNI_VERSION_1_2
     iprm->vm->AttachCurrentThread((void**)(&e), nullptr);
 #else
@@ -204,7 +205,7 @@ JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
   vtkJavaVoidFuncArg* arg2 = static_cast<vtkJavaVoidFuncArg*>(arg);
 
   JNIEnv* e;
-  // it should already be atached
+  // it should already be attached
 #ifdef JNI_VERSION_1_2
   arg2->vm->AttachCurrentThread((void**)(&e), nullptr);
 #else
@@ -223,7 +224,7 @@ vtkJavaCommand::vtkJavaCommand()
 vtkJavaCommand::~vtkJavaCommand()
 {
   JNIEnv* e;
-  // it should already be atached
+  // it should already be attached
 #ifdef JNI_VERSION_1_2
   this->vm->AttachCurrentThread((void**)(&e), nullptr);
 #else
@@ -239,7 +240,7 @@ void vtkJavaCommand::Execute(vtkObject*, unsigned long, void*)
   if (this->mid)
   {
     JNIEnv* e;
-    // it should already be atached
+    // it should already be attached
 #ifdef JNI_VERSION_1_2
     this->vm->AttachCurrentThread((void**)(&e), nullptr);
 #else

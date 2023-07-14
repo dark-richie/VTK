@@ -35,6 +35,7 @@
 #include "vtkNew.h"    // For vtkNew ivars
 #include "vtkVector.h" // For vector types in API
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
 class vtkImageData;
 class vtkIncrementalForceLayout;
@@ -99,7 +100,7 @@ protected:
 
   /**
    * Returns true if the underlying vtkGraph has been modified since the last
-   * RebuildBuffers, signalling a new RebuildBuffers is needed. When the graph
+   * RebuildBuffers, signaling a new RebuildBuffers is needed. When the graph
    * was modified, it assumes the buffers will be rebuilt, so it updates
    * the modified time of the last build. Override this function if you have
    * a subclass that uses any information in addition to the vtkGraph to determine
@@ -229,4 +230,5 @@ private:
   vtkNew<vtkTooltipItem> Tooltip;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include <cmath>
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
+VTK_ABI_NAMESPACE_BEGIN
 vtkVolumeMapper::vtkVolumeMapper()
 {
   int i;
@@ -138,7 +139,7 @@ vtkDataSet* vtkVolumeMapper::GetInput()
   return vtkDataSet::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
-vtkDataSet* vtkVolumeMapper::GetInput(const int port)
+vtkDataSet* vtkVolumeMapper::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
@@ -198,3 +199,4 @@ double vtkVolumeMapper::SpacingAdjustedSampleDistance(double inputSpacing[3], in
 
   return dist;
 }
+VTK_ABI_NAMESPACE_END

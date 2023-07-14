@@ -33,6 +33,7 @@
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkOpenFOAMReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkMultiProcessController;
 
@@ -54,7 +55,7 @@ public:
   /**
    * Set and get case type. 0 = decomposed case, 1 = reconstructed case.
    */
-  void SetCaseType(const int t);
+  void SetCaseType(int t);
   vtkGetMacro(CaseType, caseType);
   ///@}
   ///@{
@@ -83,10 +84,10 @@ private:
   void operator=(const vtkPOpenFOAMReader&) = delete;
 
   void GatherMetaData();
-  void BroadcastStatus(int&);
   void Broadcast(vtkStringArray*);
   void AllGather(vtkStringArray*);
   void AllGather(vtkDataArraySelection*);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -1,4 +1,4 @@
-# The Wrapping Tools
+# Wrapping Tools
 
 The wrapping tools consist of executables that pull information from C++
 header files, and produce wrapper code that allows the C++ interfaces to
@@ -47,7 +47,7 @@ that header file lookups can be done inexpensively even on slow file systems.
 ### vtkParseType
 
 This is a header file that defines numerical constants that we use to identify
-C++ types, type qualifiers, and specifiers.  These contants are used in the
+C++ types, type qualifiers, and specifiers.  These constants are used in the
 vtkParseData data structures described below.
 
 ### vtkParseAttributes
@@ -60,7 +60,7 @@ constants are stored in the vtkParseData data structures.
 ### vtkParseData
 
 The data structures defined in vtkParseData.h are used for the output of the
-parser.  This header provies data structures for namespaces, classes, methods,
+parser.  This header provides data structures for namespaces, classes, methods,
 typedefs, and for other entities that can be declared in a C++ file.  The
 wrappers convert this data into wrapper code.
 
@@ -212,8 +212,9 @@ used to generate the file vtkParse.tab.c, which contains the parser.
 5. remove `YY_ATTRIBUTE_UNUSED` from `yyfillin`, `yyfill`, and `yynormal`
 6. comment out the `break;` after `return yyreportAmbiguity`
 7. replace `(1-yyrhslen)` with `(1-(int)yyrhslen)`
-8. replace `sizeof yynewStates[0]` with `sizeof (yyGLRState*)`
-9. replace `sizeof yynewLookaheadNeeds[0]` with `sizeof (yybool)`
+8. replace `sizeof yynewStates[0]` and `sizeof yyset->yystates[0]` with `sizeof (yyGLRState*)`
+9. replace `sizeof yynewLookaheadNeeds[0]` and `sizeof yyset->yylookaheadNeeds[0]` with `sizeof (yybool)`
+10. replace `sizeof yynewItems[0]` and `sizeof yystackp->yynextFree[0]` with `sizeof (yyGLRStackItem)`
 
 If you are familiar with "diff" and "patch" and if you have clang-format,
 you can automate these code changes as follows.  For this, you must use

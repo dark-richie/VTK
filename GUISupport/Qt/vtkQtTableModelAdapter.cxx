@@ -46,6 +46,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQtTableModelAdapter::vtkInternal
 {
 public:
@@ -369,8 +370,7 @@ bool vtkQtTableModelAdapter::noTableCheck() const
 //------------------------------------------------------------------------------
 // Description:
 // Selection conversion from VTK land to Qt land
-vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
-  const QModelIndexList qmil) const
+vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const
 {
   // Create vtk index selection
   vtkSelection* IndexSelection = vtkSelection::New(); // Caller needs to delete
@@ -870,3 +870,4 @@ void vtkQtTableModelAdapter::SetIconSize(int w, int h)
   this->IconSize[0] = w;
   this->IconSize[1] = h;
 }
+VTK_ABI_NAMESPACE_END

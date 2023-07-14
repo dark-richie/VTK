@@ -16,8 +16,8 @@
 #include "ArrayConverters.hxx"
 
 #include "vtkmDataArray.h"
-#include "vtkmFilterPolicy.h"
 
+#include "vtkmlib/DataSetUtils.h"
 #include "vtkmlib/PortalTraits.h"
 
 #include <vtkm/cont/ArrayHandle.h>
@@ -32,6 +32,7 @@
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::FieldsFlag fields)
 {
   if ((fields & tovtkm::FieldsFlag::Points) != tovtkm::FieldsFlag::None)
@@ -125,18 +126,20 @@ vtkm::cont::Field Convert(vtkDataArray* input, int association)
   }
   return field;
 }
+VTK_ABI_NAMESPACE_END
 } // namespace tovtkm
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
 {
   vtkPointData* pd = output->GetPointData();
   vtkCellData* cd = output->GetCellData();
 
-  vtkm::IdComponent numFields = input.GetNumberOfFields();
-  for (vtkm::IdComponent i = 0; i < numFields; ++i)
+  // Do not copy the coordinate systems, this is done in a higher level routine.
+  for (auto i : GetFieldsIndicesWithoutCoords(input))
   {
     const vtkm::cont::Field& f = input.GetField(i);
     vtkDataArray* vfield = Convert(f);
@@ -157,4 +160,5 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END
 } // namespace fromvtkm

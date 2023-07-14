@@ -38,10 +38,11 @@
 #include <sstream>
 #include <vector>
 
+using namespace OT;
+
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkOTDensityMap, DENSITY, Double);
 vtkStandardNewMacro(vtkOTDensityMap);
-
-using namespace OT;
 
 class vtkOTDensityMap::OTDistributionCache
 {
@@ -227,6 +228,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Compute contour
+  contour->SetContainerAlgorithm(this);
   contour->Update();
   vtkPolyData* contourPd = contour->GetOutput();
 
@@ -245,6 +247,10 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
          contoursMap.begin(); // Iterate over multimap keys
        it != contoursMap.end(); it = contoursMap.upper_bound(it->first))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // For each key recover range of tables
     std::pair<std::multimap<double, vtkSmartPointer<vtkTable>>::iterator,
       std::multimap<double, vtkSmartPointer<vtkTable>>::iterator>
@@ -275,6 +281,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkImagePermute> flipImage;
   flipImage->SetInputData(image);
   flipImage->SetFilteredAxes(1, 0, 2);
+  flipImage->SetContainerAlgorithm(this);
   flipImage->Update();
   imageOutput->ShallowCopy(flipImage->GetOutput());
 
@@ -308,6 +315,10 @@ void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd, int numContours,
   // Try all cells
   for (vtkIdType cellId = 0; cellId < contourPd->GetNumberOfCells(); cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Pick an untreated cell from the contour polydata
     if (treatedCells.find(cellId) != treatedCells.end())
     {
@@ -536,3 +547,4 @@ vtkMTimeType vtkOTDensityMap::GetMTime()
 {
   return vtkMath::Max(this->Superclass::GetMTime(), this->ContourValues->GetMTime());
 }
+VTK_ABI_NAMESPACE_END

@@ -35,6 +35,7 @@
 
 #include <random>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSSAOPass);
 
 //------------------------------------------------------------------------------
@@ -120,26 +121,26 @@ void vtkSSAOPass::InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int
     // see "Scalable ambient obscurance"
     this->PositionTexture = vtkTextureObject::New();
     this->PositionTexture->SetContext(renWin);
-    this->PositionTexture->SetFormat(GL_RGB);
-    this->PositionTexture->SetInternalFormat(GL_RGB16F);
+    this->PositionTexture->SetFormat(GL_RGBA);
+    this->PositionTexture->SetInternalFormat(GL_RGBA16F);
     this->PositionTexture->SetDataType(GL_FLOAT);
     this->PositionTexture->SetWrapS(vtkTextureObject::ClampToEdge);
     this->PositionTexture->SetWrapT(vtkTextureObject::ClampToEdge);
     this->PositionTexture->SetMinificationFilter(vtkTextureObject::NearestMipmapNearest);
     this->PositionTexture->SetMaxLevel(10);
-    this->PositionTexture->Allocate2D(w, h, 3, VTK_FLOAT);
+    this->PositionTexture->Allocate2D(w, h, 4, VTK_FLOAT);
   }
 
   if (this->NormalTexture == nullptr)
   {
     this->NormalTexture = vtkTextureObject::New();
     this->NormalTexture->SetContext(renWin);
-    this->NormalTexture->SetFormat(GL_RGB);
-    this->NormalTexture->SetInternalFormat(GL_RGB16F);
+    this->NormalTexture->SetFormat(GL_RGBA);
+    this->NormalTexture->SetInternalFormat(GL_RGBA16F);
     this->NormalTexture->SetDataType(GL_FLOAT);
     this->NormalTexture->SetWrapS(vtkTextureObject::ClampToEdge);
     this->NormalTexture->SetWrapT(vtkTextureObject::ClampToEdge);
-    this->NormalTexture->Allocate2D(w, h, 3, VTK_FLOAT);
+    this->NormalTexture->Allocate2D(w, h, 4, VTK_FLOAT);
   }
 
   if (this->SSAOTexture == nullptr)
@@ -240,6 +241,7 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
   this->FrameBufferObject->RemoveColorAttachments(3);
+  this->FrameBufferObject->RemoveDepthAttachment();
 
   this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
@@ -290,7 +292,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
          "    if (fragPosDC.z - depth < 0.0001)\n"
          "    {\n"
          "      vec3 normal = texture(texNormal, texCoord).rgb;\n"
-         "      vec2 tilingShift = size / textureSize(texNoise, 0);\n"
+         "      vec2 tilingShift = vec2(size) / vec2(textureSize(texNoise, 0));\n"
          "      float randomAngle = 6.283185 * texture(texNoise, texCoord * tilingShift).r;\n"
          "      vec3 randomVec = vec3(cos(randomAngle), sin(randomAngle), 0.0);\n"
          "      vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));\n"
@@ -399,7 +401,7 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
     {
       ssImpl << "  ivec2 size = textureSize(texSSAO, 0);"
                 "  float ao = 0.195346 * texture(texSSAO, texCoord).r + \n"
-                "    0.077847	* texture(texSSAO, texCoord + vec2(-1, -1) / size).r +\n"
+                "    0.077847 * texture(texSSAO, texCoord + vec2(-1, -1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(-1, 1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(1, -1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(1, 1) / size).r +\n"
@@ -518,7 +520,10 @@ bool vtkSSAOPass::PreReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
   std::string& vtkNotUsed(geometryShader), std::string& fragmentShader, vtkAbstractMapper* mapper,
   vtkProp* vtkNotUsed(prop))
 {
-  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+  // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+  // here, it is very likely that OpenGL classes are used.
+  if (vtkPolyDataMapper::SafeDownCast(mapper) != nullptr)
   {
     // apply SSAO after lighting
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::Light::Impl",
@@ -535,7 +540,10 @@ bool vtkSSAOPass::PostReplaceShaderValues(std::string& vtkNotUsed(vertexShader),
   std::string& vtkNotUsed(geometryShader), std::string& fragmentShader, vtkAbstractMapper* mapper,
   vtkProp* vtkNotUsed(prop))
 {
-  if (vtkOpenGLPolyDataMapper::SafeDownCast(mapper) != nullptr)
+  // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+  // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+  // here, it is very likely that OpenGL classes are used.
+  if (vtkPolyDataMapper::SafeDownCast(mapper) != nullptr)
   {
     if (fragmentShader.find("vertexVC") != std::string::npos &&
       fragmentShader.find("normalVCVSOutput") != std::string::npos)
@@ -605,3 +613,4 @@ void vtkSSAOPass::ReleaseGraphicsResources(vtkWindow* w)
     this->DepthTexture = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

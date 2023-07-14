@@ -19,12 +19,14 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringArray.h"
 #include "vtk_png.h"
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPNGReader);
 
 #ifdef _MSC_VER
@@ -92,6 +94,8 @@ class vtkPNGReader::vtkInternals
 public:
   std::vector<std::pair<std::string, std::string>> TextKeyValue;
   typedef std::vector<std::pair<std::string, std::string>>::iterator TextKeyValueIterator;
+  vtkNew<vtkStringArray> TextKeys;
+  vtkNew<vtkStringArray> TextValues;
   void ReadTextChunks(png_structp png_ptr, png_infop info_ptr)
   {
     png_textp text_ptr;
@@ -101,8 +105,9 @@ public:
     for (int i = 0; i < num_text; ++i)
     {
       if (
-        // we don't deal with compressed text yet
-        text_ptr[i].compression != PNG_TEXT_COMPRESSION_NONE ||
+        // we only deal with uncompressed text or text with zTXt compression
+        (text_ptr[i].compression != PNG_TEXT_COMPRESSION_NONE &&
+          text_ptr[i].compression != PNG_TEXT_COMPRESSION_zTXt) ||
         // we don't deal with international text yet
         text_ptr[i].text_length == 0)
       {
@@ -616,12 +621,40 @@ const char* vtkPNGReader::GetTextKey(int index)
 }
 
 //------------------------------------------------------------------------------
+vtkStringArray* vtkPNGReader::GetTextKeys()
+{
+  auto keys = this->Internals->TextKeys.GetPointer();
+  keys->Initialize();
+  keys->Allocate(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
+  for (auto& key : this->Internals->TextKeyValue)
+  {
+    keys->InsertNextValue(key.first);
+  }
+  return keys;
+}
+
+//------------------------------------------------------------------------------
 const char* vtkPNGReader::GetTextValue(int index)
 {
   return this->Internals->TextKeyValue[index].second.c_str();
 }
 
+//------------------------------------------------------------------------------
+vtkStringArray* vtkPNGReader::GetTextValues()
+{
+  auto values = this->Internals->TextValues.GetPointer();
+  values->Initialize();
+  values->Allocate(static_cast<vtkIdType>(this->Internals->TextKeyValue.size()));
+  for (auto& value : this->Internals->TextKeyValue)
+  {
+    values->InsertNextValue(value.second);
+  }
+  return values;
+}
+
+//------------------------------------------------------------------------------
 size_t vtkPNGReader::GetNumberOfTextChunks()
 {
   return this->Internals->TextKeyValue.size();
 }
+VTK_ABI_NAMESPACE_END

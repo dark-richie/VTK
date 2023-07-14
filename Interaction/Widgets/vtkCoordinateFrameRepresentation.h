@@ -34,9 +34,11 @@
 
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkNew.h"                      // For vtkNew command
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkBox;
 class vtkCellPicker;
@@ -144,7 +146,7 @@ public:
 
   ///@{
   /**
-   * Returns true if ContrainedAxis
+   * Returns true if ConstrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
   ///@}
@@ -517,4 +519,5 @@ private:
   void operator=(const vtkCoordinateFrameRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

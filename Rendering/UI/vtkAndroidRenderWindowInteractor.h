@@ -33,6 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 struct AInputEvent;
 
 class VTKRENDERINGUI_EXPORT vtkAndroidRenderWindowInteractor : public vtkRenderWindowInteractor
@@ -70,7 +71,7 @@ public:
    * calls PostQuitMessage(0) to terminate the application. An application can Specify
    * ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
    */
-  void TerminateApp(void) override;
+  void TerminateApp() override;
 
   ///@{
   /**
@@ -164,4 +165,5 @@ private:
   void operator=(const vtkAndroidRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

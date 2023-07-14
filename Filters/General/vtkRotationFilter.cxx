@@ -25,6 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRotationFilter);
 
 //------------------------------------------------------------------------------
@@ -178,10 +179,14 @@ int vtkRotationFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdList* cellPts;
 
   // Generate rotated cells.
-  for (int k = 0; k < this->GetNumberOfCopies(); ++k)
+  for (int k = 0; k < this->GetNumberOfCopies() && !this->CheckAbort(); ++k)
   {
     for (vtkIdType i = 0; i < numCells; ++i)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       input->GetCellPoints(i, ptIds);
       input->GetCell(i, cell);
       vtkIdType numCellPts = cell->GetNumberOfPoints();
@@ -224,3 +229,4 @@ int vtkRotationFilter::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

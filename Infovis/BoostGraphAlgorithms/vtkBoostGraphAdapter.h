@@ -125,6 +125,7 @@ inline void put(vtkAbstractArray* arr, vtkIdType key, const vtkVariant& value)
 {
   arr->InsertVariantValue(key, value);
 }
+
 #if defined(_MSC_VER)
 namespace detail
 {
@@ -184,7 +185,7 @@ class vtk_edge_iterator
       const vtkEdgeType&, vtkIdType>
 {
 public:
-  explicit vtk_edge_iterator(vtkGraph* g = 0, vtkIdType v = 0)
+  explicit vtk_edge_iterator(vtkGraph* g = nullptr, vtkIdType v = 0)
     : directed(false)
     , vertex(v)
     , lastVertex(v)
@@ -198,7 +199,8 @@ public:
     }
 
     vtkIdType myRank = -1;
-    vtkDistributedGraphHelper* helper = this->graph ? this->graph->GetDistributedGraphHelper() : 0;
+    vtkDistributedGraphHelper* helper =
+      this->graph ? this->graph->GetDistributedGraphHelper() : nullptr;
     if (helper)
     {
       myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -206,9 +208,9 @@ public:
       lastVertex = helper->MakeDistributedId(myRank, lastVertex);
     }
 
-    if (graph != 0)
+    if (graph != nullptr)
     {
-      directed = (vtkDirectedGraph::SafeDownCast(graph) != 0);
+      directed = (vtkDirectedGraph::SafeDownCast(graph) != nullptr);
       while (vertex < lastVertex && this->graph->GetOutDegree(vertex) == 0)
       {
         ++vertex;
@@ -265,13 +267,13 @@ private:
     {
       vtkIdType myRank = -1;
       vtkDistributedGraphHelper* helper =
-        this->graph ? this->graph->GetDistributedGraphHelper() : 0;
+        this->graph ? this->graph->GetDistributedGraphHelper() : nullptr;
       if (helper)
       {
         myRank = this->graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
       }
 
-      while (iter != 0 &&
+      while (iter != nullptr &&
         ( // Skip non-local edges
           (helper && helper->GetEdgeOwner(iter->Id) != myRank)
           // Skip entirely-local edges where Source > Target
@@ -333,7 +335,7 @@ class vtk_out_edge_pointer_iterator
       const vtkEdgeType&, ptrdiff_t>
 {
 public:
-  explicit vtk_out_edge_pointer_iterator(vtkGraph* g = 0, vtkIdType v = 0, bool end = false)
+  explicit vtk_out_edge_pointer_iterator(vtkGraph* g = nullptr, vtkIdType v = 0, bool end = false)
     : vertex(v)
     , iter(nullptr)
   {
@@ -390,7 +392,7 @@ class vtk_in_edge_pointer_iterator
       const vtkEdgeType&, ptrdiff_t>
 {
 public:
-  explicit vtk_in_edge_pointer_iterator(vtkGraph* g = 0, vtkIdType v = 0, bool end = false)
+  explicit vtk_in_edge_pointer_iterator(vtkGraph* g = nullptr, vtkIdType v = 0, bool end = false)
     : vertex(v)
     , iter(nullptr)
   {
@@ -447,6 +449,7 @@ private:
 // VertexAndEdgeListGraphConcept
 // BidirectionalGraphConcept
 // AdjacencyGraphConcept
+VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkGraph_traversal_category
   : public virtual bidirectional_graph_tag
@@ -455,6 +458,8 @@ struct vtkGraph_traversal_category
   , public virtual adjacency_graph_tag
 {
 };
+
+VTK_ABI_NAMESPACE_END
 
 template <>
 struct graph_traits<vtkGraph*>
@@ -1085,6 +1090,7 @@ inline std::pair<boost::graph_traits<vtkMutableUndirectedGraph*>::edge_descripto
 
 namespace boost
 {
+VTK_ABI_NAMESPACE_BEGIN
 //===========================================================================
 // An edge map for vtkGraph.
 // This is a common input needed for algorithms.
@@ -1092,6 +1098,8 @@ namespace boost
 struct vtkGraphEdgeMap
 {
 };
+
+VTK_ABI_NAMESPACE_END
 
 template <>
 struct property_traits<vtkGraphEdgeMap>
@@ -1112,6 +1120,7 @@ inline property_traits<vtkGraphEdgeMap>::reference get(
 // Helper for vtkGraph edge property maps
 // Automatically converts boost edge ids to vtkGraph edge ids.
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename PMap>
 class vtkGraphEdgePropertyMapHelper
 {
@@ -1128,6 +1137,7 @@ public:
 
   reference operator[](const key_type& key) const { return get(pmap, key.Id); }
 };
+VTK_ABI_NAMESPACE_END
 
 template <typename PMap>
 inline typename property_traits<PMap>::reference get(
@@ -1147,6 +1157,7 @@ inline void put(vtkGraphEdgePropertyMapHelper<PMap> helper, vtkEdgeType key,
 // Helper for vtkGraph vertex property maps
 // Automatically converts boost vertex ids to vtkGraph vertex ids.
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename PMap>
 class vtkGraphVertexPropertyMapHelper
 {
@@ -1163,6 +1174,7 @@ public:
 
   reference operator[](const key_type& key) const { return get(pmap, key); }
 };
+VTK_ABI_NAMESPACE_END
 
 template <typename PMap>
 inline typename property_traits<PMap>::reference get(
@@ -1182,9 +1194,11 @@ inline void put(vtkGraphVertexPropertyMapHelper<PMap> helper, vtkIdType key,
 // An index map for vtkGraph
 // This is a common input needed for algorithms
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkGraphIndexMap
 {
 };
+VTK_ABI_NAMESPACE_END
 
 template <>
 struct property_traits<vtkGraphIndexMap>
@@ -1204,6 +1218,7 @@ inline property_traits<vtkGraphIndexMap>::reference get(
 //===========================================================================
 // Helper for vtkGraph property maps
 // Automatically multiplies the property value by some value (default 1)
+VTK_ABI_NAMESPACE_BEGIN
 template <typename PMap>
 class vtkGraphPropertyMapMultiplier
 {
@@ -1220,6 +1235,7 @@ public:
   typedef typename property_traits<PMap>::key_type key_type;
   typedef typename property_traits<PMap>::category category;
 };
+VTK_ABI_NAMESPACE_END
 
 template <typename PMap>
 inline typename property_traits<PMap>::reference get(

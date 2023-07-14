@@ -44,6 +44,8 @@ class QOpenGLContext;
 class QSurfaceFormat;
 class QWidget;
 class QWindow;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericOpenGLRenderWindow;
 class vtkObject;
 
@@ -182,7 +184,7 @@ public:
 private Q_SLOTS:
   void contextAboutToBeDestroyed();
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
   QVTKRenderWindowAdapter(
     QOpenGLContext* cntxt, vtkGenericOpenGLRenderWindow* window, QObject* widgetOrWindow);
   Q_DISABLE_COPY(QVTKRenderWindowAdapter);
@@ -193,4 +195,5 @@ private:
   QCursor DefaultCursor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

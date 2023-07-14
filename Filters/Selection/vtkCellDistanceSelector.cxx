@@ -36,6 +36,7 @@
 #include <map>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellDistanceSelector);
 
 //------------------------------------------------------------------------------
@@ -156,7 +157,7 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
 
         if (ug_input)
         {
-          if (!ug_input->GetCellLinks())
+          if (!ug_input->GetLinks())
           {
             ug_input->BuildLinks();
           }
@@ -371,3 +372,4 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

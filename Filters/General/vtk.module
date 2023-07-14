@@ -19,8 +19,11 @@ PRIVATE_DEPENDS
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
+  VTK::FiltersGeometry
+  VTK::FiltersVerdict
   VTK::fmt
 TEST_DEPENDS
+  VTK::CommonColor
   VTK::FiltersExtraction
   VTK::FiltersFlowPaths
   VTK::FiltersGeometry

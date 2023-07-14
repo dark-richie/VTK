@@ -37,6 +37,7 @@
 #include "vtkActor2D.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkDataObject;
@@ -142,7 +143,7 @@ public:
    * Specify the names for each piece of pie.  not specified, then an integer
    * number is automatically generated.
    */
-  void SetPieceLabel(const int i, const char*);
+  void SetPieceLabel(int i, const char*);
   const char* GetPieceLabel(int i);
   ///@}
 
@@ -238,9 +239,9 @@ private:
   int PlaceAxes(vtkViewport* viewport, const int* size);
   int BuildPlot(vtkViewport*);
 
-private:
   vtkPieChartActor(const vtkPieChartActor&) = delete;
   void operator=(const vtkPieChartActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

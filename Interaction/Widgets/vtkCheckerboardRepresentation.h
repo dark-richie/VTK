@@ -35,6 +35,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageCheckerboard;
 class vtkImageActor;
 class vtkSliderRepresentation3D;
@@ -97,7 +98,7 @@ public:
 
   ///@{
   /**
-   * Set and get the instances of vtkSliderRepresention used to implement this
+   * Set and get the instances of vtkSliderRepresentation used to implement this
    * representation. Normally default representations are created, but you can
    * specify the ones you want to use.
    */
@@ -149,4 +150,5 @@ private:
   void operator=(const vtkCheckerboardRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

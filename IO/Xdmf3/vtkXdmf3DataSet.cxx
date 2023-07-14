@@ -64,6 +64,7 @@
 #include <array>
 
 //==============================================================================
+VTK_ABI_NAMESPACE_BEGIN
 bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray* array, bool dbg = false)
 {
   if (!array->isInitialized())
@@ -2625,7 +2626,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
           dof_to_vtk_map = quadrilateral_map;
         }
 
-        dim = pow(d + 1, 2);
+        dim = (d + 1) * (d + 1);
         ncomp = number_dofs_per_cell / dim;
 
         //
@@ -2688,7 +2689,8 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
           normal[normal_ix][2] = 0.0;
 
           // Compute euclidean norm
-          double norm = sqrt(pow(normal[normal_ix][0], 2.) + pow(normal[normal_ix][1], 2.));
+          const double norm = std::sqrt(normal[normal_ix][0] * normal[normal_ix][0] +
+            normal[normal_ix][1] * normal[normal_ix][1]);
 
           // Normalize "normals"
           for (unsigned int space_dim = 0; space_dim <= 2; ++space_dim)
@@ -2721,11 +2723,9 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
 
         // These coefficients are used to compute values at nodes
         // from values in midways
-        double a =
-          (adjacent_dof1 - adjacent_dof2 * normal_product) / (1.0 - pow(normal_product, 2.));
-
-        double b =
-          (adjacent_dof2 - adjacent_dof1 * normal_product) / (1.0 - pow(normal_product, 2.));
+        auto normal_product_2 = normal_product * normal_product;
+        double a = (adjacent_dof1 - adjacent_dof2 * normal_product) / (1.0 - normal_product_2);
+        double b = (adjacent_dof2 - adjacent_dof1 * normal_product) / (1.0 - normal_product_2);
 
         tuple[0] = normal[normal_ixs[0]][0] * a + normal[normal_ixs[1] % 3][0] * b;
 
@@ -2803,3 +2803,4 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
   new_array->Delete();
   array->Delete();
 }
+VTK_ABI_NAMESPACE_END

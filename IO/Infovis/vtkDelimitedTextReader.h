@@ -67,6 +67,7 @@
 #include "vtkStdString.h"       // Needed for vtkStdString
 #include "vtkTableAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {
 public:
@@ -329,7 +330,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Read the content of the input file.
-  int ReadData(vtkTable* const output_table);
+  int ReadData(vtkTable* output_table);
 
   char* FileName;
   vtkTypeBool ReadFromInputString;
@@ -364,4 +365,5 @@ private:
   void operator=(const vtkDelimitedTextReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,6 +34,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageData);
 vtkStandardExtendedNewMacro(vtkImageData);
 
@@ -511,7 +512,7 @@ void vtkImageData::AddPointsToCellTemplate(vtkCell* cell, int ijkMin[3], int ijk
   vtkIdType d01 = dims[0] * dims[1];
 
   // Extract point coordinates and point ids
-  // Ids are relative to extent min.
+  // Ids are relative to extent min.
   npts = 0;
   for (loc[2] = ijkMin[2]; loc[2] <= ijkMax[2]; loc[2]++)
   {
@@ -2621,12 +2622,13 @@ void vtkImageData::ComputeIndexToPhysicalMatrix(
 //------------------------------------------------------------------------------
 bool vtkImageData::HasAnyBlankPoints()
 {
-  return this->IsAnyBitSet(this->GetPointGhostArray(), vtkDataSetAttributes::HIDDENPOINT);
+  return this->PointData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENPOINT);
 }
 
 //------------------------------------------------------------------------------
 bool vtkImageData::HasAnyBlankCells()
 {
-  int cellBlanking = this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::HIDDENCELL);
+  int cellBlanking = this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
   return cellBlanking || this->HasAnyBlankPoints();
 }
+VTK_ABI_NAMESPACE_END

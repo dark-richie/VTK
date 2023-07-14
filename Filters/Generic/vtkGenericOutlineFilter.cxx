@@ -21,6 +21,7 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericOutlineFilter);
 
 //------------------------------------------------------------------------------
@@ -35,6 +36,7 @@ void vtkGenericOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
 vtkGenericOutlineFilter::vtkGenericOutlineFilter()
 {
   this->OutlineSource = vtkOutlineSource::New();
+  this->OutlineSource->SetContainerAlgorithm(this);
 }
 
 //------------------------------------------------------------------------------
@@ -68,6 +70,7 @@ int vtkGenericOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   this->OutlineSource->Update();
 
   output->CopyStructure(this->OutlineSource->GetOutput());
+  this->CheckAbort();
   return 1;
 }
 
@@ -102,3 +105,4 @@ int vtkGenericOutlineFilter::FillInputPortInformation(int port, vtkInformation* 
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

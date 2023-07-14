@@ -47,6 +47,7 @@
 #include <set>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkQtTreeModelAdapter::vtkQtTreeModelAdapter(QObject* p, vtkTree* t)
   : vtkQtAbstractModelAdapter(p)
 {
@@ -177,8 +178,7 @@ void vtkQtTreeModelAdapter::treeModified()
 
 // Description:
 // Selection conversion from VTK land to Qt land
-vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(
-  const QModelIndexList qmil) const
+vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const
 {
   // Create vtk index selection
   vtkSelection* IndexSelection = vtkSelection::New(); // Caller needs to delete
@@ -572,3 +572,4 @@ Qt::DropActions vtkQtTreeModelAdapter::supportedDragActions() const
 {
   return Qt::CopyAction;
 }
+VTK_ABI_NAMESPACE_END

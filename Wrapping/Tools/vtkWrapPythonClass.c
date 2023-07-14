@@ -249,6 +249,7 @@ void vtkWrapPython_ClassDoc(
     {
       written +=
         snprintf(cp + written, n - written, ".SECTION See Also\n\n%s\n\n", file_info->SeeAlso);
+      (void)written;
     }
 
     ccp = vtkWrapText_FormatComment(comment, 70);
@@ -372,16 +373,10 @@ static void vtkWrapPython_GenerateObjectNew(
 
   /* if type is already ready, then return */
   fprintf(fp,
-    "  if ((pytype->tp_flags & Py_TPFLAGS_READY) != 0)\n"
+    "  if ((PyType_GetFlags(pytype) & Py_TPFLAGS_READY) != 0)\n"
     "  {\n"
     "    return (PyObject *)pytype;\n"
     "  }\n\n");
-
-  /* add any flags specific to this type */
-  fprintf(fp,
-    "#ifndef VTK_PY3K\n"
-    "  pytype->tp_flags |= Py_TPFLAGS_HAVE_NEWBUFFER;\n"
-    "#endif\n\n");
 
   /* find the first superclass that is a VTK class, create it first */
   name = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);

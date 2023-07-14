@@ -41,6 +41,7 @@
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRandomAttributeGenerator);
 
 //------------------------------------------------------------------------------
@@ -130,7 +131,7 @@ void vtkRandomAttributeGenerator::GenerateRandomTuples(
     if (!(i % tenth))
     {
       this->UpdateProgress(static_cast<double>(i) / total);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }
@@ -288,7 +289,7 @@ vtkDataArray* vtkRandomAttributeGenerator::GenerateData(
         if (!(i % tenth))
         {
           this->UpdateProgress(static_cast<double>(i) / total);
-          if (this->GetAbortExecute())
+          if (this->CheckAbort())
           {
             break;
           }
@@ -326,6 +327,10 @@ int vtkRandomAttributeGenerator::RequestData(
   it.TakeReference(input->NewIterator());
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataSet* inputDS = vtkDataSet::SafeDownCast(it->GetCurrentDataObject());
     vtkSmartPointer<vtkDataSet> outputDS;
     outputDS.TakeReference(inputDS->NewInstance());
@@ -567,3 +572,4 @@ int vtkRandomAttributeGenerator::FillInputPortInformation(
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

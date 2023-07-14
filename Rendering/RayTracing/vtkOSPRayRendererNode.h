@@ -36,6 +36,7 @@
 #include <OpenImageDenoise/oidn.hpp> // for denoiser structures
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
@@ -157,7 +158,7 @@ public:
    * VTK_DEPRECATED_IN_9_2_0
    * This key is now deprecated, see vtkOSPRayRendererNode::SetVolumeAnisotropy.
    * It is replaced by vtkVolumeProperty::ScatteringAnisotropy.
-   * It is not explicitely deprecated with the macro to avoid compilation warnings.
+   * It is not explicitly deprecated with the macro to avoid compilation warnings.
    */
   static vtkInformationDoubleKey* VOLUME_ANISOTROPY();
 
@@ -451,4 +452,5 @@ private:
   void operator=(const vtkOSPRayRendererNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

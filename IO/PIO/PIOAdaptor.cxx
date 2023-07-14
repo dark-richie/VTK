@@ -35,11 +35,16 @@
 #include <vtksys/FStream.hxx>
 
 #ifdef _WIN32
+VTK_ABI_NAMESPACE_BEGIN
 const static char* Slash = "\\/";
+VTK_ABI_NAMESPACE_END
 #else
+VTK_ABI_NAMESPACE_BEGIN
 const static char* Slash = "/";
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 bool sort_desc(const std::pair<int, int>& a, const std::pair<int, int>& b)
@@ -744,9 +749,7 @@ void PIOAdaptor::collectMaterialVariableMetaData()
 
 void PIOAdaptor::addMaterialVariable(vtkStdString& pioFieldName, std::vector<std::string> matident)
 {
-  // material/chunk variables should have an underscore in them, with the part before the
-  // underscore being the prefix. the prefix is usually chunk. the part after the underscore is
-  // the variable name. check if the field name has an underscore.
+  // first check if the field name has an underscore.
   std::size_t matchUnderscore = pioFieldName.rfind("_");
   if (matchUnderscore == std::string::npos)
   {
@@ -755,37 +758,61 @@ void PIOAdaptor::addMaterialVariable(vtkStdString& pioFieldName, std::vector<std
       << " does not have an underscore in the name, and is not a valid material name.");
     return;
   }
-  std::string prefix = pioFieldName.substr(0, matchUnderscore);
-  std::string fieldVar =
-    pioFieldName.substr(matchUnderscore + 1, pioFieldName.size() - matchUnderscore);
 
-  // if var is vol (material volume), we actually want to instead add the volume fraction, which
-  // is material volume (vol) divided by cell volume (vcell). volume fraction is called fvol.
-  std::string varname = fieldVar;
-  if (varname == "vol")
+  // material/chunk variables should have an underscore in them, with the part before the
+  // underscore being the prefix. the prefix is usually 'chunk'. the part after the underscore is
+  // the variable name. then there are various other material variables that we
+  // derive from base variables. to differentiate, we use baseVar and var.
+  // baseVar is the variable in the pio field name (base variable)
+  // var is the actual variable name being computed (derived variable)
+  std::string prefix = pioFieldName.substr(0, matchUnderscore);
+  std::string baseVar =
+    pioFieldName.substr(matchUnderscore + 1, pioFieldName.size() - matchUnderscore);
+  std::string var = baseVar;
+
+  // always add in the base variable
+  addMaterialVariableEntries(prefix, var, baseVar, matident);
+
+  // if var is vol (material volume), also add the volume fraction, called fvol
+  if (var == "vol")
   {
-    varname = "fvol";
+    std::string var2 = "fvol";
+    addMaterialVariableEntries(prefix, var2, baseVar, matident);
   }
 
+  // if var is mass (material mass), also add rho and fmass
+  if (var == "mass")
+  {
+    std::string var2 = "rho";
+    addMaterialVariableEntries(prefix, var2, baseVar, matident);
+
+    var2 = "fmass";
+    addMaterialVariableEntries(prefix, var2, baseVar, matident);
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// create material variable entries for each material
+//
+///////////////////////////////////////////////////////////////////////////////
+
+void PIOAdaptor::addMaterialVariableEntries(
+  std::string& prefix, std::string& var, std::string& baseVar, std::vector<std::string> matident)
+{
   // for each material, create a material variable entry
   for (int j = 1; j <= this->numMaterials; j++)
   {
     // the material name is <var>_<material number>_<material_name>
-    std::string matName = varname + "_" + std::to_string(j) + "_" + matident[j - 1];
+    vtkStdString matName = var + "_" + std::to_string(j) + "_" + matident[j - 1];
     this->variableName.emplace_back(matName);
 
     PIOMaterialVariable* matvar = new PIOMaterialVariable();
     matvar->prefix = prefix;
-    matvar->var = fieldVar;
+    matvar->var = var;
+    matvar->baseVar = baseVar;
     matvar->material_name = matident[j - 1];
     matvar->material_number = j;
-    matvar->scale = false;
-
-    // for fvol, set the variable to be scaled (divided by vcell)
-    if (varname == "fvol")
-    {
-      matvar->scale = true;
-    }
 
     this->matVariables[matName] = matvar;
   }
@@ -1181,7 +1208,7 @@ void PIOAdaptor::create_amr_UG(vtkMultiBlockDataSet* grid)
   // On other processors the correct size for the piece is allocated
   std::valarray<int> level;
   std::valarray<std::valarray<double>> center;
-  int numberOfCells;
+  int numberOfCells = 0;
   int64_t* cell_daughter;
   int* cell_level;
   double* cell_center[3];
@@ -1266,6 +1293,9 @@ void PIOAdaptor::create_amr_UG(vtkMultiBlockDataSet* grid)
   }
   else
   {
+    // TODO: check `Receive` for errors. It's the only thing that sets
+    // `numberOfCells` to anything sensible
+    // (`clang-analyzer-core.uninitialized.NewArraySize`).
     this->Controller->Receive(&numberOfCells, 1, 0, this->Impl->mpiTag);
 
     // Allocate space for holding geometry information
@@ -1860,17 +1890,39 @@ void PIOAdaptor::load_variable_data_UG(
 
           // reconstruct the material variable
           status = this->pioData->reconstruct_chunk_field(this->numCells, scalarArray,
-            matvar->prefix.c_str(), matvar->var.c_str(), matvar->material_number);
+            matvar->prefix.c_str(), matvar->baseVar.c_str(), matvar->material_number);
           dataVector[0] = &scalarArray[0];
 
-          if (status && matvar->scale)
+          // check if the variable is a derived variable, and if so, calculate
+          // the variable correctly
+          if (status && matvar->var == "fvol")
           {
-            // scale variable by dividing values by volume
-            std::valarray<double> volume;
-            bool vcell_status = this->pioData->set_scalar_field(volume, "vcell");
+            // calculate fvol (volume fraction) by dividing values by cell volume (vcell)
+            std::valarray<double> vcell;
+            bool vcell_status = this->pioData->set_scalar_field(vcell, "vcell");
             if (vcell_status)
             {
-              scalarArray = scalarArray / volume;
+              scalarArray = scalarArray / vcell;
+            }
+          }
+          else if (status && matvar->var == "rho")
+          {
+            // calculate rho by dividing values by cell volume (vcell)
+            std::valarray<double> vcell;
+            bool vcell_status = this->pioData->set_scalar_field(vcell, "vcell");
+            if (vcell_status)
+            {
+              scalarArray = scalarArray / vcell;
+            }
+          }
+          else if (status && matvar->var == "fmass")
+          {
+            // calculate fmass by dividing values by cell mass (mass)
+            std::valarray<double> mass;
+            bool mass_status = this->pioData->set_scalar_field(mass, "mass");
+            if (mass_status)
+            {
+              scalarArray = scalarArray / mass;
             }
           }
         }
@@ -2002,17 +2054,39 @@ void PIOAdaptor::load_variable_data_HTG(
 
           // reconstruct the material variable
           status = this->pioData->reconstruct_chunk_field(this->numCells, scalarArray,
-            matvar->prefix.c_str(), matvar->var.c_str(), matvar->material_number);
+            matvar->prefix.c_str(), matvar->baseVar.c_str(), matvar->material_number);
           dataVector[0] = &scalarArray[0];
 
-          if (status && matvar->scale)
+          // check if the variable is a derived variable, and if so, calculate
+          // the variable correctly
+          if (status && matvar->var == "fvol")
           {
-            // scale variable by dividing values by volume
-            std::valarray<double> volume;
-            bool vcell_status = this->pioData->set_scalar_field(volume, "vcell");
+            // calculate fvol (volume fraction) by dividing values by cell volume (vcell)
+            std::valarray<double> vcell;
+            bool vcell_status = this->pioData->set_scalar_field(vcell, "vcell");
             if (vcell_status)
             {
-              scalarArray = scalarArray / volume;
+              scalarArray = scalarArray / vcell;
+            }
+          }
+          else if (status && matvar->var == "rho")
+          {
+            // calculate rho by dividing values by cell volume (vcell)
+            std::valarray<double> vcell;
+            bool vcell_status = this->pioData->set_scalar_field(vcell, "vcell");
+            if (vcell_status)
+            {
+              scalarArray = scalarArray / vcell;
+            }
+          }
+          else if (status && matvar->var == "fmass")
+          {
+            // calculate fmass by dividing values by cell mass (mass)
+            std::valarray<double> mass;
+            bool mass_status = this->pioData->set_scalar_field(mass, "mass");
+            if (mass_status)
+            {
+              scalarArray = scalarArray / mass;
             }
           }
         }
@@ -2271,3 +2345,4 @@ void PIOAdaptor::add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varN
     }
   }
 }
+VTK_ABI_NAMESPACE_END

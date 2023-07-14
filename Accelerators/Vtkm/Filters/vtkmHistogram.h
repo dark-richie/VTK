@@ -28,7 +28,9 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct export
 #include "vtkTableAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmHistogram : public vtkTableAlgorithm
@@ -109,6 +111,8 @@ private:
   bool UseCustomBinRanges;
   bool CenterBinsAroundMinAndMax;
   double ComputedRange[2];
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmHistogram_h

@@ -40,6 +40,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -214,10 +215,11 @@ struct ComputeGradientWorker
     // using marching cubes algorithm.
     //
     sliceSize = dims[0] * dims[1];
+    int checkAbortInterval = std::min((dims[2] - 1) / 10 + 1, 1000);
     for (k = 0; k < (dims[2] - 1); k++)
     {
       self->UpdateProgress(k / static_cast<double>(dims[2] - 1));
-      if (self->GetAbortExecute())
+      if (k % checkAbortInterval == 0 && self->CheckAbort())
       {
         break;
       }
@@ -606,3 +608,4 @@ void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -47,9 +47,11 @@
 #ifndef vtkOpenFOAMReader_h
 #define vtkOpenFOAMReader_h
 
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_1_0
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkCharArray;
 class vtkDataArraySelection;
@@ -85,7 +87,7 @@ public:
   /**
    * Get the number of cell arrays available in the input.
    */
-  int GetNumberOfCellArrays(void)
+  int GetNumberOfCellArrays()
   {
     return this->GetNumberOfSelectionArrays(this->CellDataArraySelection);
   }
@@ -121,7 +123,7 @@ public:
   /**
    * Get the number of point arrays available in the input.
    */
-  int GetNumberOfPointArrays(void)
+  int GetNumberOfPointArrays()
   {
     return this->GetNumberOfSelectionArrays(this->PointDataArraySelection);
   }
@@ -157,7 +159,7 @@ public:
   /**
    * Get the number of Lagrangian arrays available in the input.
    */
-  int GetNumberOfLagrangianArrays(void)
+  int GetNumberOfLagrangianArrays()
   {
     return this->GetNumberOfSelectionArrays(this->LagrangianDataArraySelection);
   }
@@ -199,7 +201,7 @@ public:
   /**
    * Get the number of Patches (including Internal Mesh) available in the input.
    */
-  int GetNumberOfPatchArrays(void)
+  int GetNumberOfPatchArrays()
   {
     return this->GetNumberOfSelectionArrays(this->PatchDataArraySelection);
   }
@@ -243,6 +245,19 @@ public:
 
   ///@{
   /**
+   * Set/Get whether to weigh cell to point averaging by size of cells (only meaningful when
+   * CreateCellToPoint is true)
+   *
+   * @sa
+   * CreateCellToPoint
+   */
+  vtkSetMacro(SizeAverageCellToPoint, vtkTypeBool);
+  vtkGetMacro(SizeAverageCellToPoint, vtkTypeBool);
+  vtkBooleanMacro(SizeAverageCellToPoint, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get whether mesh is to be cached.
    */
   vtkSetMacro(CacheMesh, vtkTypeBool);
@@ -254,7 +269,8 @@ public:
   /**
    * Set/Get whether polyhedra are to be decomposed.
    */
-  vtkSetMacro(DecomposePolyhedra, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_1_0("Decomposing polyhedra will be removed.")
+  virtual void SetDecomposePolyhedra(vtkTypeBool _arg);
   vtkGetMacro(DecomposePolyhedra, vtkTypeBool);
   vtkBooleanMacro(DecomposePolyhedra, vtkTypeBool);
   ///@}
@@ -351,11 +367,11 @@ public:
     vtkStringArray* timeNames = nullptr, vtkDoubleArray* timeValues = nullptr);
 
   double GetTimeValue() const;
-  bool SetTimeValue(const double);
+  bool SetTimeValue(double);
   vtkStringArray* GetTimeNames();
   vtkDoubleArray* GetTimeValues();
 
-  int MakeMetaDataAtTimeStep(const bool);
+  int MakeMetaDataAtTimeStep(bool);
 
 protected:
   // refresh flag
@@ -363,6 +379,9 @@ protected:
 
   // for creating cell-to-point translated data
   vtkTypeBool CreateCellToPoint;
+
+  // for running size average for cell to point calculation
+  vtkTypeBool SizeAverageCellToPoint = false;
 
   // for caching mesh
   vtkTypeBool CacheMesh;
@@ -462,4 +481,5 @@ private:
   void PrintTimes(std::ostream& os, vtkIndent indent = vtkIndent(), bool full = false) const;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

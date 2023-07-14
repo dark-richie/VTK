@@ -27,6 +27,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeTimeFilter);
 
 //------------------------------------------------------------------------------
@@ -100,7 +101,7 @@ void vtkMergeTimeFilter::MergeTimeSteps(const std::vector<double>& timeSteps)
   for (double newTime : timeSteps)
   {
     // lambda to find TimeStep in the list, depending on Tolerance.
-    auto insideTolerance = [=](double outputTime) {
+    auto insideTolerance = [this, newTime](double outputTime) {
       return this->AreTimesWithinTolerance(outputTime, newTime);
     };
 
@@ -246,10 +247,12 @@ int vtkMergeTimeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
     groupInputs->AddInputData(input);
   }
+  groupInputs->SetContainerAlgorithm(this);
   groupInputs->Update();
-  output->ShallowCopy(groupInputs->GetOutput());
+  output->CompositeShallowCopy(groupInputs->GetOutput());
 
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->RequestedTimeValue);
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

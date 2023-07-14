@@ -17,6 +17,7 @@
 #include "vtkUniformGrid.h"
 
 #include <cassert>
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRDataInternals);
 
 vtkAMRDataInternals::Block::Block(unsigned int i, vtkUniformGrid* g)
@@ -108,7 +109,7 @@ void vtkAMRDataInternals::GenerateIndex(bool force)
   }
 }
 
-void vtkAMRDataInternals::ShallowCopy(vtkObject* src)
+void vtkAMRDataInternals::CompositeShallowCopy(vtkObject* src)
 {
   if (src == this)
   {
@@ -123,7 +124,7 @@ void vtkAMRDataInternals::ShallowCopy(vtkObject* src)
   this->Modified();
 }
 
-void vtkAMRDataInternals::RecursiveShallowCopy(vtkObject* src)
+void vtkAMRDataInternals::ShallowCopy(vtkObject* src)
 {
   if (src == this)
   {
@@ -146,3 +147,4 @@ void vtkAMRDataInternals::RecursiveShallowCopy(vtkObject* src)
 
   this->Modified();
 }
+VTK_ABI_NAMESPACE_END

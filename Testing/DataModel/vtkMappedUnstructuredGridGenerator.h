@@ -27,6 +27,7 @@
 #ifndef vtkMappedUnstructuredGridGenerator_h
 #define vtkMappedUnstructuredGridGenerator_h
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGridBase;
 class vtkUnstructuredGrid;
 
@@ -54,10 +55,11 @@ public:
   static void GenerateUnstructuredGrid(vtkUnstructuredGrid** grid);
 
 protected:
-  vtkMappedUnstructuredGridGenerator() {}
+  vtkMappedUnstructuredGridGenerator() = default;
   vtkMappedUnstructuredGridGenerator(const vtkMappedUnstructuredGridGenerator&) = delete;
 
   void operator=(const vtkMappedUnstructuredGridGenerator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

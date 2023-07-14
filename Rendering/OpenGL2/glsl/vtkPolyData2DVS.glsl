@@ -33,14 +33,23 @@ in vec4 vertexWC;
 // Apple Bug
 //VTK::PrimID::Dec
 
+// PointSize on GLES 3.0
+//VTK::PointSizeGLES30::Dec
+
+// LineWidth on GLES 3.0
+//VTK::LineWidthGLES30::Dec
+
 uniform mat4 WCVCMatrix;  // World to view matrix
 
 void main()
 {
+  //VTK::PointSizeGLES30::Impl
+
   // Apple Bug
   //VTK::PrimID::Impl
 
   gl_Position = WCVCMatrix*vertexWC;
+  //VTK::LineWidthGLES30::Impl
   //VTK::TCoord::Impl
   //VTK::Color::Impl
 }

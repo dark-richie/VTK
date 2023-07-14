@@ -30,6 +30,7 @@
 
 #include <vector>
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage, Input, vtkRenderer);
@@ -247,10 +248,16 @@ void vtkRenderLargeImage::RequestData(vtkInformation* vtkNotUsed(request),
 
   // render each of the tiles required to fill this request
   double ySize = static_cast<double>(inWindowExtent[3] - inWindowExtent[2] + 1);
-  for (y = inWindowExtent[2]; y <= inWindowExtent[3]; y++)
+  bool abort = false;
+  for (y = inWindowExtent[2]; y <= inWindowExtent[3] && !abort; y++)
   {
     for (x = inWindowExtent[0]; x <= inWindowExtent[1]; x++)
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       cam->SetWindowCenter(x * 2 - this->Magnification * (1 - windowCenter[0]) + 1,
         y * 2 - this->Magnification * (1 - windowCenter[1]) + 1);
       // shift 2D actors to correct origin for this tile
@@ -464,3 +471,4 @@ void vtkRenderLargeImage::Restore2DActors()
   this->StoredData->StoredActors->RemoveAllItems();
 }
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

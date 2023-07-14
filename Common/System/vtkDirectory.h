@@ -29,6 +29,7 @@
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkStringArray;
 
 class VTKCOMMONSYSTEM_EXPORT vtkDirectory : public vtkObject
@@ -116,9 +117,9 @@ private:
 
   static int CreateDirectoryInternal(const char* dir);
 
-private:
   vtkDirectory(const vtkDirectory&) = delete;
   void operator=(const vtkDirectory&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

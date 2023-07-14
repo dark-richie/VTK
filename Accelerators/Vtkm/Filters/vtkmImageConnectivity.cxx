@@ -25,10 +25,9 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/filter/connected_components/ImageConnectivity.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmImageConnectivity);
 
 //------------------------------------------------------------------------------
@@ -99,3 +98,4 @@ int vtkmImageConnectivity::RequestData(
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

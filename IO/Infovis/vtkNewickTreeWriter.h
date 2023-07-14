@@ -27,6 +27,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkStdString.h"       // For get/set ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTree;
 
 class VTKIOINFOVIS_EXPORT vtkNewickTreeWriter : public vtkDataWriter
@@ -78,7 +79,7 @@ protected:
    * Write one vertex.  This function calls itself recursively for
    * any children of the input vertex.
    */
-  void WriteVertex(ostream* fp, vtkTree* const input, vtkIdType vertex);
+  void WriteVertex(ostream* fp, vtkTree* input, vtkIdType vertex);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
@@ -93,4 +94,5 @@ private:
   void operator=(const vtkNewickTreeWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

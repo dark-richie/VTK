@@ -39,6 +39,7 @@
 
 //------------------------------------------------------------------------------
 // Minimal storage class for STL containers etc.
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContextScene::Private
 {
 public:
@@ -69,6 +70,8 @@ vtkContextScene::vtkContextScene()
   this->AnnotationLink = nullptr;
   this->Geometry[0] = 0;
   this->Geometry[1] = 0;
+  this->Origin[0] = 0;
+  this->Origin[1] = 0;
   this->BufferId = nullptr;
   this->BufferIdDirty = true;
   this->BufferIdSupportTested = false;
@@ -221,6 +224,18 @@ int vtkContextScene::GetViewHeight()
   {
     return 0;
   }
+}
+
+//------------------------------------------------------------------------------
+int vtkContextScene::GetSceneLeft()
+{
+  return this->Origin[0];
+}
+
+//------------------------------------------------------------------------------
+int vtkContextScene::GetSceneBottom()
+{
+  return this->Origin[1];
 }
 
 //------------------------------------------------------------------------------
@@ -647,7 +662,7 @@ inline bool vtkContextScene::ProcessItem(
   vtkContextMouseEvent itemEvent = event;
   itemEvent.SetPos(cur->MapFromScene(event.GetPos()));
   itemEvent.SetLastPos(cur->MapFromScene(event.GetLastPos()));
-  while (cur && !(cur->*eventPtr)(itemEvent))
+  while (cur && !(cur->GetInteractive() && (cur->*eventPtr)(itemEvent)))
   {
     cur = cur->GetParent();
     if (cur)
@@ -664,9 +679,9 @@ inline bool vtkContextScene::ProcessItem(
 inline void vtkContextScene::EventCopy(const vtkContextMouseEvent& e)
 {
   vtkContextMouseEvent& event = this->Storage->Event;
+  event.SetScreenPos(e.GetScreenPos());
+  event.SetScenePos(e.GetScenePos());
   event.SetPos(e.GetPos());
-  event.SetScreenPos(vtkVector2i(e.GetPos().Cast<int>().GetData()));
-  event.SetScenePos(e.GetPos());
   event.SetInteractor(e.GetInteractor());
 }
 
@@ -677,3 +692,4 @@ void vtkContextScene::PrintSelf(ostream& os, vtkIndent indent)
   // Print out the chart's geometry if it has been set
   os << indent << "Widthxheight: " << this->Geometry[0] << "\t" << this->Geometry[1] << endl;
 }
+VTK_ABI_NAMESPACE_END

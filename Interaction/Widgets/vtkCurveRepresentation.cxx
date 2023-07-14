@@ -42,6 +42,7 @@
 #include <iterator>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCurveRepresentation::vtkCurveRepresentation()
 {
   this->LastEventPosition[0] = VTK_DOUBLE_MAX;
@@ -399,7 +400,7 @@ void vtkCurveRepresentation::Translate(double* p1, double* p2)
   {
     // this->TranslationAxis in [0,2]
     assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
-      "this->TranslationAxis shoud be in [0,2]");
+      "this->TranslationAxis should be in [0,2]");
     v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
   }
 
@@ -570,7 +571,7 @@ void vtkCurveRepresentation::CreateDefaultProperties()
   this->SelectedLineProperty = vtkProperty::New();
   this->SelectedLineProperty->SetRepresentationToWireframe();
   this->SelectedLineProperty->SetAmbient(1.0);
-  this->SelectedLineProperty->SetAmbientColor(0.0, 1.0, 0.0);
+  this->SelectedLineProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedLineProperty->SetLineWidth(2.0);
 }
 
@@ -963,16 +964,29 @@ void vtkCurveRepresentation::SetLineColor(double r, double g, double b)
 }
 
 //------------------------------------------------------------------------------
+void vtkCurveRepresentation::SetInteractionColor(double r, double g, double b)
+{
+  this->SelectedHandleProperty->SetColor(r, g, b);
+  this->SelectedLineProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkCurveRepresentation::SetForegroundColor(double r, double g, double b)
+{
+  this->HandleProperty->SetColor(r, g, b);
+  this->LineProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
 void vtkCurveRepresentation::GetActors(vtkPropCollection* pc)
 {
-  if (!pc)
+  if (pc != nullptr && this->GetVisibility())
   {
-    return;
-  }
-  pc->AddItem(this->LineActor);
-  for (int i = 0; i < this->GetNumberOfHandles(); ++i)
-  {
-    pc->AddItem(this->GetHandleActor(i));
+    pc->AddItem(this->LineActor);
+    for (int i = 0; i < this->GetNumberOfHandles(); ++i)
+    {
+      pc->AddItem(this->GetHandleActor(i));
+    }
   }
   this->Superclass::GetActors(pc);
 }
@@ -1022,3 +1036,4 @@ void vtkCurveRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Closed: " << (this->Closed ? "On" : "Off") << "\n";
   os << indent << "InteractionState: " << this->InteractionState << endl;
 }
+VTK_ABI_NAMESPACE_END

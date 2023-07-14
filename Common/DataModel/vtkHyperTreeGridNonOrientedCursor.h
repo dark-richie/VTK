@@ -23,6 +23,9 @@
  * This is an abstract class.
  * Cursors are created by the HyperTreeGrid implementation.
  *
+ * Non-oriented cursors have the ability to come back to their parents
+ * and to go to the root.
+ *
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *
@@ -43,6 +46,7 @@
 
 #include <vector> // For std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridEntry;
@@ -224,4 +228,5 @@ private:
   vtkHyperTreeGridNonOrientedCursor(const vtkHyperTreeGridNonOrientedCursor&) = delete;
   void operator=(const vtkHyperTreeGridNonOrientedCursor&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

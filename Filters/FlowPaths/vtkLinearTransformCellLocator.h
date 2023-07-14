@@ -42,6 +42,8 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkTransform;
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkLinearTransformCellLocator : public vtkAbstractCellLocator
@@ -109,7 +111,7 @@ public:
    *
    * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], const double tol, vtkPoints* points,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) override;
 
   /**
@@ -218,4 +220,5 @@ private:
   void operator=(const vtkLinearTransformCellLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

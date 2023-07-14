@@ -28,6 +28,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
 
 vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
@@ -547,7 +548,7 @@ void vtkOrientationMarkerWidget::SetInteractive(vtkTypeBool interact)
       this->Interactor->RemoveObserver(this->EventCallbackCommand);
     }
     this->Interactive = interact;
-    this->Interactor->Render();
+    this->Modified();
   }
   else
   {
@@ -976,10 +977,7 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
 void vtkOrientationMarkerWidget::SetOutlineColor(double r, double g, double b)
 {
   this->OutlineActor->GetProperty()->SetColor(r, g, b);
-  if (this->Interactor)
-  {
-    this->Interactor->Render();
-  }
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -1073,7 +1071,7 @@ void vtkOrientationMarkerWidget::SetShouldConstrainSize(const vtkTypeBool should
 
 //------------------------------------------------------------------------------
 bool vtkOrientationMarkerWidget::SetSizeConstraintDimensionSizes(
-  const int minDimensionSize, const int maxDimensionSize)
+  int minDimensionSize, int maxDimensionSize)
 {
   // noop if the value doesn't change
   if (this->MinDimensionSize == minDimensionSize && this->MaxDimensionSize == maxDimensionSize)
@@ -1156,3 +1154,4 @@ void vtkOrientationMarkerWidget::ResizeToFitSizeConstraints()
     this->UpdateOutline();
   }
 }
+VTK_ABI_NAMESPACE_END

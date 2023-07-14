@@ -34,6 +34,7 @@
 #include "vtkTexture.h"
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTexturedButtonRepresentation);
 
 vtkCxxSetObjectMacro(vtkTexturedButtonRepresentation, Property, vtkProperty);
@@ -431,14 +432,18 @@ double* vtkTexturedButtonRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation::GetActors(vtkPropCollection* pc)
 {
-  if (this->FollowCamera)
+  if (pc != nullptr && this->GetVisibility())
   {
-    this->Follower->GetActors(pc);
+    if (this->FollowCamera)
+    {
+      this->Follower->GetActors(pc);
+    }
+    else
+    {
+      this->Actor->GetActors(pc);
+    }
   }
-  else
-  {
-    this->Actor->GetActors(pc);
-  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------
@@ -478,3 +483,4 @@ void vtkTexturedButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selecting Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

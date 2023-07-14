@@ -51,6 +51,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSSOURCES_EXPORT vtkPlaneSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -83,7 +84,7 @@ public:
   /**
    * Set the number of x-y subdivisions in the plane.
    */
-  void SetResolution(const int xR, const int yR);
+  void SetResolution(int xR, int yR);
   void GetResolution(int& xR, int& yR)
   {
     xR = this->XResolution;
@@ -195,4 +196,5 @@ private:
   void operator=(const vtkPlaneSource&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

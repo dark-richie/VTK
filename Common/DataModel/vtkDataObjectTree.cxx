@@ -21,10 +21,12 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
+#include "vtkLegacy.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkDataObjectTree::vtkDataObjectTree()
 {
   this->Internals = new vtkDataObjectTreeInternals;
@@ -469,7 +471,7 @@ int vtkDataObjectTree::HasMetaData(vtkCompositeDataIterator* compositeIter)
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectTree::ShallowCopy(vtkDataObject* src)
+void vtkDataObjectTree::CompositeShallowCopy(vtkCompositeDataSet* src)
 {
   if (src == this)
   {
@@ -477,7 +479,7 @@ void vtkDataObjectTree::ShallowCopy(vtkDataObject* src)
   }
 
   this->Internals->Children.clear();
-  this->Superclass::ShallowCopy(src);
+  this->Superclass::CompositeShallowCopy(src);
 
   vtkDataObjectTree* from = vtkDataObjectTree::SafeDownCast(src);
   if (from)
@@ -489,10 +491,11 @@ void vtkDataObjectTree::ShallowCopy(vtkDataObject* src)
       vtkDataObject* child = from->GetChild(cc);
       if (child)
       {
-        if (child->IsA("vtkDataObjectTree"))
+        vtkDataObjectTree* childTree = vtkDataObjectTree::SafeDownCast(child);
+        if (childTree)
         {
-          vtkDataObject* clone = child->NewInstance();
-          clone->ShallowCopy(child);
+          vtkDataObjectTree* clone = childTree->NewInstance();
+          clone->CompositeShallowCopy(childTree);
           this->SetChild(cc, clone);
           clone->FastDelete();
         }
@@ -504,7 +507,7 @@ void vtkDataObjectTree::ShallowCopy(vtkDataObject* src)
       if (from->HasChildMetaData(cc))
       {
         vtkInformation* toInfo = this->GetChildMetaData(cc);
-        toInfo->Copy(from->GetChildMetaData(cc), /*deep=*/0);
+        toInfo->Copy(from->GetChildMetaData(cc), 0);
       }
     }
   }
@@ -548,7 +551,7 @@ void vtkDataObjectTree::DeepCopy(vtkDataObject* src)
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectTree::RecursiveShallowCopy(vtkDataObject* src)
+void vtkDataObjectTree::ShallowCopy(vtkDataObject* src)
 {
   if (src == this)
   {
@@ -581,6 +584,13 @@ void vtkDataObjectTree::RecursiveShallowCopy(vtkDataObject* src)
     }
   }
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkDataObjectTree::RecursiveShallowCopy(vtkDataObject* src)
+{
+  VTK_LEGACY_REPLACED_BODY(RecursiveShallowCopy, "VTK 9.3", ShallowCopy);
+  this->ShallowCopy(src);
 }
 
 //------------------------------------------------------------------------------
@@ -663,3 +673,4 @@ void vtkDataObjectTree::PrintSelf(ostream& os, vtkIndent indent)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

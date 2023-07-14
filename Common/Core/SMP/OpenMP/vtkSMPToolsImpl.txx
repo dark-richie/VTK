@@ -28,8 +28,10 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 int VTKCOMMONCORE_EXPORT GetNumberOfThreadsOpenMP();
+bool VTKCOMMONCORE_EXPORT GetSingleThreadOpenMP();
 void VTKCOMMONCORE_EXPORT vtkSMPToolsImplForOpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
   ExecuteFunctorPtrType functorExecuter, void* functor, bool nestedActivated);
 
@@ -145,6 +147,11 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int);
 template <>
 int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads();
 
+//--------------------------------------------------------------------------------
+template <>
+bool vtkSMPToolsImpl<BackendType::OpenMP>::GetSingleThread();
+
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

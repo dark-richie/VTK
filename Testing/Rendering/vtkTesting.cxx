@@ -40,6 +40,7 @@
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTesting);
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
@@ -246,6 +247,33 @@ const char* vtkTesting::GetValidImageFileName()
 
   return this->ValidImageFileName;
 }
+
+//------------------------------------------------------------------------------
+bool vtkTesting::GetMesaVersion(vtkRenderWindow* renderWindow, int version[3])
+{
+  const std::string glCaps = renderWindow->ReportCapabilities();
+  bool mesaInUse = glCaps.find("OpenGL vendor string:  Mesa/X.org") != std::string::npos;
+  if (!mesaInUse)
+  {
+    return false;
+  }
+  const char* versionPtr =
+    vtksys::SystemTools::FindLastString(glCaps.c_str(), "OpenGL version string");
+  const auto lines = vtksys::SystemTools::SplitString(std::string(versionPtr), '\n');
+  const auto words = vtksys::SystemTools::SplitString(lines[0], ' ');
+  auto versionIter = std::find(words.begin(), words.end(), "Mesa");
+  if (versionIter != words.end())
+  {
+    const auto versionString = (++versionIter)->c_str();
+    const auto versionNumbers = vtksys::SystemTools::SplitString(versionString, '.');
+    for (int i = 0; i < 3; ++i)
+    {
+      version[i] = std::stoi(versionNumbers[i]);
+    }
+  }
+  return true;
+}
+
 //------------------------------------------------------------------------------
 int vtkTesting::IsInteractiveModeSpecified()
 {
@@ -1001,3 +1029,4 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BorderOffset: " << this->GetBorderOffset() << endl;
   os << indent << "Verbose: " << this->GetVerbose() << endl;
 }
+VTK_ABI_NAMESPACE_END

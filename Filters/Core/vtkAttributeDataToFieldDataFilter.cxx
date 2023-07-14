@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAttributeDataToFieldDataFilter);
 
 // Instantiate object.
@@ -44,6 +45,8 @@ int vtkAttributeDataToFieldDataFilter::RequestData(vtkInformation* vtkNotUsed(re
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -53,3 +56,4 @@ void vtkAttributeDataToFieldDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Pass Attribute Data: " << (this->PassAttributeData ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

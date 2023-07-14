@@ -36,6 +36,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm, AssessNames, vtkStringArray);
 
 //------------------------------------------------------------------------------
@@ -312,7 +313,7 @@ void vtkStatisticsAlgorithm::Assess(
          v < numVariables && it != rit->end(); ++v, ++it)
     {
       // Try to retrieve column with corresponding name in input data
-      std::string varName = *it;
+      std::string const& varName = *it;
 
       // If requested column does not exist in input, ignore request
       if (!inData->GetColumnByName(varName.c_str()))
@@ -396,3 +397,4 @@ void vtkStatisticsAlgorithm::Assess(
     delete dfunc;
   }
 }
+VTK_ABI_NAMESPACE_END

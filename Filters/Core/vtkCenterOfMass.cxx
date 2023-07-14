@@ -25,6 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCenterOfMass);
 
 vtkCenterOfMass::vtkCenterOfMass()
@@ -115,6 +116,8 @@ int vtkCenterOfMass::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->ComputeCenterOfMass(points, scalars, this->Center);
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -125,3 +128,4 @@ void vtkCenterOfMass::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "UseScalarsAsWeights: " << this->UseScalarsAsWeights << endl;
 }
+VTK_ABI_NAMESPACE_END

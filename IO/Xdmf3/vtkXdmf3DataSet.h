@@ -36,29 +36,31 @@
 
 #include <string> //Needed only for XdmfArray::getName :(
 
-class vtkXdmf3ArraySelection;
-class vtkXdmf3ArrayKeeper;
 class XdmfArray;
 class XdmfAttribute;
-class vtkDataArray;
 class XdmfGrid;
-class vtkDataObject;
 class XdmfSet;
-class vtkDataSet;
 class XdmfTopologyType;
 class XdmfRegularGrid;
-class vtkImageData;
 class XdmfRectilinearGrid;
-class vtkRectilinearGrid;
 class XdmfCurvilinearGrid;
-class vtkStructuredGrid;
 class XdmfUnstructuredGrid;
+class XdmfGraph;
+class XdmfDomain;
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkXdmf3ArraySelection;
+class vtkXdmf3ArrayKeeper;
+class vtkDataArray;
+class vtkDataObject;
+class vtkDataSet;
+class vtkImageData;
+class vtkRectilinearGrid;
+class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkPointSet;
-class XdmfGraph;
 class vtkMutableDirectedGraph;
 class vtkDirectedGraph;
-class XdmfDomain;
 
 class VTKIOXDMF3_EXPORT vtkXdmf3DataSet
 {
@@ -127,8 +129,8 @@ public:
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
    */
-  static void VTKToXdmf(
-    vtkImageData* dataSet, XdmfDomain* domain, bool hasTime, double time, const char* name = 0);
+  static void VTKToXdmf(vtkImageData* dataSet, XdmfDomain* domain, bool hasTime, double time,
+    const char* name = nullptr);
 
   // vtkXdmf3RectilinearGrid
   /**
@@ -148,7 +150,7 @@ public:
    * Populates the Xdmf Grid with the contents of the VTK data set
    */
   static void VTKToXdmf(vtkRectilinearGrid* dataSet, XdmfDomain* domain, bool hasTime, double time,
-    const char* name = 0);
+    const char* name = nullptr);
 
   // vtkXdmf3CurvilinearGrid
   /**
@@ -168,7 +170,7 @@ public:
    * Populates the Xdmf Grid with the contents of the VTK data set
    */
   static void VTKToXdmf(vtkStructuredGrid* dataSet, XdmfDomain* domain, bool hasTime, double time,
-    const char* name = 0);
+    const char* name = nullptr);
 
   // vtkXdmf3UnstructuredGrid
   /**
@@ -187,8 +189,8 @@ public:
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
    */
-  static void VTKToXdmf(
-    vtkPointSet* dataSet, XdmfDomain* domain, bool hasTime, double time, const char* name = 0);
+  static void VTKToXdmf(vtkPointSet* dataSet, XdmfDomain* domain, bool hasTime, double time,
+    const char* name = nullptr);
 
   // vtkXdmf3Graph
   /**
@@ -201,8 +203,8 @@ public:
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
    */
-  static void VTKToXdmf(
-    vtkDirectedGraph* dataSet, XdmfDomain* domain, bool hasTime, double time, const char* name = 0);
+  static void VTKToXdmf(vtkDirectedGraph* dataSet, XdmfDomain* domain, bool hasTime, double time,
+    const char* name = nullptr);
 
   // Side Sets
 
@@ -249,5 +251,6 @@ public:
     vtkXdmf3ArrayKeeper* keeper = nullptr);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkXdmf3DataSet.h

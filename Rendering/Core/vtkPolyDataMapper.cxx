@@ -23,6 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPolyDataMapper);
 
 //------------------------------------------------------------------------------
@@ -34,6 +35,8 @@ vtkPolyDataMapper::vtkPolyDataMapper()
   this->GhostLevel = 0;
   this->SeamlessU = false;
   this->SeamlessV = false;
+  this->PauseShiftScale = false;
+  this->ShiftScaleMethod = ShiftScaleMethodType::AUTO_SHIFT_SCALE;
 }
 
 //------------------------------------------------------------------------------
@@ -163,6 +166,8 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
     this->SetNumberOfSubPieces(m->GetNumberOfSubPieces());
     this->SetSeamlessU(m->GetSeamlessU());
     this->SetSeamlessV(m->GetSeamlessV());
+    this->SetVBOShiftScaleMethod(m->GetVBOShiftScaleMethod());
+    this->SetPauseShiftScale(m->GetPauseShiftScale());
   }
 
   // Now do superclass
@@ -254,3 +259,4 @@ vtkTypeBool vtkPolyDataMapper::Update(vtkInformation* requests)
   }
   return this->Superclass::Update(requests);
 }
+VTK_ABI_NAMESPACE_END

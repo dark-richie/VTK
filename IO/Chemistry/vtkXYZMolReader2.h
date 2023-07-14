@@ -32,6 +32,7 @@
 #include <istream> // for std::istream
 #include <vector>  // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMolecule;
 
 class VTKIOCHEMISTRY_EXPORT vtkXYZMolReader2 : public vtkMoleculeAlgorithm
@@ -64,7 +65,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  std::string FileName = "";
+  std::string FileName;
   std::vector<istream::pos_type> FilePositions; // to store beginning of each step
   std::vector<double> TimeSteps;
 
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkXYZMolReader2&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -55,7 +55,7 @@
 #endif
 
 /* Use hash table size that is a power of two */
-#define FILE_HASH_TABLE_SIZE 1024u
+const unsigned int FILE_HASH_TABLE_SIZE = 1 << 10;
 
 /* Whether to use wide filenames on WIN32 */
 #if defined(_WIN32) && !defined(__MINGW32__)
@@ -481,7 +481,7 @@ void vtkParse_FreeFileCache(SystemInfo* info)
 }
 
 /**
- * On Win32, this interpretes fname as UTF8 and then calls wfopen().
+ * On Win32, this interprets fname as UTF8 and then calls wfopen().
  * The returned handle must be freed with fclose().
  */
 FILE* vtkParse_FileOpen(const char* fname, const char* mode)

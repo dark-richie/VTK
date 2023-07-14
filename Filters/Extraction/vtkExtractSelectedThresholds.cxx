@@ -39,6 +39,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedThresholds);
 
 //------------------------------------------------------------------------------
@@ -304,8 +305,13 @@ int vtkExtractSelectedThresholds::ExtractCells(
   flag = -flag;
 
   // Check that the scalars of each cell satisfy the threshold criterion
+  vtkIdType checkAbortInterval = std::min(input->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
   for (cellId = 0; cellId < input->GetNumberOfCells(); cellId++)
   {
+    if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     cell = input->GetCell(cellId);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
@@ -502,8 +508,13 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   flag = -flag;
 
   vtkIdType outPtCnt = 0;
+  vtkIdType checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
   for (vtkIdType ptId = 0; ptId < numPts; ptId++)
   {
+    if (ptId % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     int keepPoint = vtkExtractSelectedThresholds::EvaluateValue(inScalars, comp_no, ptId, lims);
     if (keepPoint ^ inverse)
     {
@@ -622,8 +633,13 @@ int vtkExtractSelectedThresholds::ExtractRows(
   flag = -flag;
 
   vtkIdType outRCnt = 0;
+  vtkIdType checkAbortInterval = std::min(numRows / 10 + 1, (vtkIdType)1000);
   for (vtkIdType rowId = 0; rowId < numRows; rowId++)
   {
+    if (rowId % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     int keepRow = vtkExtractSelectedThresholds::EvaluateValue(inScalars, comp_no, rowId, lims);
     if (keepRow ^ inverse)
     {
@@ -772,3 +788,4 @@ int vtkExtractSelectedThresholds::EvaluateValue(vtkDataArray* scalars, int comp_
     *InsideCount = inside;
   return keepCell;
 }
+VTK_ABI_NAMESPACE_END

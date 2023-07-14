@@ -43,6 +43,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 vtkCxxSetObjectMacro(vtkGenericGeometryFilter, Locator, vtkIncrementalPointLocator);
@@ -297,7 +298,7 @@ int vtkGenericGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Traverse cells to extract geometry
   //
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
 
   vtkIdList* faceList = vtkIdList::New();
@@ -321,7 +322,7 @@ int vtkGenericGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "Process cell #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     vtkIdType BeginTopOutCId = outputCD->GetNumberOfTuples();
@@ -495,3 +496,4 @@ int vtkGenericGeometryFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(req
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

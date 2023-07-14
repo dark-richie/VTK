@@ -40,6 +40,7 @@
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkCharArray;
 class vtkCellArray;
@@ -468,12 +469,12 @@ public:
    * Internal function to read in a string up to 256 characters.
    * Returns zero if there was an error.
    */
-  int ReadString(char result[256]);
+  int ReadString(char (&result)[256]);
 
   /**
    * Helper method for reading in data.
    */
-  char* LowerCase(char* str, const size_t len = 256);
+  char* LowerCase(char* str, size_t len = 256);
 
   /**
    * Return the istream being used to read in the data.
@@ -563,7 +564,8 @@ protected:
   int ReadEdgeFlags(vtkDataSetAttributes* a, vtkIdType num);
 
   /**
-   * Format is detailed \ref IOLegacyInformationFormat "here".
+   * Format is detailed at
+   * https://docs.vtk.org/en/latest/design_documents/IOLegacyInformationFormat.html
    */
   int ReadInformation(vtkInformation* info, vtkIdType numKeys);
 
@@ -620,4 +622,5 @@ private:
   void ConvertGhostLevelsToGhostType(FieldType fieldType, vtkAbstractArray* data) const;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -30,11 +30,11 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkm/cont/DataSetFieldAdd.h"
-#include "vtkmFilterPolicy.h"
+#include "vtkm/cont/DataSet.h"
 
 #include <vtkm/filter/field_transform/WarpVector.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmWarpVector);
 
 //------------------------------------------------------------------------------
@@ -132,3 +132,4 @@ void vtkmWarpVector::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

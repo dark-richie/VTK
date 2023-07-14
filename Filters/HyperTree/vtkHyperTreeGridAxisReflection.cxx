@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUniformHyperTreeGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridAxisReflection);
 
 //------------------------------------------------------------------------------
@@ -274,6 +275,10 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
   vtkIdType index;
   while ((tree = it.GetNextTree(index)))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     assert(tree->GetTreeIndex() == index);
     double origin[3];
     double scale[3];
@@ -285,3 +290,4 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

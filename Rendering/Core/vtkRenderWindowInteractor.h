@@ -50,6 +50,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For InteractorStyle
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTimerIdMap;
 
 // Timer flags for win32/X compatibility
@@ -112,9 +113,10 @@ public:
   virtual void Start();
 
   /**
-   * Run the event loop and return. This is provided so that you can
-   * implement your own event loop but yet use the vtk event handling as
-   * well.
+   * Process all user-interaction, timer events and return.
+   * If there are no events, this method returns immediately.
+   * This method is implemented only on desktop (macOS, linux, windows) and WebAssembly (SDL2).
+   * It is not implemented on iOS and Android platforms.
    */
   virtual void ProcessEvents() {}
 
@@ -290,7 +292,7 @@ public:
    * specified and should be overridden by platform dependent subclasses
    * to provide a termination procedure if one is required.
    */
-  virtual void TerminateApp(void) { this->Done = true; }
+  virtual void TerminateApp() { this->Done = true; }
 
   ///@{
   /**
@@ -926,4 +928,5 @@ private:
   void operator=(const vtkRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

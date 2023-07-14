@@ -27,6 +27,7 @@
 #include <stack>
 using std::stack;
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkTreeDFSIteratorPosition
 {
   vtkTreeDFSIteratorPosition(vtkIdType vertex, vtkIdType index)
@@ -158,7 +159,7 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
         vtkIdType found = this->Tree->GetChild(pos.Vertex, pos.Index);
         // cout << "DFS coloring " << found << " gray (adjacency)" << endl;
         this->Color->SetValue(found, this->GRAY);
-        this->Internals->Stack.push(vtkTreeDFSIteratorPosition(found, 0));
+        this->Internals->Stack.emplace(found, 0);
         if (this->Mode == this->DISCOVER)
         {
           // cout << "DFS adjacent discovery " << found << endl;
@@ -176,7 +177,7 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
         {
           // Found a new component; make it gray, put it on the stack
           // cerr << "DFS coloring " << this->CurRoot << " gray (new component)" << endl;
-          this->Internals->Stack.push(vtkTreeDFSIteratorPosition(this->CurRoot, 0));
+          this->Internals->Stack.emplace(this->CurRoot, 0);
           this->Color->SetValue(this->CurRoot, this->GRAY);
           if (this->Mode == this->DISCOVER)
           {
@@ -197,3 +198,4 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
   // cout << "DFS no more!" << endl;
   return -1;
 }
+VTK_ABI_NAMESPACE_END

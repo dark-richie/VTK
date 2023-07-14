@@ -27,6 +27,7 @@
 
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSortFileNames);
 
 // a container for holding string arrays
@@ -44,7 +45,7 @@ public:
 
   void InsertNextStringArray(vtkStringArray* stringArray)
   {
-    this->Container.push_back(stringArray);
+    this->Container.emplace_back(stringArray);
   }
 
   vtkStringArray* GetStringArray(int i)
@@ -568,3 +569,4 @@ void vtkSortFileNames::Update()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

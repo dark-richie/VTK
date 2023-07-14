@@ -51,6 +51,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkVolumeReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 class vtkUnsignedCharArray;
 class vtkUnsignedShortArray;
@@ -154,7 +155,7 @@ protected:
   vtkTransform* Transform;
 
   void TransformSlice(
-    unsigned short* slice, unsigned short* pixels, int k, int dimensions[3], int bounds[3]);
+    unsigned short* slice, unsigned short* pixels, int k, int dimensions[3], int bounds[6]);
   void ComputeTransformedDimensions(int dimensions[3]);
   void ComputeTransformedBounds(int bounds[6]);
   void ComputeTransformedSpacing(double Spacing[3]);
@@ -170,4 +171,5 @@ private:
   void operator=(const vtkVolume16Reader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

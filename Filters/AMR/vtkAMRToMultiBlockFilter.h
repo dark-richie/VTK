@@ -29,6 +29,7 @@
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVector;
 class vtkIndent;
@@ -45,7 +46,7 @@ public:
 
   ///@{
   /**
-   * Set/Get a multiprocess controller for paralle processing.
+   * Set/Get a multiprocess controller for parallel processing.
    * By default this parameter is set to nullptr by the constructor.
    */
   virtual void SetController(vtkMultiProcessController*);
@@ -75,4 +76,5 @@ private:
   void operator=(const vtkAMRToMultiBlockFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRToMultiBlockFilter_h */

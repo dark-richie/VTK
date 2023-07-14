@@ -27,6 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -239,7 +240,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
   numLines = 0;
 
   int cellType;
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
   for (cellId = 0; cellId < numCells && !abort; cellId++)
   {
@@ -250,7 +251,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % progressInterval))
     {
       this->UpdateProgress((float)cellId / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
     if (!visited[cellId])
     {
@@ -494,6 +495,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
                   << " triangle strips \n\t(Average " << (float)numCells / numStrips
                   << " triangles per strip, longest strip = "
                   << ((longestStrip - 2) > 0 ? (longestStrip - 2) : 0) << " triangles)");
+    (void)numStrips;
 
     if (newPolys->GetNumberOfCells() > 0)
     {
@@ -645,6 +647,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
                   << " poly-lines \n\t(Average " << (float)numCells / numLines
                   << " lines per poly-line, longest poly-line = "
                   << ((longestLine - 1) > 0 ? (longestLine - 1) : 0) << " lines)");
+    (void)numLines;
   }
 
   // pass through verts
@@ -744,3 +747,4 @@ void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PassThroughPointIds: " << this->PassThroughPointIds << endl;
   os << indent << "JoinContiguousSegments: " << this->JoinContiguousSegments << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -92,6 +92,7 @@
 
 #include <array> // For std::array
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 class vtkStructuredGrid;
 class vtkUnstructuredGridBase;
@@ -318,14 +319,25 @@ public:
 
   ///@{
   /**
-   * If on, the output polygonal dataset will have a celldata array that
-   * holds the cell index of the original 3D cell that produced each output
-   * cell. This is useful for cell picking. The default is off to conserve
-   * memory.
+   * This parameter drives the generation or not of a CellData array for the output
+   * polygonal dataset that holds the cell index of the original 3D cell that produced
+   * each output cell. This is useful for cell picking. The default is off to conserve memory.
+   *
+   * Note: Use SetOriginalCellIdsName() to set the name of the CellData array.
    */
   vtkSetMacro(PassThroughCellIds, vtkTypeBool);
   vtkGetMacro(PassThroughCellIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughCellIds, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * This parameter drives the generation or not of a PointData array for the output
+   * polygonal dataset that holds the cell/point index of the original point that produced
+   * each output point. This is useful for point picking. The default is off to conserve memory.
+   *
+   * Note: Use SetOriginalPointIdsName() to set the name of the PointData array.
+   */
   vtkSetMacro(PassThroughPointIds, vtkTypeBool);
   vtkGetMacro(PassThroughPointIds, vtkTypeBool);
   vtkBooleanMacro(PassThroughPointIds, vtkTypeBool);
@@ -395,13 +407,14 @@ public:
   ///@{
   /**
    * Set/Get if Ghost interfaces will be removed.
-   * When you are rendering you want to remove ghost interfaces.
-   * There are certain algorithms though that need the ghost interfaces.
+   * When you are rendering you want to remove ghost interfaces that originate from duplicate cells.
+   *
+   * There are certain algorithms though that need the ghost interfaces, such as GhostCellGenerator
+   * and FeatureEdges.
    *
    * Since Rendering is the most common case, the Default is on.
    *
-   * Note: This flag is meaningful only for vtkUnstructuredGrid/vtkUnstructuredGridBase.
-   * DON'T change it if there are no ghost cells.
+   * Note: DON'T change it if there are no ghost cells.
    */
   vtkSetMacro(RemoveGhostInterfaces, bool);
   vtkBooleanMacro(RemoveGhostInterfaces, bool);
@@ -479,4 +492,5 @@ private:
   void operator=(const vtkGeometryFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

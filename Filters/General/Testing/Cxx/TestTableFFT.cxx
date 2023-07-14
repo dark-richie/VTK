@@ -24,20 +24,16 @@
 namespace details
 {
 // ----------------------------------------------------------------------------
-void PrintArray(vtkDoubleArray* array)
+void PrintArray(vtkDataArray* array)
 {
   std::cerr << "[ ";
-  for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
+  auto range = vtk::DataArrayTupleRange(array);
+  for (auto tuple : range)
   {
     std::cerr << "{";
-    double* tuple = array->GetTuple(i);
-    for (int j = 0; j < array->GetNumberOfComponents(); ++j)
+    for (auto value : tuple)
     {
-      std::cerr << tuple[j];
-      if (j < array->GetNumberOfComponents() - 1)
-      {
-        std::cerr << ";";
-      }
+      std::cerr << value << ";";
     }
     std::cerr << "} ";
   }
@@ -51,10 +47,10 @@ constexpr std::array<double, Length> col1 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0,
 constexpr std::array<double, Length> col2 = { { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
 constexpr std::array<double, Length> time = { { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 } };
 // Expected output
-constexpr std::array<double, Length* 2> e_col1 = { { Length, 0.0, Length, 0.0, Length, 0.0, Length,
+constexpr std::array<double, Length* 2l> e_col1 = { { Length, 0.0, Length, 0.0, Length, 0.0, Length,
   0.0, Length, 0.0, Length, 0.0, Length, 0.0, Length, 0.0 } };
-constexpr std::array<double, Length* 2> e_col2 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-  0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
+constexpr std::array<double, Length* 2l> e_col2 = { { Length, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 } };
 constexpr std::array<double, Length> e_freq = { { 0.0, 0.125, 0.25, 0.375, -0.5, -0.375, -0.25,
   -0.125 } };
 constexpr std::array<double, Length> e_freq2 = { { 0.0, 1.25, 2.5, 3.75, -5.0, -3.75, -2.5,
@@ -87,18 +83,41 @@ void InitializeTableInput(vtkTable* table)
 }
 
 // ----------------------------------------------------------------------------
+void InitializeTableComplex(vtkTable* input, vtkTable* output)
+{
+  vtkNew<vtkDoubleArray> data;
+  data->SetNumberOfComponents(2);
+  data->SetNumberOfTuples(Length);
+  data->SetName("Data");
+  for (vtkIdType i = 0; i < Length; ++i)
+  {
+    data->SetTuple2(i, (i + 1) % 2, i % 2);
+  }
+  input->AddColumn(data);
+
+  vtkNew<vtkDoubleArray> result;
+  result->SetNumberOfComponents(2);
+  result->SetNumberOfTuples(Length);
+  result->SetName("Data");
+  result->Fill(0.0);
+  result->SetTuple2(0, Length * 0.5, Length * 0.5);
+  result->SetTuple2(Length / 2, Length * 0.5, -Length * 0.5);
+  output->AddColumn(result);
+}
+
+// ----------------------------------------------------------------------------
 void InitializeTableReference(vtkTable* table)
 {
   vtkNew<vtkDoubleArray> column1;
   column1->SetNumberOfTuples(Length);
   column1->SetNumberOfComponents(2);
-  column1->SetArray(const_cast<double*>(e_col1.data()), Length * 2, /*save*/ 1);
+  column1->SetArray(const_cast<double*>(e_col1.data()), Length * 2l, /*save*/ 1);
   column1->SetName("Data1");
 
   vtkNew<vtkDoubleArray> column2;
   column2->SetNumberOfTuples(Length);
   column2->SetNumberOfComponents(2);
-  column2->SetArray(const_cast<double*>(e_col2.data()), Length * 2, /*save*/ 1);
+  column2->SetArray(const_cast<double*>(e_col2.data()), Length * 2l, /*save*/ 1);
   column2->SetName("Data2");
 
   vtkNew<vtkDoubleArray> columnFreq;
@@ -120,23 +139,32 @@ void InitializeTableReference(vtkTable* table)
 }
 
 // ----------------------------------------------------------------------------
-bool FuzzyCompare(vtkDoubleArray* inArray, vtkDoubleArray* expected, double epsilon)
+void AddFieldToTableInput(vtkTable* table)
 {
-  bool status = true;
+  vtkNew<vtkDoubleArray> columnFieldData;
+  columnFieldData->SetNumberOfTuples(Length);
+  columnFieldData->SetNumberOfComponents(1);
+  columnFieldData->SetArray(const_cast<double*>(col2.data()), Length, /*save*/ 1);
+  columnFieldData->SetName("vtkDummyData");
+  table->AddColumn(columnFieldData);
+}
 
-  for (vtkIdType i = 0; i < inArray->GetNumberOfValues(); ++i)
+// ----------------------------------------------------------------------------
+bool FuzzyCompare(vtkDataArray* inArray, vtkDataArray* expected, double epsilon)
+{
+  auto inRange = vtk::DataArrayValueRange(inArray);
+  auto expRange = vtk::DataArrayValueRange(expected);
+  using ValueT = decltype(inRange)::ValueType;
+  bool status = std::equal(inRange.cbegin(), inRange.cend(), expRange.cbegin(),
+    [epsilon](ValueT x, ValueT y) { return vtkMathUtilities::NearlyEqual(x, y, epsilon); });
+
+  if (!status)
   {
-    if (!vtkMathUtilities::NearlyEqual(inArray->GetValue(i), expected->GetValue(i), epsilon))
-    {
-      status = false;
-
-      std::cerr << "[TestTableFFT] FAILURE for column <" << inArray->GetName() << ">" << std::endl;
-      std::cerr << "Expected : ";
-      PrintArray(expected);
-      std::cerr << "But got  : ";
-      PrintArray(inArray);
-      break;
-    }
+    std::cerr << "[TestTableFFT] FAILURE for column <" << inArray->GetName() << ">" << std::endl;
+    std::cerr << "Expected : ";
+    PrintArray(expected);
+    std::cerr << "But got  : ";
+    PrintArray(inArray);
   }
 
   return status;
@@ -149,8 +177,8 @@ bool FuzzyCompare(vtkTable* in, vtkTable* expected, double epsilon)
 
   for (vtkIdType col = 0; col < in->GetNumberOfColumns(); ++col)
   {
-    vtkDoubleArray* inArray = vtkDoubleArray::SafeDownCast(in->GetColumn(col));
-    vtkDoubleArray* expArray = vtkDoubleArray::SafeDownCast(expected->GetColumn(col));
+    vtkDataArray* inArray = vtkArrayDownCast<vtkDataArray>(in->GetColumn(col));
+    vtkDataArray* expArray = vtkArrayDownCast<vtkDataArray>(expected->GetColumn(col));
 
     status = status && FuzzyCompare(inArray, expArray, epsilon);
   }
@@ -177,13 +205,12 @@ int TestTableFFT(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Test actual data
   vtkNew<vtkTable> input;
   details::InitializeTableInput(input);
-  vtkNew<vtkTable> reference;
-  details::InitializeTableReference(reference);
-
   fftFilter->SetInputData(input);
   fftFilter->CreateFrequencyColumnOn();
   fftFilter->SetWindowingFunction(vtkTableFFT::RECTANGULAR);
   fftFilter->Update();
+  vtkNew<vtkTable> reference;
+  details::InitializeTableReference(reference);
   status += static_cast<int>(!details::FuzzyCompare(fftFilter->GetOutput(), reference, 1.0e-6));
 
   // Test with a different sampling rate
@@ -191,9 +218,28 @@ int TestTableFFT(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   fftFilter->SetInputData(input);
   fftFilter->SetDefaultSampleRate(10);
   fftFilter->Update();
-  auto* result = vtkDoubleArray::SafeDownCast(fftFilter->GetOutput()->GetColumnByName("Frequency"));
-  auto* expected = vtkDoubleArray::SafeDownCast(reference->GetColumnByName("Frequency2"));
+  auto* result = vtkDataArray::SafeDownCast(fftFilter->GetOutput()->GetColumnByName("Frequency"));
+  auto* expected = vtkDataArray::SafeDownCast(reference->GetColumnByName("Frequency2"));
   status += static_cast<int>(!details::FuzzyCompare(result, expected, 1.0e-6));
+
+  // Test with complex numbers input
+  input->RemoveAllColumns();
+  reference->RemoveAllColumns();
+  details::InitializeTableComplex(input, reference);
+  fftFilter->SetInputData(input);
+  fftFilter->ReturnOnesidedOff();
+  fftFilter->CreateFrequencyColumnOff();
+  fftFilter->Update();
+  result = vtkDataArray::SafeDownCast(fftFilter->GetOutput()->GetColumn(0));
+  expected = vtkDataArray::SafeDownCast(reference->GetColumnByName("Data"));
+  status += static_cast<int>(!details::FuzzyCompare(result, expected, 1.0e-6));
+
+  // Test with output column size different from the input
+  details::AddFieldToTableInput(input);
+  fftFilter->ReturnOnesidedOff();
+  fftFilter->SetAverageFft(true);
+  fftFilter->SetBlockSize(5);
+  fftFilter->Update();
 
   return status;
 }

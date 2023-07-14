@@ -40,6 +40,7 @@
 
 #include <array> // To store matrices
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor2DCollection;
 class vtkAssemblyPath;
 class vtkProp;
@@ -71,7 +72,7 @@ public:
 
   /**
    * Remove a prop from the list of props. Does nothing if the prop
-   * is not already present.
+   * is not already present or if the parameter is NULL.
    */
   void RemoveViewProp(vtkProp*);
 
@@ -128,6 +129,32 @@ public:
   vtkSetMacro(GradientBackground, bool);
   vtkGetMacro(GradientBackground, bool);
   vtkBooleanMacro(GradientBackground, bool);
+  ///@}
+
+  enum class GradientModes : int
+  {
+    // Background color is used at the bottom, Background2 color is used at the top.
+    VTK_GRADIENT_VERTICAL,
+    // Background color on the left, Background2 color on the right.
+    VTK_GRADIENT_HORIZONTAL,
+    // Background color in the center, Background2 color on and beyond the ellipse edge.
+    // Ellipse touches all sides of the viewport. The ellipse is a circle for viewports with equal
+    // width and height.
+    VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE,
+    // Background color in the center, Background2 color on and beyond the ellipse edge.
+    // Ellipse touches all corners of the viewport. The ellipse is a circle for viewports with equal
+    // width and height.
+    VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_CORNER,
+  };
+
+  ///@{
+  /**
+   * Specify the direction of the gradient background.
+   * All modes smoothly interpolate the color from `Background` to `Background2`
+   * @sa vtkViewport::GradientModes
+   */
+  vtkSetEnumMacro(GradientMode, GradientModes);
+  vtkGetEnumMacro(GradientMode, GradientModes);
   ///@}
 
   ///@{
@@ -450,6 +477,7 @@ protected:
   double PixelAspect[2];
   double Center[2];
   bool GradientBackground;
+  GradientModes GradientMode = GradientModes::VTK_GRADIENT_VERTICAL;
 
   double EnvironmentalBG[3];
   double EnvironmentalBG2[3];
@@ -470,4 +498,5 @@ private:
   void operator=(const vtkViewport&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

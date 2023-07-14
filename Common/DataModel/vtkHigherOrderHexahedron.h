@@ -33,6 +33,7 @@
 #include "vtkSmartPointer.h" // For member variable.
 #include <functional>        //For std::function
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDoubleArray;
 class vtkHexahedron;
@@ -88,12 +89,14 @@ public:
 
   double GetParametricDistance(const double pcoords[3]) override;
 
-  virtual void SetOrderFromCellData(
-    vtkCellData* cell_data, const vtkIdType numPts, const vtkIdType cell_id);
-  virtual void SetUniformOrderFromNumPoints(const vtkIdType numPts);
-  virtual void SetOrder(const int s, const int t, const int u);
+  virtual void SetOrderFromCellData(vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id);
+  virtual void SetUniformOrderFromNumPoints(vtkIdType numPts);
+  virtual void SetOrder(int s, int t, int u);
   virtual const int* GetOrder();
   virtual int GetOrder(int i) { return this->GetOrder()[i]; }
+  /// Return true if the number of points supports a cell of uniform
+  /// degree along each axis.
+  static bool PointCountSupportsUniformOrder(vtkIdType pointsPerCell);
 
   void InterpolateFunctions(const double pcoords[3], double* weights) override = 0;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override = 0;
@@ -108,8 +111,7 @@ public:
   virtual vtkHigherOrderQuadrilateral* GetFaceCell() = 0;
   virtual vtkHigherOrderInterpolation* GetInterpolation() = 0;
 
-  static vtkIdType NodeNumberingMappingFromVTK8To9(
-    const int order[3], const vtkIdType node_id_vtk8);
+  static vtkIdType NodeNumberingMappingFromVTK8To9(const int order[3], vtkIdType node_id_vtk8);
 
 protected:
   vtkHigherOrderHexahedron();
@@ -142,4 +144,5 @@ inline int vtkHigherOrderHexahedron::GetParametricCenter(double center[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHigherOrderHexahedron_h

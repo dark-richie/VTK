@@ -28,6 +28,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 class vtkStdString;
 class vtkStringArray;
@@ -96,6 +97,17 @@ public:
    * Get the number of plots the chart contains.
    */
   vtkIdType GetNumberOfPlots() override;
+
+  /**
+   * Set whether the chart should draw a legend.
+   */
+  void SetShowLegend(bool visible) override;
+
+  /**
+   * Get the legend for the chart, if available. Can return nullptr if there is no
+   * legend.
+   */
+  vtkChartLegend* GetLegend() override;
 
   /**
    * Get the axis specified by axisIndex.
@@ -172,6 +184,11 @@ protected:
   Private* Storage;
   ///@}
 
+  /**
+   * The legend for the chart.
+   */
+  vtkChartLegend* Legend;
+
   bool GeometryValid;
 
   /**
@@ -192,7 +209,7 @@ protected:
   void ResetSelection();
   void ResetAxeSelection(int axe);
   void ResetAxesSelection();
-  void UpdateGeometry();
+  void UpdateGeometry(vtkContext2D* painter);
   void CalculatePlotTransform();
   void SwapAxes(int a1, int a2);
 
@@ -201,4 +218,5 @@ private:
   void operator=(const vtkChartParallelCoordinates&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkChartParallelCoordinates_h

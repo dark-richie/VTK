@@ -19,6 +19,7 @@
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkUnstructuredGrid;
 class vtkPoints;
@@ -145,7 +146,7 @@ protected:
     const bool& isRoadPoints);
   template <typename T>
   void FillPointProperty(const vtkIdType& numTuples, const vtkIdType& numComps,
-    vtkLSDynaPart** parts, const vtkIdType numParts);
+    vtkLSDynaPart** parts, vtkIdType numParts);
 
 private:
   vtkLSDynaPartCollection(const vtkLSDynaPartCollection&) = delete;
@@ -157,4 +158,5 @@ private:
   LSDynaPartStorage* Storage;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLSDynaPartCollection_h

@@ -39,7 +39,9 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkImageAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmImageConnectivity : public vtkImageAlgorithm
 {
 public:
@@ -56,6 +58,8 @@ protected:
 private:
   vtkmImageConnectivity(const vtkmImageConnectivity&) = delete;
   void operator=(const vtkmImageConnectivity&) = delete;
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmImageConnectivity_h

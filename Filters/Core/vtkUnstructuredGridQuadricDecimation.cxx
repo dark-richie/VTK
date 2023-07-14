@@ -28,6 +28,7 @@
 #include <map>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGridQuadricDecimationEdge;
 class vtkUnstructuredGridQuadricDecimationFace;
 class vtkUnstructuredGridQuadricDecimationFaceHash;
@@ -886,7 +887,7 @@ public:
     return Verts[0] == v || Verts[1] == v || Verts[2] == v || Verts[3] == v;
   }
 
-  // check to see if we can change fromV to toV without changing the orietation
+  // check to see if we can change fromV to toV without changing the orientation
   bool Changeable(vtkUnstructuredGridQuadricDecimationVertex* fromV,
     const vtkUnstructuredGridQuadricDecimationVec4& v4)
   {
@@ -1076,6 +1077,7 @@ public:
   float doublingRatio;
   bool noDoubling;
   float boundaryWeight;
+  vtkUnstructuredGridQuadricDecimation* filter;
   void BuildFullMesh();
   int Simplify(int n, int desiredTets);
 
@@ -1248,10 +1250,14 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::DeleteMin(
 int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n, int desiredTets)
 {
   int count = 0;
-  int uncontractable = 0;
   int run = 0;
+  int checkAbortInterval = std::min(n / 10 + 1, 1000);
   while ((count < n || desiredTets < (tCount - unusedTets)) && (run < 1000))
   {
+    if ((run + count) % checkAbortInterval == 0 && this->filter->CheckAbort())
+    {
+      break;
+    }
     // as long as we want to collapse
     vtkUnstructuredGridQuadricDecimationQEF Q;
     vtkUnstructuredGridQuadricDecimationEdge e;
@@ -1278,7 +1284,6 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::Simplify(int n, int desiredTets
     }
     else
     {
-      uncontractable++;
       run++;
     }
   }
@@ -1576,6 +1581,7 @@ int vtkUnstructuredGridQuadricDecimation::RequestData(vtkInformation* vtkNotUsed
   myMesh.doublingRatio = this->AutoAddCandidatesThreshold;
   myMesh.noDoubling = !this->AutoAddCandidates;
   myMesh.boundaryWeight = this->BoundaryWeight;
+  myMesh.filter = this;
   int err = myMesh.LoadUnstructuredGrid((vtkUnstructuredGrid*)(input), this->ScalarsName);
   if (err != vtkUnstructuredGridQuadricDecimation::NON_ERROR)
   {
@@ -1594,3 +1600,4 @@ int vtkUnstructuredGridQuadricDecimation::RequestData(vtkInformation* vtkNotUsed
   myMesh.SaveUnstructuredGrid(output);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

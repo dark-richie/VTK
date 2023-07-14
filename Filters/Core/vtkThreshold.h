@@ -30,6 +30,15 @@
  * By default only the first scalar value is used in the decision. Use the ComponentMode
  * and SelectedComponent ivars to control this behavior.
  *
+ * @warning
+ * This class is templated. It may run slower than serial execution if the code
+ * is not optimized during compilation. Build in Release or ReleaseWithDebugInfo.
+ *
+ * @warning
+ * This class has been threaded with vtkSMPTools. Using TBB or other
+ * non-sequential type (set in the CMake variable
+ * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+ *
  * @sa
  * vtkThresholdPoints vtkThresholdTextureCoords
  */
@@ -37,6 +46,7 @@
 #ifndef vtkThreshold_h
 #define vtkThreshold_h
 
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
@@ -49,6 +59,7 @@
 #define VTK_COMPONENT_MODE_USE_ALL 1
 #define VTK_COMPONENT_MODE_USE_ANY 2
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkIdList;
 
@@ -100,14 +111,22 @@ public:
    * used. Alternatively you can explicitly set the filter to use point data
    * (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
    */
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
   vtkSetMacro(AttributeMode, int);
+
+  VTK_DEPRECATED_IN_9_3_0("This method is deprecated.")
   vtkGetMacro(AttributeMode, int);
-  void SetAttributeModeToDefault() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT); }
-  void SetAttributeModeToUsePointData()
-  {
-    this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);
-  }
-  void SetAttributeModeToUseCellData() { this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA); }
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
+  void SetAttributeModeToDefault();
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
+  void SetAttributeModeToUsePointData();
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
+  void SetAttributeModeToUseCellData();
+
+  VTK_DEPRECATED_IN_9_3_0("This method is deprecated.")
   const char* GetAttributeModeAsString();
   ///@}
 
@@ -171,9 +190,16 @@ public:
    * These methods are deprecated. Please use the SetOutputPointsPrecision()
    * and GetOutputPointsPrecision() methods instead.
    */
-  void SetPointsDataTypeToDouble() { this->SetPointsDataType(VTK_DOUBLE); }
-  void SetPointsDataTypeToFloat() { this->SetPointsDataType(VTK_FLOAT); }
+  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
+  void SetPointsDataTypeToDouble();
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
+  void SetPointsDataTypeToFloat();
+
+  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
   void SetPointsDataType(int type);
+
+  VTK_DEPRECATED_IN_9_3_0("Please use GetOutputPointsPrecision instead.")
   int GetPointsDataType();
   ///@}
 
@@ -194,8 +220,8 @@ public:
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  void SetOutputPointsPrecision(int precision);
-  int GetOutputPointsPrecision() const;
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
   ///@{
@@ -237,13 +263,23 @@ protected:
 
   int (vtkThreshold::*ThresholdFunction)(double s) const = &vtkThreshold::Between;
 
-  int EvaluateComponents(vtkDataArray* scalars, vtkIdType id);
-  int EvaluateCell(vtkDataArray* scalars, vtkIdList* cellPts, int numCellPts);
-  int EvaluateCell(vtkDataArray* scalars, int c, vtkIdList* cellPts, int numCellPts);
+  template <typename TScalarArray>
+  struct EvaluateCellsFunctor;
+  struct EvaluateCellsWorker;
+
+  template <typename TScalarsArray>
+  int EvaluateComponents(TScalarsArray& scalars, vtkIdType id);
+  template <typename TScalarsArray>
+  int EvaluateCell(TScalarsArray& scalars, const vtkIdType* cellPts, vtkIdType numCellPts);
+  template <typename TScalarsArray>
+  int EvaluateCell(TScalarsArray& scalars, int c, const vtkIdType* cellPts, vtkIdType numCellPts);
 
 private:
   vtkThreshold(const vtkThreshold&) = delete;
   void operator=(const vtkThreshold&) = delete;
+
+  int NumberOfComponents;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

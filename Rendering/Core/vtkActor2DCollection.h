@@ -33,6 +33,7 @@
 
 #include "vtkActor2D.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkViewport;
 
 class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
@@ -104,7 +105,6 @@ private:
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
   int IsItemPresent(vtkObject* o) { return this->vtkCollection::IsItemPresent(o); }
 
-private:
   vtkActor2DCollection(const vtkActor2DCollection&) = delete;
   void operator=(const vtkActor2DCollection&) = delete;
 };
@@ -141,4 +141,5 @@ inline vtkActor2D* vtkActor2DCollection::GetLastItem()
   return this->GetLastActor2D();
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

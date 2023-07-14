@@ -24,6 +24,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVRRenderWindowInteractor);
 
 //------------------------------------------------------------------------------
@@ -31,7 +32,7 @@ vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
 {
   vtkNew<vtkOpenVRInteractorStyle> style;
   this->SetInteractorStyle(style);
-  this->ActionManifestFileName = "./vtk_openvr_actions.json";
+  this->ActionManifestFileName = "vtk_openvr_actions.json";
   this->ActionSetName = "/actions/vtk";
 }
 
@@ -41,7 +42,8 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
   // Start with superclass initialization
   this->Superclass::Initialize();
 
-  std::string fullpath = vtksys::SystemTools::CollapseFullPath(this->ActionManifestFileName);
+  std::string fullpath = vtksys::SystemTools::CollapseFullPath(
+    this->ActionManifestDirectory + this->ActionManifestFileName);
   vr::VRInput()->SetActionManifestPath(fullpath.c_str());
   vr::VRInput()->GetActionSetHandle(this->ActionSetName.c_str(), &this->ActionsetVTK);
 
@@ -53,10 +55,8 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
   vr::VRInput()->GetInputSourceHandle(
     "/user/head", &this->Trackers[vtkOpenVRRenderWindowInteractor::HEAD].Source);
 
-  this->AddAction("/actions/vtk/in/LeftGripAction", false,
-    [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
-  this->AddAction("/actions/vtk/in/RightGripAction", false,
-    [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
+  this->AddAction("/actions/vtk/in/ComplexGestureAction", false,
+    [this](vtkEventData* ed) { this->HandleComplexGestureEvents(ed); });
 
   // add extra event actions
   for (auto& it : this->ActionMap)
@@ -136,6 +136,11 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkVRRenderWindow* renWin, vtkR
     // eat up any pending events
     while (pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t)))
     {
+      if (event.eventType == vr::VREvent_Quit)
+      {
+        this->Done = true;
+        return;
+      }
     }
   }
   else
@@ -145,6 +150,11 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkVRRenderWindow* renWin, vtkR
     // process all pending events
     while (result)
     {
+      if (event.eventType == vr::VREvent_Quit)
+      {
+        this->Done = true;
+        return;
+      }
       result = pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t));
     }
 
@@ -397,3 +407,4 @@ bool GetDigitalActionState(
   }
   return actionData.bActive && actionData.bState;
 }
+VTK_ABI_NAMESPACE_END

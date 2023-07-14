@@ -26,6 +26,7 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSectorSource);
 
 vtkSectorSource::vtkSectorSource()
@@ -92,6 +93,7 @@ int vtkSectorSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   lineSource->SetPoint1(x1);
   lineSource->SetPoint2(x2);
+  lineSource->SetContainerAlgorithm(this);
   lineSource->Update();
 
   VTK_CREATE(vtkRotationalExtrusionFilter, rotateFilter);
@@ -101,6 +103,7 @@ int vtkSectorSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (piece == 0 && numPieces > 0)
   {
+    rotateFilter->SetContainerAlgorithm(this);
     rotateFilter->Update();
     output->ShallowCopy(rotateFilter->GetOutput());
   }
@@ -121,3 +124,4 @@ void vtkSectorSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";
   os << indent << "RadialResolution: " << this->RadialResolution << "\n";
 }
+VTK_ABI_NAMESPACE_END

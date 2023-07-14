@@ -51,6 +51,7 @@
 #include <numeric>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLGlyph3DHelper);
 
 //------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
   // GCMCMatrix could be modified accordingly but Shift and Scale coefficients are
   // computed with the glyph source and not the point cloud.
   // Disabling it for now.
-  this->SetVBOShiftScaleMethod(vtkOpenGLVertexBufferObject::DISABLE_SHIFT_SCALE);
+  this->SetVBOShiftScaleMethod(ShiftScaleMethodType::DISABLE_SHIFT_SCALE);
 }
 
 //------------------------------------------------------------------------------
@@ -617,3 +618,4 @@ void vtkOpenGLGlyph3DHelper::SetLODColoring(bool val)
 {
   this->InstanceCulling->SetColorLOD(val);
 }
+VTK_ABI_NAMESPACE_END

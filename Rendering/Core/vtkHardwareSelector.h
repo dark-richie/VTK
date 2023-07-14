@@ -114,6 +114,7 @@
 
 #include <string> // for std::string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkRenderWindow;
 class vtkSelection;
@@ -147,7 +148,6 @@ public:
   };
   ///@}
 
-public:
   static vtkHardwareSelector* New();
   vtkTypeMacro(vtkHardwareSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -223,7 +223,7 @@ public:
     unsigned int temp[2];
     return this->GetPixelInformation(display_position, maxDist, temp);
   }
-  PixelInformation GetPixelInformation(
+  virtual PixelInformation GetPixelInformation(
     const unsigned int display_position[2], int maxDist, unsigned int selected_position[2]);
   void ClearBuffers() { this->ReleasePixBuffers(); }
   // raw is before processing
@@ -527,4 +527,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

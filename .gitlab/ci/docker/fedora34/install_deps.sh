@@ -19,9 +19,13 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     openmpi-devel mpich-devel
 
-# Qt dependencies
+# Qt5 dependencies
 dnf install -y --setopt=install_weak_deps=False \
     qt5-qtbase-devel qt5-qttools-devel qt5-qtquickcontrols2-devel
+
+# Qt6 dependencies
+dnf install -y --setopt=install_weak_deps=False \
+    qt6-qtbase-devel qt6-qttools-devel qt6-qtquickcontrols2-devel
 
 # Mesa dependencies
 dnf install -y --setopt=install_weak_deps=False \
@@ -37,12 +41,16 @@ dnf install -y --setopt=install_weak_deps=False \
     boost-devel tbb-devel postgresql-server-devel libpq-devel mariadb-devel \
     libiodbc-devel PDAL-devel liblas-devel openslide-devel libarchive-devel \
     freeglut-devel sqlite-devel PEGTL-devel cgnslib-devel proj-devel \
-    wkhtmltopdf cli11-devel fmt-devel openvdb-devel json-devel
+    wkhtmltopdf cli11-devel fmt-devel openvdb-devel json-devel openxr openxr-devel
 
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    python3 python3-devel python3-numpy \
+    python3 python3-devel python3-numpy python3-tkinter \
     python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib
+
+# Tcl/Tk dependencies (for building RenderingTk)
+dnf install -y --setopt=install_weak_deps=False \
+    tcl-devel tk-devel
 
 # wslink will bring aiohttp>=3.7.4
 python3 -m pip install 'wslink>=1.0.4'
@@ -64,8 +72,9 @@ dnf install -y --setopt=install_weak_deps=False \
     dnf-plugins-core
 
 # Openturns dependencies
-dnf config-manager --add-repo https://download.opensuse.org/repositories/science:/openturns/Fedora_34/science:openturns.repo
-dnf install -y --setopt=install_weak_deps=False \
-    openturns-libs openturns-devel
+# Disabling for now because Fedora 34 is no longer provided by the OpenSuse science team.
+#dnf config-manager --add-repo https://download.opensuse.org/repositories/science:/openturns/Fedora_34/science:openturns.repo
+#dnf install -y --setopt=install_weak_deps=False \
+#    openturns-libs openturns-devel
 
 dnf clean all

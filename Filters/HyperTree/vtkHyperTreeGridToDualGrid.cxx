@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridToDualGrid);
 
 static const unsigned int CornerNeighborCursorsTable3D0[8] = { 0, 1, 3, 4, 9, 10, 12, 13 };
@@ -165,6 +166,10 @@ int vtkHyperTreeGridToDualGrid::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObj
   vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> cursor;
   while (it.GetNextTree(index))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new Moore cursor at root of current tree
     input->InitializeNonOrientedMooreSuperCursor(cursor, index);
     // Convert hyper tree into unstructured mesh recursively
@@ -252,6 +257,10 @@ void vtkHyperTreeGridToDualGrid::TraverseDualRecursively(
     int numChildren = input->GetNumberOfChildren();
     for (int child = 0; child < numChildren; ++child)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(child);
       // Recurse
       this->TraverseDualRecursively(cursor, input);
@@ -587,6 +596,10 @@ void vtkHyperTreeGridToDualGrid::TraverseDualRecursively(
     int numChildren = input->GetNumberOfChildren();
     for (int child = 0; child < numChildren; ++child)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(child);
       // Recurse
       this->TraverseDualRecursively(cursor, mask, input);
@@ -1308,3 +1321,4 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf3D(
     } // if ( owner )
   }   // c
 }
+VTK_ABI_NAMESPACE_END

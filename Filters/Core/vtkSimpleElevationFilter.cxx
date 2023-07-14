@@ -26,6 +26,7 @@
 #include "vtkPointSet.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSimpleElevationFilter);
 
 namespace
@@ -40,12 +41,14 @@ public:
   double Vector[3];
   PointArrayT* PointArray;
   float* Scalars;
+  vtkSimpleElevationFilter* Filter;
 
   vtkSimpleElevationAlgorithm(
     PointArrayT* pointArray, vtkSimpleElevationFilter* filter, float* scalars)
     : NumPts{ pointArray->GetNumberOfTuples() }
     , PointArray{ pointArray }
     , Scalars{ scalars }
+    , Filter(filter)
   {
     filter->GetVector(this->Vector);
   }
@@ -57,9 +60,24 @@ public:
     float* s = this->Scalars + begin;
 
     const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray, begin, end);
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 
     for (const auto p : pointRange)
     {
+      if (begin % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+      }
+      begin++;
+
       *s = v[0] * p[0] + v[1] * p[1] + v[2] * p[2];
       ++s;
     }
@@ -168,7 +186,7 @@ int vtkSimpleElevationFilter::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(i % progressInterval))
       {
         this->UpdateProgress((double)i / numPts);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
 
       input->GetPoint(i, x);
@@ -200,3 +218,4 @@ void vtkSimpleElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vector: (" << this->Vector[0] << ", " << this->Vector[1] << ", "
      << this->Vector[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

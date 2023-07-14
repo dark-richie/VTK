@@ -32,6 +32,7 @@
 #include <string>
 #include <unordered_map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendFilter);
 
 //------------------------------------------------------------------------------
@@ -276,7 +277,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType ptOffset = 0;
   float decimal = 0.0;
   inputs->InitTraversal(iter);
-  int abort = 0;
+  bool abort = false;
   double p[3];
   while (!abort && (dataSet = inputs->GetNextDataSet(iter)))
   {
@@ -329,7 +330,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
       {
         decimal += 0.05;
         this->UpdateProgress(decimal);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
     }
 
@@ -371,7 +372,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
       {
         decimal += 0.05;
         this->UpdateProgress(decimal);
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
     }
     ptOffset += dataSetNumPts;
@@ -521,3 +522,4 @@ void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

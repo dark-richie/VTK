@@ -29,6 +29,7 @@
 #include "vtkPlot.h"
 #include "vtkSmartPointer.h" // Needed to hold ColorSeries
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
@@ -285,7 +286,7 @@ protected:
   /**
    * Test if the internal cache requires an update.
    */
-  virtual bool CacheRequiresUpdate() override;
+  bool CacheRequiresUpdate() override;
 
   /**
    * Store a well packed set of XY coordinates for this data series.
@@ -323,4 +324,5 @@ private:
   vtkPlotBarPrivate* Private;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotBar_h

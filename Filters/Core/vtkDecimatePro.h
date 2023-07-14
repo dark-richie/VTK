@@ -85,6 +85,7 @@
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkPriorityQueue;
 
@@ -424,9 +425,9 @@ private:
   int SplitState;                  // State of the splitting process
   double Error;                    // Maximum allowable surface error
 
-private:
   vtkDecimatePro(const vtkDecimatePro&) = delete;
   void operator=(const vtkDecimatePro&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

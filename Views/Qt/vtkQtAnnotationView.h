@@ -36,10 +36,11 @@
 
 #include <QPointer> // Needed to hold the view
 
-class vtkQtAnnotationLayersModelAdapter;
-
 class QItemSelection;
 class QTableView;
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkQtAnnotationLayersModelAdapter;
 
 class VTKVIEWSQT_EXPORT vtkQtAnnotationView : public vtkQtView
 {
@@ -70,7 +71,7 @@ protected:
 private Q_SLOTS:
   void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
   vtkMTimeType LastInputMTime;
 
   QPointer<QTableView> View;
@@ -80,4 +81,5 @@ private:
   void operator=(const vtkQtAnnotationView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

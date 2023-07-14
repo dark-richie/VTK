@@ -29,6 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCameraRepresentation);
 
 vtkCxxSetObjectMacro(vtkCameraRepresentation, Camera, vtkCamera);
@@ -198,7 +199,10 @@ void vtkCameraRepresentation::InitializePath()
 //------------------------------------------------------------------------------
 void vtkCameraRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->Actor);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->Actor);
+  }
   this->Superclass::GetActors2D(pc);
 }
 
@@ -262,3 +266,4 @@ void vtkCameraRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Camera: " << this->Camera << "\n";
   os << indent << "Number of Frames: " << this->NumberOfFrames << "\n";
 }
+VTK_ABI_NAMESPACE_END

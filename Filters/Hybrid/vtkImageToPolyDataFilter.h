@@ -74,6 +74,7 @@
 #define VTK_COLOR_MODE_LUT 0
 #define VTK_COLOR_MODE_LINEAR_256 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkEdgeTable;
 class vtkIdTypeArray;
@@ -239,15 +240,15 @@ private:
     vtkUnsignedCharArray* polyColors, vtkUnsignedCharArray* pointDescr);
 
   int GetNeighbors(
-    unsigned char* ptr, int& i, int& j, int dims[3], unsigned char* neighbors[4], int mode);
+    unsigned char* ptr, int& i, int& j, int dims[2], unsigned char* neighbors[4], int mode);
 
   void GetIJ(int id, int& i, int& j, int dims[2]);
   unsigned char* GetColor(unsigned char* rgb);
   int IsSameColor(unsigned char* p1, unsigned char* p2);
 
-private:
   vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&) = delete;
   void operator=(const vtkImageToPolyDataFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

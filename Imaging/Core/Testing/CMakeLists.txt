@@ -1,9 +1,13 @@
 vtk_module_test_data(
+  Data/ImageDiff1.png
+  Data/ImageDiff2.png
   Data/beach.tif
   Data/fullhead15.png
   Data/headsq/,REGEX:.*)
 
-add_subdirectory(Cxx)
+if (NOT vtk_testing_cxx_disabled)
+  add_subdirectory(Cxx)
+endif ()
 
 if (VTK_WRAP_PYTHON)
   vtk_module_test_data(

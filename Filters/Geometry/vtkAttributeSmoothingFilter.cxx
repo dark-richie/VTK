@@ -35,7 +35,9 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAttributeSmoothingFilter);
+VTK_ABI_NAMESPACE_END
 
 // The following code defines core methods for the
 // vtkAttributeSmoothingFilter class.
@@ -402,7 +404,7 @@ void MarkDSBoundary(vtkDataSet* ds, unsigned char* smooth)
 } // MarkDSBoundary
 
 // Mark all points directly adjacent to the dataset boundary (i.e.,
-// points are addjacent when connected by an edge to a boundary point).
+// points are adjacent when connected by an edge to a boundary point).
 // It is assumed that on entry to this function, all points have been
 // marked either as NoSmooth or Boundary.
 void MarkAdjacent(vtkPolyData* extractedEdges, unsigned char* smooth)
@@ -457,6 +459,7 @@ void AddExcludedArrays(
 
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //=================Begin VTK class proper=======================================
 //------------------------------------------------------------------------------
 vtkAttributeSmoothingFilter::vtkAttributeSmoothingFilter()
@@ -629,3 +632,4 @@ void vtkAttributeSmoothingFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << nextIndent << "Excluded Array: " << this->ExcludedArrays[i] << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

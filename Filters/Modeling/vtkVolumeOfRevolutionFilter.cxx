@@ -32,6 +32,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeOfRevolutionFilter);
 
 namespace
@@ -79,7 +80,7 @@ void RevolvePoints(vtkDataSet* pts, vtkPoints* newPts, AxisOfRevolution* axis, d
       pts->GetPoint(id, p2d);
       RevolvePoint(p2d, axis, i * angleInRadians, p3d);
       newPts->SetPoint(counter, p3d);
-      outPd->CopyData(pts->GetPointData(), i, counter);
+      outPd->CopyData(pts->GetPointData(), id, counter);
       counter++;
     }
   }
@@ -473,6 +474,10 @@ int vtkVolumeOfRevolutionFilter::RequestData(vtkInformation* vtkNotUsed(request)
   it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (RevolveCell(it->GetCellType(), it->GetPointIds(), input->GetNumberOfPoints(),
           this->Resolution, outCells, outTypes, inCd, it->GetCellId(), outCd, partialSweep) == 1)
     {
@@ -508,3 +513,4 @@ void vtkVolumeOfRevolutionFilter::PrintSelf(ostream& os, vtkIndent indent)
      << "," << this->AxisDirection[2] << ")\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

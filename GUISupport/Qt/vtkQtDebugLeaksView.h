@@ -30,6 +30,8 @@
 #include <QWidget>
 
 class QModelIndex;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
 class vtkQtDebugLeaksModel;
 
@@ -67,7 +69,7 @@ protected:
   virtual void onObjectDoubleClicked(vtkObjectBase* object);
   virtual void onClassNameDoubleClicked(const QString& className);
 
-protected Q_SLOTS:
+protected Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
 
   void onCurrentRowChanged(const QModelIndex& current);
   void onRowDoubleClicked(const QModelIndex&);
@@ -82,5 +84,6 @@ private:
   Q_DISABLE_COPY(vtkQtDebugLeaksView);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtDebugLeaksView.h

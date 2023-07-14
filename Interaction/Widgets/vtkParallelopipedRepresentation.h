@@ -33,8 +33,10 @@
 
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPlane;
 class vtkPoints;
@@ -248,7 +250,7 @@ protected:
   ///@}
 
   // Node can be a value within [0,7]. This will create a chair one one of
-  // the handle corners. '0 < InitialChairDepth < 1' value dicates the starting
+  // the handle corners. '0 < InitialChairDepth < 1' value dictates the starting
   // depth of the cavity.
   void UpdateChairAtNode(int node);
 
@@ -310,4 +312,5 @@ private:
   void operator=(const vtkParallelopipedRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

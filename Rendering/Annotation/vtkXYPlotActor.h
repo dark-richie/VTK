@@ -104,6 +104,7 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For SP
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXYPlotActorConnections;
 class vtkAlgorithmOutput;
 class vtkAppendPolyData;
@@ -149,7 +150,7 @@ public:
    * which point array to plot. The array must be a vtkDataArray subclass, i.e.
    * a numeric array. If the array name is NULL, then the default
    * scalars are used.  The array can have multiple components, but only the
-   * first component is ploted. Note that AddInputDataSet() does not setup
+   * first component is plotted. Note that AddInputDataSet() does not setup
    * a pipeline connection whereas AddInputConnection() does.
    */
   void AddDataSetInput(vtkDataSet* ds, const char* arrayName, int component);
@@ -981,4 +982,5 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

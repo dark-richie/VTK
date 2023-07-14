@@ -174,6 +174,7 @@
 #define VTK_FORMAT_STRING_TYPE const char*
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkLogger : public vtkObjectBase
 {
 public:
@@ -465,7 +466,7 @@ private:
 #define vtkVLog(level, x)                                                                          \
   if ((level) <= vtkLogger::GetCurrentVerbosityCutoff())                                           \
   {                                                                                                \
-    vtkOStrStreamWrapper::EndlType endl;                                                           \
+    vtkOStrStreamWrapper::EndlType const endl;                                                     \
     vtkOStrStreamWrapper::UseEndl(endl);                                                           \
     vtkOStrStreamWrapper vtkmsg;                                                                   \
     vtkmsg << "" x;                                                                                \
@@ -548,4 +549,5 @@ private:
  */
 #define vtkLogIdentifier(vtkobject) vtkLogger::GetIdentifier(vtkobject).c_str()
 
+VTK_ABI_NAMESPACE_END
 #endif

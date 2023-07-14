@@ -45,6 +45,7 @@
 #include <array>
 #include <stack>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGLTFImporter);
 
 namespace
@@ -499,7 +500,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         }
         renderer->AddActor(actor);
 
-        this->Actors[nodeId].push_back(actor);
+        this->Actors[nodeId].emplace_back(actor);
 
         this->InvokeEvent(vtkCommand::UpdateDataEvent);
       }
@@ -673,13 +674,13 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-void vtkGLTFImporter::UpdateTimeStep(double timestep)
+void vtkGLTFImporter::UpdateTimeStep(double timeValue)
 {
   for (int animationId = 0; animationId < this->GetNumberOfAnimations(); animationId++)
   {
     if (this->EnabledAnimations[animationId])
     {
-      this->Loader->ApplyAnimation(static_cast<float>(timestep), animationId);
+      this->Loader->ApplyAnimation(static_cast<float>(timeValue), animationId);
     }
   }
   this->Loader->BuildGlobalTransforms();
@@ -813,21 +814,24 @@ bool vtkGLTFImporter::IsAnimationEnabled(vtkIdType animationIndex)
 bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double frameRate,
   int& nbTimeSteps, double timeRange[2], vtkDoubleArray* timeSteps)
 {
-  nbTimeSteps = 0;
   if (animationIndex < this->GetNumberOfAnimations())
   {
     timeRange[0] = 0;
     timeRange[1] = this->Loader->GetInternalModel()->Animations[animationIndex].Duration;
 
-    timeSteps->SetNumberOfComponents(1);
-    timeSteps->SetNumberOfTuples(0);
-
-    std::vector<double> ts;
-    double period = (1.0 / frameRate);
-    for (double i = timeRange[0]; i < timeRange[1]; i += period)
+    if (frameRate > 0)
     {
-      timeSteps->InsertNextTuple(&i);
-      nbTimeSteps++;
+      nbTimeSteps = 0;
+      timeSteps->SetNumberOfComponents(1);
+      timeSteps->SetNumberOfTuples(0);
+
+      std::vector<double> ts;
+      double period = (1.0 / frameRate);
+      for (double i = timeRange[0]; i < timeRange[1]; i += period)
+      {
+        timeSteps->InsertNextTuple(&i);
+        nbTimeSteps++;
+      }
     }
     return true;
   }
@@ -852,3 +856,4 @@ vtkSmartPointer<vtkCamera> vtkGLTFImporter::GetCamera(unsigned int id)
   }
   return it->second;
 }
+VTK_ABI_NAMESPACE_END

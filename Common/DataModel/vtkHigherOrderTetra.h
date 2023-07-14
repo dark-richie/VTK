@@ -40,6 +40,7 @@
 
 #include <vector> //For caching
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTetra;
 class vtkHigherOrderCurve;
 class vtkHigherOrderTriangle;
@@ -94,7 +95,10 @@ public:
 
   vtkIdType GetOrder() const { return this->Order; }
   vtkIdType ComputeOrder();
-  static vtkIdType ComputeOrder(const vtkIdType nPoints);
+  static vtkIdType ComputeOrder(vtkIdType nPoints);
+  /// Return true if the number of points supports a cell of uniform
+  /// degree along each axis.
+  static bool PointCountSupportsUniformOrder(vtkIdType pointsPerCell);
 
   void ToBarycentricIndex(vtkIdType index, vtkIdType* bindex);
   vtkIdType ToIndex(const vtkIdType* bindex);
@@ -134,4 +138,5 @@ private:
   void operator=(const vtkHigherOrderTetra&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

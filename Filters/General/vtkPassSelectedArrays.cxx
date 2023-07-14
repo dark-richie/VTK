@@ -20,6 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPassSelectedArrays);
 //------------------------------------------------------------------------------
 vtkPassSelectedArrays::vtkPassSelectedArrays()
@@ -83,6 +84,10 @@ int vtkPassSelectedArrays::RequestData(
   // now filter arrays for each of the associations.
   for (int association = 0; association < vtkDataObject::NUMBER_OF_ASSOCIATIONS; ++association)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
     {
       continue;
@@ -147,3 +152,4 @@ void vtkPassSelectedArrays::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RowDataArraySelection: " << endl;
   this->GetRowDataArraySelection()->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

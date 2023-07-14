@@ -23,6 +23,9 @@
  * This is an abstract class.
  * Cursors are created by the HyperTreeGrid implementation.
  *
+ * oriented cursors are used for simple recursive DFS. A cursor has no
+ * knowledge of its parent, only its children.
+ *
  * @sa
  * vtkHyperTreeCursor vtkHyperTree vtkHyperTreeGrid
  *
@@ -42,6 +45,7 @@
 #include "vtkHyperTreeGridEntry.h"    // Used internally
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
@@ -201,4 +205,5 @@ private:
   vtkHyperTreeGridOrientedCursor(const vtkHyperTreeGridOrientedCursor&) = delete;
   void operator=(const vtkHyperTreeGridOrientedCursor&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

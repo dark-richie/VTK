@@ -31,6 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 vtkSmartPointer<vtkCompositeDataSet> EnsureComposite(vtkDataObject* dobj)
@@ -45,7 +46,7 @@ vtkSmartPointer<vtkCompositeDataSet> EnsureComposite(vtkDataObject* dobj)
   toComposite->Update();
   auto outCds = vtkCompositeDataSet::SafeDownCast(toComposite->GetOutputDataObject(0));
   auto cds = vtkSmartPointer<vtkCompositeDataSet>::Take(outCds->NewInstance());
-  cds->ShallowCopy(outCds);
+  cds->CompositeShallowCopy(outCds);
   return cds;
 }
 
@@ -217,3 +218,4 @@ int vtkHyperTreeGridMapper::FillInputPortInformation(int vtkNotUsed(port), vtkIn
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

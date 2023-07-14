@@ -35,6 +35,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereTree);
 vtkCxxSetObjectMacro(vtkSphereTree, DataSet, vtkDataSet);
 
@@ -55,9 +56,9 @@ vtkCxxSetObjectMacro(vtkSphereTree, DataSet, vtkDataSet);
 // performance.
 
 // Type of sphere tree hierarchy generated
-#define VTK_SPHERE_TREE_HIERARCHY_NONE 0
-#define VTK_SPHERE_TREE_HIERARCHY_STRUCTURED 1
-#define VTK_SPHERE_TREE_HIERARCHY_UNSTRUCTURED 2
+constexpr int VTK_SPHERE_TREE_HIERARCHY_NONE = 0;
+constexpr int VTK_SPHERE_TREE_HIERARCHY_STRUCTURED = 1;
+constexpr int VTK_SPHERE_TREE_HIERARCHY_UNSTRUCTURED = 2;
 
 // Different types of sphere tree hierarchies can be created. These are
 // basically data structures for different types of dataset (structured
@@ -1617,3 +1618,4 @@ void vtkSphereTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Number Of Levels: " << this->MaxLevel << "\n";
   os << indent << "Build Hierarchy: " << (this->BuildHierarchy ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

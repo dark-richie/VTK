@@ -27,6 +27,7 @@
 #include <string>  // For std::string
 #include <vector>  // For STL vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 {
 public:
@@ -38,7 +39,7 @@ public:
   /**
    * Set/Get the number of requested partitions
    */
-  void SetNumberOfPartitions(const int N)
+  void SetNumberOfPartitions(int N)
   {
     assert("pre: Number of partitions requested must be > 0" && (N >= 0));
     this->Reset();
@@ -100,7 +101,7 @@ public:
   /**
    * Returns the extent of the partition corresponding to the given ID.
    */
-  void GetPartitionExtent(const int idx, int ext[6]);
+  void GetPartitionExtent(int idx, int ext[6]);
 
 protected:
   vtkExtentRCBPartitioner();
@@ -132,7 +133,7 @@ protected:
    * method will produce a ghosted extent which is clamped within the given
    * global extent
    */
-  void GetGhostedExtent(int ext[6], const int minIdx, const int maxIdx)
+  void GetGhostedExtent(int ext[6], int minIdx, int maxIdx)
   {
     ext[minIdx] -= this->NumberOfGhostLayers;
     ext[maxIdx] += this->NumberOfGhostLayers;
@@ -151,7 +152,7 @@ protected:
   /**
    * Returns the extent at the position corresponding to idx.
    */
-  void GetExtent(const int idx, int ext[6]);
+  void GetExtent(int idx, int ext[6]);
 
   /**
    * Adds the extent to the end of the list of partitioned extents
@@ -162,7 +163,7 @@ protected:
    * Replaces the extent at the position indicated by idx with the provided
    * extent.
    */
-  void ReplaceExtent(const int idx, int ext[6]);
+  void ReplaceExtent(int idx, int ext[6]);
 
   /**
    * Splits the extent along the given dimension.
@@ -220,4 +221,5 @@ private:
   void operator=(const vtkExtentRCBPartitioner&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKEXTENTRCBPARTITIONER_H_ */

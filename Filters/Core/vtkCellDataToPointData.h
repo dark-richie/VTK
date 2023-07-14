@@ -57,6 +57,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
 class VTKFILTERSCORE_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
@@ -83,7 +84,7 @@ public:
   /**
    * Control whether the input cell data is to be passed to the output. If
    * on, then the input cell data is passed through to the output; otherwise,
-   * only generated point data is placed into the output.
+   * only generated point data is placed into the output. The default is false.
    */
   vtkSetMacro(PassCellData, bool);
   vtkGetMacro(PassCellData, bool);
@@ -107,6 +108,16 @@ public:
   vtkSetMacro(ProcessAllArrays, bool);
   vtkGetMacro(ProcessAllArrays, bool);
   vtkBooleanMacro(ProcessAllArrays, bool);
+  ///@}
+
+  ///@{
+  /**
+   * To get piece invariance, this filter has to request an
+   * extra ghost level.  By default piece invariance is on.
+   */
+  vtkSetMacro(PieceInvariant, bool);
+  vtkGetMacro(PieceInvariant, bool);
+  vtkBooleanMacro(PieceInvariant, bool);
   ///@}
 
   /**
@@ -133,8 +144,12 @@ protected:
   vtkCellDataToPointData();
   ~vtkCellDataToPointData() override;
 
+  virtual vtkIdType GetNumberOfCellArraysToProcess();
+  virtual void GetCellArraysToProcess(const char* names[]);
+
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   ///@{
   /**
@@ -149,7 +164,7 @@ protected:
 
   ///@{
   /**
-   * Option to pass cell data arrays through to the output. Default is 0/off.
+   * Option to pass cell data arrays through to the output. Default is false/off.
    */
   bool PassCellData;
   ///@}
@@ -163,9 +178,11 @@ protected:
   ///@}
 
   /**
-   * Option to activate selective processing of arrays.
+   * Option to activate selective processing of arrays. The default is true.
    */
   bool ProcessAllArrays;
+
+  bool PieceInvariant;
 
   class Internals;
   Internals* Implementation;
@@ -175,4 +192,5 @@ private:
   void operator=(const vtkCellDataToPointData&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

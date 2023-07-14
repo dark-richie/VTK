@@ -58,17 +58,21 @@
 #include <iterator>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkAbstractArray, GUI_HIDE, Integer);
 vtkInformationKeyMacro(vtkAbstractArray, PER_COMPONENT, InformationVector);
 vtkInformationKeyMacro(vtkAbstractArray, PER_FINITE_COMPONENT, InformationVector);
 vtkInformationKeyMacro(vtkAbstractArray, DISCRETE_VALUES, VariantVector);
 vtkInformationKeyRestrictedMacro(
   vtkAbstractArray, DISCRETE_VALUE_SAMPLE_PARAMETERS, DoubleVector, 2);
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
 typedef std::vector<std::string*> vtkInternalComponentNameBase;
 }
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray::vtkInternalComponentNames : public vtkInternalComponentNameBase
 {
 };
@@ -546,6 +550,8 @@ const char* vtkAbstractArray::GetArrayTypeAsString() const
       return "MappedDataArray";
     case ScaleSoADataArrayTemplate:
       return "ScaleSoADataArrayTemplate";
+    case ImplicitArray:
+      return "ImplicitArray";
   }
   return "Unknown";
 }
@@ -623,6 +629,7 @@ void vtkAbstractArray::GetProminentComponentValues(
     }
   }
 }
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 namespace
@@ -758,6 +765,7 @@ void SampleProminentValues(std::vector<std::vector<vtkVariant>>& uniques, vtkIdT
 }
 } // End anonymous namespace.
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimumProminence)
 {
@@ -776,7 +784,6 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   constexpr int sampleFactor = 5;
 
   // I. Determine the granularity at which the array should be sampled.
-  int numberOfComponentsWithProminentValues = 0;
   int nc = this->NumberOfComponents;
   int blockSize = cacheLineSize / (this->GetDataTypeSize() * nc);
   if (!blockSize)
@@ -830,7 +837,6 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   {
     if (!uniques[c].empty() && uniques[c].size() <= this->MaxDiscreteValues)
     {
-      ++numberOfComponentsWithProminentValues;
       iv = this->GetInformation()->Get(PER_COMPONENT());
       if (!iv)
       {
@@ -853,7 +859,6 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   }
   if (nc > 1 && uniques[nc].size() <= this->MaxDiscreteValues * nc)
   {
-    ++numberOfComponentsWithProminentValues;
     this->GetInformation()->Set(
       DISCRETE_VALUES(), uniques[nc].data(), static_cast<int>(uniques[nc].size()));
   }
@@ -869,3 +874,4 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   params[1] = minimumProminence;
   this->GetInformation()->Set(DISCRETE_VALUE_SAMPLE_PARAMETERS(), params, 2);
 }
+VTK_ABI_NAMESPACE_END

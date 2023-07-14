@@ -38,6 +38,7 @@
 
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
 // attributes: xyz rst [abc de...]
+VTK_ABI_NAMESPACE_BEGIN
 const int PARAMETRIC_OFFSET = 3;
 const int ATTRIBUTES_OFFSET = 6;
 
@@ -2174,7 +2175,6 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell* cell,
   }
 
   // refine loop
-  int count = 0;
   while (!work.empty())
   {
     vtkTetraTile piece[8];
@@ -2190,7 +2190,6 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell* cell,
 
     // We are done we should clean ourself from the hash table:
     this->RemoveEdgesFromEdgeTable(curr);
-    ++count;
   }
 
   // remove the points of the complex cell from the hashtable
@@ -2789,3 +2788,4 @@ int vtkSimpleCellTessellator::FacesAreEqual(const vtkIdType* originalFace, const
   }
   return result;
 }
+VTK_ABI_NAMESPACE_END

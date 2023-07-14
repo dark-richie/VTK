@@ -30,6 +30,7 @@
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearWipeRepresentation);
 
 vtkCxxSetObjectMacro(vtkRectilinearWipeRepresentation, RectilinearWipe, vtkImageRectilinearWipe);
@@ -419,7 +420,10 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkRectilinearWipeRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  this->WipeActor->GetActors2D(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->WipeActor->GetActors2D(pc);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -488,3 +492,4 @@ void vtkRectilinearWipeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

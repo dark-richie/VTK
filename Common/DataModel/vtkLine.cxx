@@ -17,6 +17,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
@@ -24,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLine);
 
 //------------------------------------------------------------------------------
@@ -43,13 +45,22 @@ vtkLine::vtkLine()
 int vtkLine::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
-  double a1[3], a2[3];
+  const double *a1, *a2;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  this->Points->GetPoint(0, a1);
-  this->Points->GetPoint(1, a2);
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
+  a1 = pts;
+  a2 = pts + 3;
 
   // DistanceToLine sets pcoords[0] to a value t
   dist2 = vtkLine::DistanceToLine(x, a1, a2, pcoords[0], closestPoint);
@@ -86,7 +97,7 @@ void vtkLine::EvaluateLocation(
 // The parameters (u,v) are the parametric coordinates of the lines at the
 // position of closest approach.
 int vtkLine::Intersection(const double a1[3], const double a2[3], const double b1[3],
-  const double b2[3], double& u, double& v, const double tolerance, int tolType)
+  const double b2[3], double& u, double& v, double tolerance, int tolType)
 {
   double a21[3], b21[3], b1a1[3];
   double c[2];
@@ -781,7 +792,10 @@ void vtkLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointL
         this->Points->GetPoint(vertexId, x);
         if (locator->InsertUniquePoint(x, pts[i]))
         {
-          outPd->CopyData(inPd, this->PointIds->GetId(vertexId), pts[i]);
+          if (outPd)
+          {
+            outPd->CopyData(inPd, this->PointIds->GetId(vertexId), pts[i]);
+          }
         }
       }
 
@@ -799,9 +813,11 @@ void vtkLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointL
 
         if (locator->InsertUniquePoint(x, pts[i]))
         {
-          vtkIdType p1 = this->PointIds->GetId(0);
-          vtkIdType p2 = this->PointIds->GetId(1);
-          outPd->InterpolateEdge(inPd, pts[i], p1, p2, t);
+          if (outPd)
+          {
+            outPd->InterpolateEdge(
+              inPd, pts[i], this->PointIds->GetId(0), this->PointIds->GetId(1), t);
+          }
         }
       }
     }
@@ -809,7 +825,10 @@ void vtkLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointL
     if (pts[0] != pts[1])
     {
       newCellId = lines->InsertNextCell(2, pts);
-      outCd->CopyData(inCd, cellId, newCellId);
+      if (outCd)
+      {
+        outCd->CopyData(inCd, cellId, newCellId);
+      }
     }
   }
 }
@@ -843,3 +862,4 @@ void vtkLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

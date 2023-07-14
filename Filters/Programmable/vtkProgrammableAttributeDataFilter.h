@@ -80,6 +80,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersProgrammableModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetCollection;
 
 class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetAlgorithm
@@ -145,9 +146,9 @@ private:
     vtkErrorMacro(<< "AddInput() must be called with a vtkDataSet not a vtkDataObject.");
   }
 
-private:
   vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&) = delete;
   void operator=(const vtkProgrammableAttributeDataFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

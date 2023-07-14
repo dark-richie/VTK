@@ -43,6 +43,7 @@
 #include "vtkEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 
 class VTKIOENSIGHT_EXPORT vtkEnSightGoldBinaryReader : public vtkEnSightReader
@@ -147,14 +148,14 @@ protected:
    * vtkStructuredGrid output.  Return 0 if EOF reached.
    */
   int CreateStructuredGridOutput(
-    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
+    int partId, char line[80], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkRectilinearGrid output.  Return 0 if EOF reached.
    */
   int CreateRectilinearGridOutput(
-    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output);
+    int partId, char line[80], const char* name, vtkMultiBlockDataSet* output);
 
   /**
    * Read a structured part from the geometry file and create a
@@ -279,4 +280,5 @@ private:
   friend class vtkUtilities;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

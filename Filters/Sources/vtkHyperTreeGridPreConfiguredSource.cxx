@@ -30,6 +30,7 @@
 #include <array>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridPreConfiguredSource);
 
 vtkHyperTreeGridPreConfiguredSource::vtkHyperTreeGridPreConfiguredSource()
@@ -187,7 +188,7 @@ void vtkHyperTreeGridPreConfiguredSource::GenerateUnbalanced(vtkHyperTreeGrid* h
   auto cursor = vtk::TakeSmartPointer(htg->NewNonOrientedCursor(0, true));
   cursor->GetTree()->SetGlobalIndexStart(0);
   levels->InsertValue(0, 0);
-  for (vtkIdType l = 0; l < depth; l++)
+  for (unsigned int l = 0; l < depth; l++)
   {
     cursor->SubdivideLeaf();
     int numChildren = cursor->GetNumberOfChildren();
@@ -392,3 +393,4 @@ int vtkHyperTreeGridPreConfiguredSource::GenerateCustom(vtkHyperTreeGrid* htg)
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

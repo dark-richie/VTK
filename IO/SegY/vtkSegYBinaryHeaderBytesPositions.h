@@ -16,6 +16,7 @@
 #ifndef vtkSegYBinaryHeaderBytesPositions_h
 #define vtkSegYBinaryHeaderBytesPositions_h
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSegYBinaryHeaderBytesPositions
 {
 public:
@@ -36,7 +37,6 @@ public:
   int MinorVersion;
   int FixedLengthFlag;
 
-public:
   vtkSegYBinaryHeaderBytesPositions() { initDefaultValues(); }
 
 private:
@@ -62,5 +62,6 @@ private:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkSegYBinaryHeaderBytesPositions_h
 // VTK-HeaderTest-Exclude: vtkSegYBinaryHeaderBytesPositions.h

@@ -71,7 +71,6 @@ using LinkMap = vtkDIYGhostUtilities::LinkMap;
 template<class DataSetT>
 using DataSetTypeToBlockTypeConverter =
     vtkDIYGhostUtilities::DataSetTypeToBlockTypeConverter<DataSetT>;
-namespace detail = vtkDIYGhostUtilities_detail;
 //@}
 
 //@{
@@ -106,7 +105,7 @@ constexpr unsigned char GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA =
 
 //============================================================================
 /**
- * Ajacency bits used for grids.
+ * Adjacency bits used for grids.
  * For instance, `Adjacency::Something` means that the neighboring block it refers to is on the
  * `Something` of current block
  * Naming is self-explanatory.
@@ -361,7 +360,7 @@ template <class GridDataSetT>
   {
     // Strategy:
     // We create a cursor `ijk` that is at the bottom left front corner of the grid.
-    // From there, we iterate each cursor dimension until the targetted brick is not a duplicate ghost.
+    // From there, we iterate each cursor dimension until the targeted brick is not a duplicate ghost.
     // When this happens, we stop the loop, and look in each non degenerate dimension
     // if consecutive shift backs land on a ghost or not. If it lands on a ghost, then the
     // corresponding dimension needs to be peeled up to the current position of the cursor.
@@ -626,7 +625,7 @@ void LinkGrid(::BlockMapType<typename BlockT::BlockStructureType>& blockStructur
 
     AddGhostLayerToGrid<BlockT>(idx, outputGhostLevels, blockStructure, blockInformation);
   }
-  // Here we look at ajacency where edges overlaps but no face overlap occurs
+  // Here we look at adjacency where edges overlaps but no face overlap occurs
   //   ___
   //  /__/|
   // |  | |__
@@ -710,7 +709,7 @@ void LinkGrid(::BlockMapType<typename BlockT::BlockStructureType>& blockStructur
     AddGhostLayerToGrid<BlockT>(idx1, outputGhostLevels, blockStructure, blockInformation);
     AddGhostLayerToGrid<BlockT>(idx2, outputGhostLevels, blockStructure, blockInformation);
   }
-  // Here we look at ajacency where corners touch but no edges / faces overlap
+  // Here we look at adjacency where corners touch but no edges / faces overlap
   //   ___
   //  /__/|
   // |  | |
@@ -722,7 +721,7 @@ void LinkGrid(::BlockMapType<typename BlockT::BlockStructureType>& blockStructur
   else
   {
     // idx1, idx2 and idx3 are the indices in extent of current block
-    // such that the intersection of the 3 faces mapped by those 3 indices is the concurrant corner.
+    // such that the intersection of the 3 faces mapped by those 3 indices is the concurrent corner.
     int idx1 = -1, idx2 = -1, idx3 = -1;
     switch (adjacencyMask)
     {
@@ -954,7 +953,7 @@ struct Comparator<false>
   {
     using Scalar = typename ValueToScalar<ValueT1>::Type;
 
-    return std::fabs(val1 - val2) < detail::ComputePrecision<Scalar>(
+    return std::fabs(val1 - val2) < vtkDIYGhostUtilities_detail::ComputePrecision<Scalar>(
         std::max(std::fabs(val1), std::fabs(val2)));
   }
 };
@@ -1256,7 +1255,7 @@ struct StructuredGridFittingWorker
           static_cast<double>(queryPoint[2]) };
 
         vtkIdType pointId = locator->FindClosestPointWithinRadius(
-            detail::ComputePrecision<ValueType>(
+            vtkDIYGhostUtilities_detail::ComputePrecision<ValueType>(
               std::max({ std::fabs(tmp[0]), std::fabs(tmp[1]), std::fabs(tmp[2]) })), tmp, dist2);
 
         if (pointId == -1)
@@ -1382,7 +1381,7 @@ struct StructuredGridFittingWorker
           this->Grid.YOrientation = sweepDirection[yCornerId];
           this->Grid.ExtentId = extentId;
 
-          if ((this->Dimension == 3 && 
+          if ((this->Dimension == 3 &&
                 this->Grid.StartX != this->Grid.EndX && this->Grid.StartY != this->Grid.EndY) ||
               (this->Dimension == 2 && (this->Grid.StartX != this->Grid.EndX ||
                                         this->Grid.StartY != this->Grid.EndY)) ||
@@ -2387,7 +2386,7 @@ struct MatchingPointExtractor
       {
         vtkMath::Assign(point, p);
         vtkIdType closestPointId = this->KdTree->FindClosestPointWithinRadius(
-            detail::ComputePrecision<ValueType>(
+            vtkDIYGhostUtilities_detail::ComputePrecision<ValueType>(
               std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
 
             p, dist2);
@@ -2791,6 +2790,8 @@ void FillUnstructuredDataTopologyBuffer(
   {
     cellArray->ConvertTo32BitStorage();
   }
+#else
+  (void)maxPointId;
 #endif
 
   int mask = (cellArray->IsStorage64Bit() << 1) |
@@ -2839,6 +2840,8 @@ void FillUnstructuredDataTopologyBuffer(
 #ifdef VTK_USE_64BIT_IDS
   bool convertTo32Bits = !(maxPointId >> 31) || !(connectivitySize[0] >> 31) ||
     !(connectivitySize[1] >> 31) || !(connectivitySize[2]) >> 31;
+#else
+  (void)maxPointId;
 #endif
 
   for (int i = 0; i < 3; ++i)
@@ -3361,7 +3364,7 @@ vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForStructuredData(unsigned ch
 
 //----------------------------------------------------------------------------
 /**
- * This function returns the ids in input `grid` of the pointss such that `grid`'s extent overlaps
+ * This function returns the ids in input `grid` of the points such that `grid`'s extent overlaps
  * the block of global id gid's extent when ghosts are added.
  */
 template <class GridDataSetT>
@@ -3397,7 +3400,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
   ::ExtentType localExtent
     { gridExtent[0], gridExtent[1], gridExtent[2], gridExtent[3], gridExtent[4], gridExtent[5] };
 
-  // We apply a bitwise NOT opeartion on adjacencyMask to have the same adjacency mask as
+  // We apply a bitwise NOT operation on adjacencyMask to have the same adjacency mask as
   // in the Input version of this function. It produces an axial symmetry on each dimension
   // having an adjacency.
   return ::ComputeInterfacePointIdsForStructuredData(~adjacencyMask, localExtent, extent, grid,
@@ -3651,7 +3654,7 @@ void CloneCellData(vtkPointSet* ps, vtkPointSet* clone, ::UnstructuredDataInform
           cloneCellData->GetAbstractArray(arrayId));
     }
   }
-  // We need to intialize newly allocated ghosts to zero
+  // We need to initialize newly allocated ghosts to zero
   if (vtkUnsignedCharArray* ghostCells = cloneCellData->GetGhostArray())
   {
     auto ghostRange = vtk::DataArrayValueRange<1>(ghostCells);
@@ -3685,7 +3688,7 @@ void ClonePointData(vtkPointSet* ps, vtkPointSet* clone, ::UnstructuredDataInfor
           clonePointData->GetAbstractArray(arrayId));
     }
   }
-  // We need to intialize newly allocated ghosts to zero
+  // We need to initialize newly allocated ghosts to zero
   if (vtkUnsignedCharArray* ghostPoints = clonePointData->GetGhostArray())
   {
     auto ghostRange = vtk::DataArrayValueRange<1>(ghostPoints);
@@ -4408,7 +4411,7 @@ void DeepCopyInputAndAllocateGhostsForStructuredData(
  * - CellIdOffset: This is the number of cells already present in our output cells before adding the
  *   ghosts from this neighboring block.
  * - ConnectivityOffset: This is the current size of the connectivity array, before adding ghosts
- *   from thie neighboring block.
+ *   from their neighboring block.
  */
 template<class ArrayT>
 struct CellArrayInserter
@@ -4666,7 +4669,7 @@ struct QueryPointWorker
   void operator()(ArrayT* vtkNotUsed(array), double p[3])
   {
     this->TargetPointId = this->Locator->FindClosestPointWithinRadius(
-        detail::ComputePrecision<ValueT>(
+        vtkDIYGhostUtilities_detail::ComputePrecision<ValueT>(
           std::max({ std::fabs(p[0]), std::fabs(p[1]), std::fabs(p[2]) })),
           p, this->Dist2);
   }
@@ -5041,7 +5044,7 @@ void FillHiddenGhostsForStructuredData(const diy::Master& master, std::vector<Gr
     int isDimensionDegenerate[3] = { localExtent[0] == localExtent[1],
       localExtent[2] == localExtent[3], localExtent[4] == localExtent[5] };
 
-    // We are carefull and take into account when dimensions are degenerate:
+    // We are careful and take into account when dimensions are degenerate:
     // we do not want to fill a degenerate dimension with ghosts.
     //
     // On each dimension, we have to fill each end of each segment on points and cells.
@@ -5667,6 +5670,8 @@ struct ReinitializeBitsWorker
   unsigned char Mask;
 };
 } // anonymous namespace
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ReinitializeSelectedBits(vtkUnsignedCharArray* ghosts,
@@ -6353,3 +6358,4 @@ int vtkDIYGhostUtilities::GenerateGhostCellsUnstructuredGrid(
 {
   return vtkDIYGhostUtilities::GenerateGhostCells(inputs, outputs, outputGhostLevels, controller);
 }
+VTK_ABI_NAMESPACE_END

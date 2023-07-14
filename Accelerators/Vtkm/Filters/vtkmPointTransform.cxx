@@ -34,8 +34,7 @@
 #include "vtkm/cont/Error.h"
 #include "vtkm/filter/field_transform/PointTransform.h"
 
-#include "vtkmFilterPolicy.h"
-
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmPointTransform);
 vtkCxxSetObjectMacro(vtkmPointTransform, Transform, vtkHomogeneousTransform);
 
@@ -168,3 +167,4 @@ void vtkmPointTransform::PrintSelf(std::ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Transform: " << this->Transform << "\n";
 }
+VTK_ABI_NAMESPACE_END

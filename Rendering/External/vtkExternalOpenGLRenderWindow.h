@@ -44,6 +44,7 @@
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkRenderingExternalModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow
   : public vtkGenericOpenGLRenderWindow
 {
@@ -55,7 +56,7 @@ public:
   /**
    * Begin the rendering process using the existing context.
    */
-  void Start(void) override;
+  void Start() override;
 
   /**
    * Tells if this window is the current graphics context for the calling
@@ -84,7 +85,7 @@ public:
   /**
    * Turn on/off a flag which enables/disables using the content from an
    * outside application.  When on the active read buffer is first blitted
-   * into VTK and becomes the starting poiint for VTK's rendering.
+   * into VTK and becomes the starting point for VTK's rendering.
    */
   vtkGetMacro(UseExternalContent, bool);
   vtkSetMacro(UseExternalContent, bool);
@@ -102,4 +103,5 @@ private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&) = delete;
   void operator=(const vtkExternalOpenGLRenderWindow&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif // vtkExternalOpenGLRenderWindow_h

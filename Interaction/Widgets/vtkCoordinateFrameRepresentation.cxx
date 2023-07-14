@@ -43,6 +43,7 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCoordinateFrameRepresentation);
 
 static constexpr double DefaultPickTol = 0.001;
@@ -559,19 +560,22 @@ double* vtkCoordinateFrameRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkCoordinateFrameRepresentation::GetActors(vtkPropCollection* pc)
 {
-  pc->AddItem(this->OriginSphereActor);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->OriginSphereActor);
 
-  pc->AddItem(this->XVectorLineActor);
-  pc->AddItem(this->XVectorConeActor);
-  pc->AddItem(this->LockerXVectorConeActor);
+    pc->AddItem(this->XVectorLineActor);
+    pc->AddItem(this->XVectorConeActor);
+    pc->AddItem(this->LockerXVectorConeActor);
 
-  pc->AddItem(this->YVectorLineActor);
-  pc->AddItem(this->YVectorConeActor);
-  pc->AddItem(this->LockerYVectorConeActor);
+    pc->AddItem(this->YVectorLineActor);
+    pc->AddItem(this->YVectorConeActor);
+    pc->AddItem(this->LockerYVectorConeActor);
 
-  pc->AddItem(this->ZVectorLineActor);
-  pc->AddItem(this->ZVectorConeActor);
-  pc->AddItem(this->LockerZVectorConeActor);
+    pc->AddItem(this->ZVectorLineActor);
+    pc->AddItem(this->ZVectorConeActor);
+    pc->AddItem(this->LockerZVectorConeActor);
+  }
   this->Superclass::GetActors(pc);
 }
 
@@ -1633,3 +1637,4 @@ void vtkCoordinateFrameRepresentation::ComputeAdaptivePickerTolerance()
   double tolerance = pickerCylinderRadius < DefaultPickTol ? pickerCylinderRadius : DefaultPickTol;
   this->CellPicker->SetTolerance(tolerance);
 }
+VTK_ABI_NAMESPACE_END

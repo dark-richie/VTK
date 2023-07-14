@@ -28,6 +28,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDensifyPolyDataInternals
 {
 public:
@@ -296,7 +297,7 @@ public:
         t.Verts[3 * id2], t.Verts[3 * id2 + 1], t.Verts[3 * id2 + 2], centroid[0], centroid[1],
         centroid[2] };
       vtkIdType vertIds[3] = { t.VertIds[id1], t.VertIds[id2], id3 };
-      polygons.push_back(Polygon(verts, 3, vertIds, t.NumVerts, t.VertIds));
+      polygons.emplace_back(verts, 3, vertIds, t.NumVerts, t.VertIds);
     }
 
     this->NumPoints++;
@@ -400,6 +401,11 @@ int vtkDensifyPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (inputPolys->InitTraversal(); inputPolys->GetNextCell(npts, ptIds); cellId++)
   { // for every cell
+
+    if (this->CheckAbort())
+    {
+      break;
+    }
 
     // Make sure that the polygon is a planar polygon.
     int cellType = input->GetCellType(cellId);
@@ -535,3 +541,4 @@ void vtkDensifyPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Subdivisions: " << this->NumberOfSubdivisions << endl;
 }
+VTK_ABI_NAMESPACE_END

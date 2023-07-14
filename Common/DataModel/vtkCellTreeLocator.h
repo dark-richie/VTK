@@ -57,14 +57,17 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 // Forward declarations for PIMPL
 struct vtkCellTree;
 template <typename T>
 struct CellTree;
 template <typename T>
 struct CellTreeBuilder;
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocator
 {
   template <typename>
@@ -126,7 +129,7 @@ public:
    *
    * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], const double tol, vtkPoints* points,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) override;
 
   /**
@@ -190,5 +193,6 @@ private:
   vtkCellTreeLocator(const vtkCellTreeLocator&) = delete;
   void operator=(const vtkCellTreeLocator&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 #endif

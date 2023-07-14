@@ -66,9 +66,14 @@
  * contour an image (i.e., a volume slice), use vtFlyingEdges2D or
  * vtkMarchingSquares.
  *
+ * @warning
+ * See also vtkPackLabels which is a utility class for renumbering the labels
+ * found in the input segmentation mask to contiguous forms of smaller type.
+ *
  * @sa
  * vtkSurfaceNets3D vtkDiscreteFlyingEdges3D vtkSurfaceNets2D
  * vtkContourFilter vtkSliceCubes vtkMarchingSquares vtkDividingCubes
+ * vtkPackLabels
  */
 
 #ifndef vtkDiscreteMarchingCubes_h
@@ -77,6 +82,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMarchingCubes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkDiscreteMarchingCubes : public vtkMarchingCubes
 {
 public:
@@ -111,4 +117,5 @@ private:
   void operator=(const vtkDiscreteMarchingCubes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -41,6 +41,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkConeSource;
 class vtkPolyDataMapper;
@@ -296,6 +297,16 @@ public:
    */
   void SetLineColor(double r, double g, double b);
 
+  ///@{
+  /**
+   * Set the widget color, and the color of interactive handles.
+   */
+  void SetInteractionColor(double, double, double);
+  void SetInteractionColor(double c[3]) { this->SetInteractionColor(c[0], c[1], c[2]); }
+  void SetForegroundColor(double, double, double);
+  void SetForegroundColor(double c[3]) { this->SetForegroundColor(c[0], c[1], c[2]); }
+  ///@}
+
   /**
    * Get the distance annotation property
    */
@@ -394,4 +405,5 @@ private:
   void operator=(const vtkLineRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

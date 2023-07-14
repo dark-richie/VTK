@@ -44,6 +44,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
 class vtkSMPThreadLocalAPI
@@ -122,9 +123,15 @@ public:
   }
 
   //--------------------------------------------------------------------------------
-  class iterator : public std::iterator<std::forward_iterator_tag, T> // for iterator_traits
+  class iterator
   {
   public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+
     iterator() = default;
 
     iterator(const iterator& other)
@@ -208,8 +215,10 @@ private:
   }
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkSMPThreadLocalAPI.h */

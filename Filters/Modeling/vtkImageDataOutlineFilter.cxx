@@ -24,6 +24,7 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataOutlineFilter);
 
 //------------------------------------------------------------------------------
@@ -200,6 +201,8 @@ int vtkImageDataOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetPolys(faces);
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -218,3 +221,4 @@ void vtkImageDataOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Faces: " << (this->GenerateFaces ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

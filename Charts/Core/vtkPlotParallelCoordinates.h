@@ -30,6 +30,7 @@
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For vtkStdString ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkChartParallelCoordinates;
 class vtkScalarsToColors;
 class vtkTable;
@@ -125,6 +126,24 @@ public:
   void SelectColorArray(const vtkStdString& arrayName);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the color mode for the plot.
+   *
+   * The options are:
+   * VTK_COLOR_MODE_DEFAULT
+   * VTK_COLOR_MODE_MAP_SCALARS
+   * VTK_COLOR_MODE_DIRECT_SCALARS
+   *
+   * Default is VTK_COLOR_MODE_MAP_SCALARS.
+   */
+  vtkSetMacro(ColorMode, int);
+  void SetColorModeToDefault() { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
+  void SetColorModeToMapScalars() { this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS); }
+  void SetColorModeToDirectScalars() { this->SetColorMode(VTK_COLOR_MODE_DIRECT_SCALARS); }
+  vtkGetMacro(ColorMode, int);
+  ///@}
+
   /**
    * Get the array name to color by.
    */
@@ -158,6 +177,7 @@ protected:
   vtkUnsignedCharArray* Colors;
   vtkTypeBool ScalarVisibility;
   vtkStdString ColorArrayName;
+  int ColorMode;
   ///@}
 
 private:
@@ -165,4 +185,5 @@ private:
   void operator=(const vtkPlotParallelCoordinates&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotParallelCoordinates_h

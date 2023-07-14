@@ -48,6 +48,7 @@
 #include <string> // Instead of using char*
 #include <vector> // For automatic array memory management
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkCommunicator;
 class vtkSubGroup;
@@ -154,7 +155,7 @@ public:
    * Returns the region assignment map where index is the region and value is
    * the processes id for that region.
    */
-  const int* GetRegionAssignmentMap() { return &this->RegionAssignmentMap[0]; }
+  const int* GetRegionAssignmentMap() { return this->RegionAssignmentMap.data(); }
 
   ///@{
   /**
@@ -477,4 +478,5 @@ private:
   void operator=(const vtkPKdTree&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

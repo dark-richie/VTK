@@ -29,6 +29,7 @@
 #include <vector>
 
 // Define the edge list class--------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkEdge
 {
   vtkEdge(vtkIdType v1, vtkIdType v2)
@@ -200,10 +201,16 @@ int vtkProjectedTerrainPath::RequestData(
   this->PositiveLineError = vtkPriorityQueue::New();
   this->NegativeLineError = vtkPriorityQueue::New();
   this->NumLines = 0;
-  for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts);)
+  bool abort = false;
+  for (inLines->InitTraversal(); inLines->GetNextCell(npts, pts) && !abort;)
   {
     for (j = 0; j < (npts - 1); j++)
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       this->EdgeList->push_back(vtkEdge(pts[j], pts[j + 1]));
       this->ComputeError(static_cast<vtkIdType>(this->EdgeList->size() - 1)); // puts edges in
                                                                               // queues
@@ -211,11 +218,11 @@ int vtkProjectedTerrainPath::RequestData(
     }
   }
 
-  if (this->ProjectionMode == NONOCCLUDED_PROJECTION)
+  if (!this->CheckAbort() && this->ProjectionMode == NONOCCLUDED_PROJECTION)
   {
     this->RemoveOcclusions();
   }
-  else // if ( this->ProjectionMode == HUG_PROJECTION )
+  else if (!this->CheckAbort()) // if ( this->ProjectionMode == HUG_PROJECTION )
   {
     this->HugTerrain();
   }
@@ -543,3 +550,4 @@ void vtkProjectedTerrainPath::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Height Tolerance: " << this->HeightTolerance << "\n";
   os << indent << "Maximum Number Of Lines: " << this->MaximumNumberOfLines << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -38,6 +38,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -254,6 +255,8 @@ void vtkImplicitModellerAppendExecute(vtkImplicitModeller* self, vtkDataSet* inp
 
   // allocate weights for the EvaluatePosition
   double* weights = new double[input->GetMaxCellSize()];
+
+  std::cout << id << std::endl;
 
   // Traverse each voxel; using CellLocator to find the closest point
   vtkGenericCell* cell = vtkGenericCell::New();
@@ -573,6 +576,10 @@ void vtkImplicitModellerAppendExecute(
     if (cellNum % updateTime == 0)
     {
       self->UpdateProgress(double(cellNum + 1) / input->GetNumberOfCells());
+      if (self->CheckAbort())
+      {
+        break;
+      }
     }
   }
   delete[] weights;
@@ -635,6 +642,7 @@ void vtkImplicitModeller::Append(vtkDataSet* input)
     if (this->NumberOfThreads == 1)
     {
       info.Input[0] = input;
+      this->CheckAbort();
     }
     else
     {
@@ -643,6 +651,10 @@ void vtkImplicitModeller::Append(vtkDataSet* input)
       {
         for (i = 0; i < this->NumberOfThreads; i++)
         {
+          if (this->CheckAbort())
+          {
+            break;
+          }
           switch (input->GetDataObjectType())
           {
             case VTK_STRUCTURED_GRID:
@@ -681,6 +693,10 @@ void vtkImplicitModeller::Append(vtkDataSet* input)
 
         for (i = 0; i < this->NumberOfThreads; i++)
         {
+          if (this->CheckAbort())
+          {
+            break;
+          }
           minPlane[i] = maxPlane[i] = nullptr;
           //////////////////////////////////////////////////
           // do the 1st clip
@@ -706,6 +722,7 @@ void vtkImplicitModeller::Append(vtkDataSet* input)
           minClipper[i]->SetClipFunction(minPlane[i]);
           minClipper[i]->SetValue(0.0);
           minClipper[i]->InsideOutOn();
+          minClipper[i]->SetContainerAlgorithm(this);
           minClipper[i]->Update();
 
           if (minClipper[i]->GetOutput()->GetNumberOfCells() == 0)
@@ -1140,3 +1157,4 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Process Mode: " << this->GetProcessModeAsString() << endl;
   os << indent << "Number Of Threads (for PerVoxel mode): " << this->NumberOfThreads << endl;
 }
+VTK_ABI_NAMESPACE_END

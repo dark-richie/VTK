@@ -81,6 +81,11 @@ int vtkWrap_IsZeroCopyPointer(ValueInfo* val)
   return (vtkWrap_IsPointer(val) && (val->Attributes & VTK_PARSE_ZEROCOPY) != 0);
 }
 
+int vtkWrap_IsArrayRef(ValueInfo* val)
+{
+  return (vtkWrap_IsRef(val) && val->NumberOfDimensions > 0);
+}
+
 int vtkWrap_IsStdVector(ValueInfo* val)
 {
   return ((val->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN && val->Class &&
@@ -152,7 +157,6 @@ int vtkWrap_IsNumeric(ValueInfo* val)
     case VTK_PARSE_INT:
     case VTK_PARSE_LONG:
     case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE___INT64:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_SSIZE_T:
     case VTK_PARSE_BOOL:
@@ -197,7 +201,6 @@ int vtkWrap_IsInteger(ValueInfo* val)
     case VTK_PARSE_INT:
     case VTK_PARSE_LONG:
     case VTK_PARSE_LONG_LONG:
-    case VTK_PARSE___INT64:
     case VTK_PARSE_UNSIGNED_CHAR:
     case VTK_PARSE_SIGNED_CHAR:
     case VTK_PARSE_SSIZE_T:
@@ -998,12 +1001,8 @@ const char* vtkWrap_GetTypeName(ValueInfo* val)
       return "unsigned char";
     case VTK_PARSE_LONG_LONG:
       return "long long";
-    case VTK_PARSE___INT64:
-      return "__int64";
     case VTK_PARSE_UNSIGNED_LONG_LONG:
       return "unsigned long long";
-    case VTK_PARSE_UNSIGNED___INT64:
-      return "unsigned __int64";
     case VTK_PARSE_SIGNED_CHAR:
       return "signed char";
     case VTK_PARSE_BOOL:

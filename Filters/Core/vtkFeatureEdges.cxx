@@ -33,6 +33,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFeatureEdges);
 
 namespace
@@ -68,8 +69,11 @@ vtkFeatureEdges::~vtkFeatureEdges()
   }
 }
 
+VTK_ABI_NAMESPACE_END
+
 //------------------------------------------------------------------------------
 // Generate feature edges for mesh
+VTK_ABI_NAMESPACE_BEGIN
 int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -280,7 +284,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   neighbors = vtkIdList::New();
   neighbors->Allocate(VTK_CELL_SIZE);
 
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = newPolys->GetNumberOfCells() / 20 + 1;
 
   numBEdges = numNonManifoldEdges = numFedges = numManifoldEdges = 0;
@@ -336,7 +340,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(newCellId % progressInterval)) // manage progress / early abort
     {
       this->UpdateProgress(static_cast<double>(newCellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     if (numPolys == numCells) // Input only has Polys
@@ -491,6 +495,8 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Created " << numBEdges << " boundary edges, " << numNonManifoldEdges
                 << " non-manifold edges, " << numFedges << " feature edges, " << numManifoldEdges
                 << " manifold edges," << numOutLines << " lines.");
+  (void)numBEdges;
+  (void)numOutLines;
 
   //  Update ourselves.
   //
@@ -628,3 +634,4 @@ void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

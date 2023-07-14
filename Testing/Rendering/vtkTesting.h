@@ -67,6 +67,7 @@
 #include <string>                      // STL Header used for argv
 #include <vector>                      // STL Header used for argv
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkRenderWindow;
 class vtkImageData;
@@ -227,6 +228,13 @@ public:
   vtkGetObjectMacro(RenderWindow, vtkRenderWindow);
   ///@}
 
+  /**
+   * Get Mesa version if Mesa drivers are in use.
+   * version is populated with major, minor and patch numbers
+   * Returns true if mesa is in use, false otheriwse.
+   */
+  static bool GetMesaVersion(vtkRenderWindow* renderWindow, int version[3]);
+
   ///@{
   /**
    * Set/Get the name of the valid image file
@@ -341,4 +349,5 @@ private:
   void operator=(const vtkTesting&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

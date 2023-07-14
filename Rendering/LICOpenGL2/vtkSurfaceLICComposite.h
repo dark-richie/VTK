@@ -31,6 +31,7 @@
 #include <deque>                          // for deque
 #include <vector>                         // for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
@@ -232,7 +233,6 @@ protected:
    */
   float GetFudgeFactor(int nx[2]);
 
-protected:
   int Pass; // id for mpi tagging
 
   vtkPixelExtent WindowExt;             // screen extent (screen size)
@@ -260,5 +260,7 @@ private:
 };
 
 ostream& operator<<(ostream& os, vtkSurfaceLICComposite& ss);
+
+VTK_ABI_NAMESPACE_END
 
 #endif

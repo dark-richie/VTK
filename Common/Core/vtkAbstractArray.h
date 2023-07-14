@@ -69,6 +69,7 @@
 #include "vtkObject.h"
 #include "vtkVariant.h" // for variant arguments
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayIterator;
 class vtkDataArray;
 class vtkIdList;
@@ -659,6 +660,7 @@ public:
     TypedDataArray,
     MappedDataArray,
     ScaleSoADataArrayTemplate,
+    ImplicitArray,
 
     DataArrayTemplate = AoSDataArrayTemplate //! Legacy
   };
@@ -748,7 +750,7 @@ struct vtkArrayDownCast_impl
  * it, while others will fallback to the slower SafeDownCast.
 
  * A more detailed description of this class and related tools can be found
- * \ref VTK-7-1-ArrayDispatch "here".
+ * [here](https://docs.vtk.org/en/latest/design_documents/array_dispatch.html).
  */
 template <typename ArrayT>
 ArrayT* vtkArrayDownCast(vtkAbstractArray* array)
@@ -757,6 +759,8 @@ ArrayT* vtkArrayDownCast(vtkAbstractArray* array)
   // specialized for arrays that support FastDownCast.
   return vtkArrayDownCast_impl<ArrayT>()(array);
 }
+
+VTK_ABI_NAMESPACE_END
 
 ///@{
 /**
@@ -788,5 +792,4 @@ ArrayT* vtkArrayDownCast(vtkAbstractArray* array)
     }                                                                                              \
   }
 ///@}
-
 #endif

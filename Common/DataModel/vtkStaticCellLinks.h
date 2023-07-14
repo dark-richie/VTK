@@ -47,6 +47,7 @@
 #include "vtkCommonDataModelModule.h"   // For export macro
 #include "vtkStaticCellLinksTemplate.h" // For implementations
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCellArray;
 
@@ -63,13 +64,9 @@ public:
   ///@}
 
   /**
-   * Build the link list array. Satisfy the superclass API.
+   * Build the link list array from the input dataset.
    */
-  void BuildLinks(vtkDataSet* ds) override
-  {
-    this->Impl->SetSequentialProcessing(this->SequentialProcessing);
-    this->Impl->BuildLinks(ds);
-  }
+  void BuildLinks() override;
 
   /**
    * Get the number of cells using the point specified by ptId.
@@ -104,7 +101,11 @@ public:
   /**
    * Make sure any previously created links are cleaned up.
    */
-  void Initialize() override { this->Impl->Initialize(); }
+  void Initialize() override
+  {
+    this->Impl->Initialize();
+    this->Modified();
+  }
 
   /**
    * Reclaim any unused memory.
@@ -130,7 +131,7 @@ public:
    * Standard DeepCopy method.  Since this object contains no reference
    * to other objects, there is no ShallowCopy.
    */
-  void DeepCopy(vtkAbstractCellLinks* src) override { this->Impl->DeepCopy(src); }
+  void DeepCopy(vtkAbstractCellLinks* src) override;
 
 protected:
   vtkStaticCellLinks();
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkStaticCellLinks&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

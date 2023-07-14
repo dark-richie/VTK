@@ -33,7 +33,9 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkThreshold.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmThreshold : public vtkThreshold
 {
 public:
@@ -65,6 +67,8 @@ protected:
 private:
   vtkmThreshold(const vtkmThreshold&) = delete;
   void operator=(const vtkmThreshold&) = delete;
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmThreshold_h

@@ -1,10 +1,11 @@
-Develop VTK with Git
-====================
+Develop
+=======
 
-This page documents how to develop VTK through [Git][].
+This page documents how to develop VTK using [GitLab][] and [Git][].
 See the [README](README.md) for more information.
 
-[Git]: http://git-scm.com
+[GitLab]: https://gitlab.kitware.com
+[Git]: https://git-scm.com
 
 Git is an extremely powerful version control tool that supports many
 different "workflows" for individual development and collaboration.
@@ -12,40 +13,7 @@ Here we document procedures used by the VTK development community.
 In the interest of simplicity and brevity we do *not* provide an
 explanation of why we use this approach.
 
-Setup
------
-
-Before you begin, perform initial setup:
-
-1.  Register [GitLab Access] to create an account and select a user name.
-
-2.  [Fork VTK][] into your user's namespace on GitLab.
-
-3.  Follow the [download instructions](download.md#clone) to create a
-    local clone of the main VTK repository:
-
-        $ git clone https://gitlab.kitware.com/vtk/vtk.git VTK
-        $ cd VTK
-        $ git submodule update --init
-    The main repository will be configured as your `origin` remote.
-
-4.  Run the [developer setup script][] to prepare your VTK work tree and
-    create Git command aliases used below:
-
-        $ ./Utilities/SetupForDevelopment.sh
-    This will prompt for your GitLab user name and configure a remote
-    called `gitlab` to refer to it.
-
-5.  (Optional, but highly recommended.)
-    [Register](https://open.cdash.org/register.php) with the VTK project
-    on Kitware's CDash instance to better know how your code performs in
-    regression tests.  After registering and signing in, click on
-    "All Dashboards" link in the upper left corner, scroll down and click
-    "Subscribe to this project" on the right of VTK.
-
-[GitLab Access]: https://gitlab.kitware.com/users/sign_in
-[Fork VTK]: https://gitlab.kitware.com/vtk/vtk/-/forks/new
-[developer setup script]: /Utilities/SetupForDevelopment.sh
+For a quickstart guide see [here](develop_quickstart.md)
 
 Workflow
 --------
@@ -67,7 +35,8 @@ Our collaboration workflow consists of three main steps:
     * [Merge a Topic](#merge-a-topic) (requires permission in GitLab)
     * [Delete a Topic](#delete-a-topic)
 
-[branchy workflow]: http://public.kitware.com/Wiki/Git/Workflow/Topic
+[GitLab Access]: https://gitlab.kitware.com/users/sign_in
+[branchy workflow]: https://public.kitware.com/Wiki/Git/Workflow/Topic
 
 Update
 ------
@@ -124,10 +93,9 @@ A reader should have a general idea of the feature or fix to be developed given 
         $ git commit
 
     Caveats:
-    * To add data follow [these instructions](data.md).
-    * If your change modifies third party code, see [its
-      documentation](../../../ThirdParty/UPDATING.md).
-    * To deprecate APIs, follow [these instructions](deprecation.md).
+    * To add data follow [these instructions](test.md#add-data).
+    * If your change modifies third party code, see [Updating Third Party Projects](/ThirdParty/UPDATING.md).
+    * To deprecate APIs, see [Deprecation Process](deprecation.md).
 
 Guidelines for Commit logs
 --------------------------
@@ -179,7 +147,7 @@ signed in for [GitLab Access][] and created your fork by visiting the main
     Notes:
     * If you are revising a previously pushed topic and have rewritten the
       topic history, add `-f` or `--force` to overwrite the destination.
-    * If the topic adds data see [this note](data.md#push).
+    * If the topic adds data see [this note](test.md#push).
     * The `gitlab-push` script also pushes the `master` branch to your
       fork in GitLab to keep it in sync with the upstream `master`.
 
@@ -291,20 +259,22 @@ expertise. A merge request without a developer tagged has very low chance
 to be merged in a reasonable timeframe.
 
  * @mwestphal: Qt, filters, data Model, widgets, parallel, anything else.
- * @charles.gueunet: filters, data model, SMP, events, pipeline.
+ * @charles.gueunet: filters, data model, SMP, events, pipeline, computational geometry, distributed algorithms.
  * @kmorel: General VTK Expertise, VTK-m accelerators.
  * @demarle: Ray tracing.
  * @will.schroeder: algorithms, computational geometry, filters, SPH, SMP, widgets,  point cloud, spatial locators.
  * @sujin.philip: VTK-m Accelerators, SMP, DIY.
- * @robertmaynard: build-system, VTK-m accelerators, filters, data model, IO.
  * @yohann.bearzi: filters, data model, HTG, computational geometry, algorithms.
- * @ken-martin: OpenGL, polygonal and volume rendering, OpenVR, Vulkan, native windows, WebAssembly.
- * @sebastien.jourdain: web, WebAssembly, Python, Java
+ * @sebastien.jourdain: web, WebAssembly, Python, Java.
  * @allisonvacanti: VTK-m, vtkDataArray, vtkArrayDispatch, vtk::Range, data model, text rendering.
  * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR.
  * @ben.boeckel: CMake, module system, third-parties.
  * @cory.quammen: readers, filters, data modeling, general usage, documentation.
- * @seanm: macOS, Cocoa, cppcheck, clang
+ * @seanm: macOS, Cocoa, cppcheck, clang.
+ * @spiros.tsalikis: filters, SMP, computational geometry.
+ * @tiffany.chhim: filters, algorithms, VR.
+ * @thomas.galland: readers, filters, selection, VR.
+ * @julien.fausty: computational geometry, high-order, simulation methods.
 
 If you would like to be included in this list, juste create a merge request.
 
@@ -316,10 +286,10 @@ account or discuss your choices with the reviewers until an agreement
 is reached. At this point, please `resolve` the discussion by clicking
 on the dedicated button.
 
-When all discussion have been adressed, the reviewers will either do
+When all discussion have been addressed, the reviewers will either do
 another pass of comment or acknowledge their approval in some form.
 
-Please be swift to adress or discuss comments, it will increase
+Please be swift to address or discuss comments, it will increase
 the speed at which your changes will be merged.
 
 ### Comments Formatting ###
@@ -346,9 +316,13 @@ The *leading* line of a comment may optionally be exactly one of the
 following votes followed by nothing but whitespace before the end
 of the line:
 
-*   `-1` or :-1: (`:-1:`) means "The change is not ready for integration."
-*   `+1` or :+1: (`:+1:`) means "The change is ready for integration."
-*   `+2` means "I have tested the change and verified it works."
+* `-1` or `:-1:` indicates "the change is not ready for integration".
+* `+1` or `:+1:` indicates "I like the change".
+  This adds an `Acked-by:` trailer to the merge commit message.
+* `+2` indicates "the change is ready for integration".
+  This adds a `Reviewed-by:` trailer to the merge commit message.
+* `+3` indicates "I have tested the change and verified it works".
+  This adds a `Tested-by:` trailer to the merge commit message.
 
 #### Middle Lines ####
 
@@ -530,8 +504,8 @@ and push it back to GitLab for another review as follows:
 Merge a Topic
 -------------
 
-After a topic has been reviewed and approved in a GitLab Merge Request,
-authorized developers may add a comment with a single
+Once review has concluded that the MR topic is ready for integration
+(at least one `+2`), authorized developers may add a comment with a single
 [*trailing* line](#trailing-lines):
 
     Do: merge

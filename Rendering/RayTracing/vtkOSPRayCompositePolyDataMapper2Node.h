@@ -22,16 +22,19 @@
 #ifndef vtkOSPRayCompositePolyDataMapper2Node_h
 #define vtkOSPRayCompositePolyDataMapper2Node_h
 
-#include "vtkColor.h" // used for ivars
+#include "vtkColor.h"       // used for ivars
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkOSPRayPolyDataMapperNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include <stack>                          // used for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkCompositePolyDataMapper2;
 class vtkOSPRayRendererNode;
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCompositePolyDataMapper2Node
+class VTK_DEPRECATED_IN_9_3_0("Use vtkOSPRayCompositePolyDataMapperNode instead")
+  VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCompositePolyDataMapper2Node
   : public vtkOSPRayPolyDataMapperNode
 {
 public:
@@ -72,4 +75,5 @@ private:
   vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
   void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

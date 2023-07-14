@@ -33,6 +33,7 @@
 #include "vtkRenderer.h"
 #include "vtkTDxInteractorStyleCamera.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyle);
 vtkCxxSetObjectMacro(vtkInteractorStyle, TDxStyle, vtkTDxInteractorStyle);
 
@@ -768,6 +769,11 @@ void vtkInteractorStyle::OnChar()
 {
   vtkRenderWindowInteractor* rwi = this->Interactor;
 
+  if (rwi->GetControlKey() || rwi->GetAltKey())
+  {
+    // Ignore keys when modifiers (other than shift) are pressed.
+    return;
+  }
   switch (rwi->GetKeyCode())
   {
     case 'm':
@@ -1505,3 +1511,4 @@ void vtkInteractorStyle::ProcessEvents(
       break;
   }
 }
+VTK_ABI_NAMESPACE_END

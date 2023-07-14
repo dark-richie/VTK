@@ -39,6 +39,8 @@
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" //For HTG member
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkHyperTreeGrid;
 class vtkPoints;
 class vtkIdList;
@@ -86,8 +88,8 @@ public:
    * @param[out] weights interpolation weights of the sought point in the cell
    * @return the global index of the cell holding the point (-1 if no cell is found or masked)
    */
-  virtual vtkIdType FindCell(const double point[3], const double tol, vtkGenericCell* cell,
-    int& subId, double pcoords[3], double* weights) = 0;
+  virtual vtkIdType FindCell(const double point[3], double tol, vtkGenericCell* cell, int& subId,
+    double pcoords[3], double* weights) = 0;
 
   /**
    * Pure virtual. Find first intersection of the line defined by (p0, p1) with the HTG
@@ -102,7 +104,7 @@ public:
    * @param[out] cell pointer to a vtkCell object corresponding to cellId
    * @return an integer with 0 if no intersection could be found
    */
-  virtual int IntersectWithLine(const double p0[3], const double p1[3], const double tol, double& t,
+  virtual int IntersectWithLine(const double p0[3], const double p1[3], double tol, double& t,
     double x[3], double pcoords[3], int& subId, vtkIdType& cellId, vtkGenericCell* cell) = 0;
 
   /**
@@ -115,8 +117,17 @@ public:
    * @param[out] cell pointer to a vtkCell object corresponding to the last cellId found
    * @return an integer with 0 if no intersection could be found
    */
-  virtual int IntersectWithLine(const double p0[3], const double p1[3], const double tol,
+  virtual int IntersectWithLine(const double p0[3], const double p1[3], double tol,
     vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell) = 0;
+
+  ///@{
+  /**
+   * Get/Set tolerance used when searching for cells in the HTG.
+   * Default is 0.0
+   */
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
+  ///@}
 
 protected:
   // Constructor/Destructor defaults
@@ -128,6 +139,8 @@ protected:
    */
   vtkWeakPointer<vtkHyperTreeGrid> HTG;
 
+  double Tolerance = 0.0;
+
 private:
   /**
    * Deletion of copy constructors
@@ -137,4 +150,5 @@ private:
 
 }; // vtkHyperTreeGridLocator
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridLocator_h

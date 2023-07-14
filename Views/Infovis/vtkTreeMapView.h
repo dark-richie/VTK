@@ -33,6 +33,7 @@
 #include "vtkTreeAreaView.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoxLayoutStrategy;
 class vtkSliceAndDiceLayoutStrategy;
 class vtkSquarifyLayoutStrategy;
@@ -59,7 +60,7 @@ public:
   /**
    * The sizes of the fonts used for labeling.
    */
-  virtual void SetFontSizeRange(const int maxSize, const int minSize, const int delta = 4);
+  virtual void SetFontSizeRange(int maxSize, int minSize, int delta = 4);
   virtual void GetFontSizeRange(int range[3]);
   ///@}
 
@@ -76,4 +77,5 @@ private:
   void operator=(const vtkTreeMapView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

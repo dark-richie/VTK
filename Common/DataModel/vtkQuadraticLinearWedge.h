@@ -42,6 +42,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
 class vtkLine;
 class vtkQuadraticLinearQuad;
@@ -109,18 +110,18 @@ public:
    */
   int GetParametricCenter(double pcoords[3]) override;
 
-  static void InterpolationFunctions(const double pcoords[3], double weights[15]);
-  static void InterpolationDerivs(const double pcoords[3], double derivs[45]);
+  static void InterpolationFunctions(const double pcoords[3], double weights[12]);
+  static void InterpolationDerivs(const double pcoords[3], double derivs[36]);
   ///@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
-  void InterpolateFunctions(const double pcoords[3], double weights[15]) override
+  void InterpolateFunctions(const double pcoords[3], double weights[12]) override
   {
     vtkQuadraticLinearWedge::InterpolationFunctions(pcoords, weights);
   }
-  void InterpolateDerivs(const double pcoords[3], double derivs[45]) override
+  void InterpolateDerivs(const double pcoords[3], double derivs[36]) override
   {
     vtkQuadraticLinearWedge::InterpolationDerivs(pcoords, derivs);
   }
@@ -142,7 +143,7 @@ public:
    * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
    * function derivatives.
    */
-  void JacobianInverse(const double pcoords[3], double** inverse, double derivs[45]);
+  void JacobianInverse(const double pcoords[3], double** inverse, double derivs[36]);
 
 protected:
   vtkQuadraticLinearWedge();
@@ -168,4 +169,5 @@ inline int vtkQuadraticLinearWedge::GetParametricCenter(double pcoords[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

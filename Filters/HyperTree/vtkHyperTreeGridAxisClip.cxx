@@ -33,6 +33,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridAxisClip);
 vtkCxxSetObjectMacro(vtkHyperTreeGridAxisClip, Quadric, vtkQuadric);
 
@@ -186,12 +187,10 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
       // Retrieve geometric size of input cursor
       const double* size = cursor->GetSize();
 
-      // Check whether cursor is below hyperplane
-      if (origin[axis] + size[axis] < inter)
-      {
-        return !this->InsideOut;
-      }
-      break;
+      // Check if the cell pointed to by the cursor is under the plane:
+      // returns true if the cell is skipped
+      // returns false if the cell is kept
+      return this->InsideOut ? (origin[axis] > inter) : (origin[axis] + size[axis] < inter);
     } // case PLANE
     case vtkHyperTreeGridAxisClip::BOX:
     {
@@ -320,6 +319,10 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> inCursor;
   while (it.GetNextTree(inIndex))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new geometric cursor at root of current input tree
     input->InitializeNonOrientedGeometryCursor(inCursor, inIndex);
 
@@ -409,6 +412,10 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
   while (it.GetNextTree(inIndex))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new geometric cursor at root of current input tree
     input->InitializeNonOrientedGeometryCursor(inCursor, inIndex);
 
@@ -473,6 +480,10 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree(
     int numChildren = inCursor->GetNumberOfChildren();
     for (int inChild = 0; inChild < numChildren; ++inChild, ++outChild)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       inCursor->ToChild(inChild);
       // Child is not clipped out, descend into current child
       outCursor->ToChild(outChild);
@@ -492,3 +503,4 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree(
   // Mask output cell if necessary
   this->OutMask->InsertTuple1(outId, clipped);
 }
+VTK_ABI_NAMESPACE_END

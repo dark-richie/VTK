@@ -27,6 +27,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkTetra.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //------------------------------------------------------------------------------
@@ -175,18 +176,23 @@ int vtkQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3
   double pcoords[3], double& dist2, double weights[])
 {
   subId = 0;
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // There are problems searching for the apex point so we check if
   // we are there first before doing the full parametric inversion.
-  vtkPoints* points = this->GetPoints();
-  double apexPoint[3];
-  points->GetPoint(4, apexPoint);
+  const double* apexPoint = pts + 12;
   dist2 = vtkMath::Distance2BetweenPoints(apexPoint, x);
-  double baseMidpoint[3];
-  points->GetPoint(0, baseMidpoint);
+  double baseMidpoint[3] = { pts[0], pts[1], pts[2] };
   for (int i = 1; i < 4; i++)
   {
-    double tmp[3];
-    points->GetPoint(i, tmp);
+    const double* tmp = pts + 3 * i;
     for (int j = 0; j < 3; j++)
     {
       baseMidpoint[j] += tmp[j];
@@ -220,9 +226,9 @@ int vtkQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3
   double longestEdge = 0;
   for (int i = 0; i < 8; i++)
   {
-    double pt0[3], pt1[3];
-    points->GetPoint(PyramidEdges[i][0], pt0);
-    points->GetPoint(PyramidEdges[i][1], pt1);
+    const double *pt0, *pt1;
+    pt0 = pts + 3 * PyramidEdges[i][0];
+    pt1 = pts + 3 * PyramidEdges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
     if (longestEdge < d2)
     {
@@ -230,7 +236,7 @@ int vtkQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3
     }
   }
   // longestEdge value is already squared
-  double volumeBound = pow(longestEdge, 1.5);
+  double volumeBound = longestEdge * std::sqrt(longestEdge);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
   //  set initial position for Newton's method
@@ -251,8 +257,7 @@ int vtkQuadraticPyramid::EvaluatePosition(const double* x, double closestPoint[3
            tcol[3] = { 0, 0, 0 };
     for (int i = 0; i < 13; i++)
     {
-      double pt[3];
-      this->Points->GetPoint(i, pt);
+      const double* pt = pts + 3 * i;
       for (int j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
@@ -359,14 +364,23 @@ void vtkQuadraticPyramid::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   vtkQuadraticPyramid::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 13; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];
@@ -847,7 +861,7 @@ void vtkQuadraticPyramid::InterpolationDerivs(const double pcoords[3], double de
   derivs[37] = -0.5 * (1 + r) * (1 + s) * t;
   derivs[38] = -0.5 * (1 - r) * (1 + s) * t;
 
-  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]
+  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
   for (int i = 0; i < 39; i++)
     derivs[i] *= 2;
 }
@@ -896,3 +910,4 @@ void vtkQuadraticPyramid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

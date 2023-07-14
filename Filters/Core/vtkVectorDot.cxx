@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorDot);
 
 namespace
@@ -114,6 +115,7 @@ struct MapWorker
   float InRange;
   float OutMin;
   float OutRange;
+  vtkVectorDot* Filter;
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
@@ -121,9 +123,24 @@ struct MapWorker
     auto scalars = vtk::DataArrayValueRange<1>(this->Scalars, begin, end);
 
     using ScalarRef = typename decltype(scalars)::ReferenceType;
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 
     for (ScalarRef s : scalars)
     {
+      if (begin % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+      }
+      begin++;
+
       // Map from inRange to outRange:
       s = this->OutMin + ((s - this->InMin) / this->InRange) * this->OutRange;
     }
@@ -210,6 +227,8 @@ int vtkVectorDot::RequestData(vtkInformation* vtkNotUsed(request),
     dotWorker(inNormals, inVectors, newScalars, aRange);
   }
 
+  this->CheckAbort();
+
   // Update ivars:
   this->ActualRange[0] = static_cast<double>(aRange[0]);
   this->ActualRange[1] = static_cast<double>(aRange[1]);
@@ -219,7 +238,7 @@ int vtkVectorDot::RequestData(vtkInformation* vtkNotUsed(request),
   {
     MapWorker mapWorker{ newScalars, aRange[1] - aRange[0], aRange[0],
       static_cast<float>(this->ScalarRange[1] - this->ScalarRange[0]),
-      static_cast<float>(this->ScalarRange[0]) };
+      static_cast<float>(this->ScalarRange[0]), this };
 
     vtkSMPTools::For(0, newScalars->GetNumberOfValues(), mapWorker);
   }
@@ -248,3 +267,4 @@ void vtkVectorDot::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Actual Range: (" << this->ActualRange[0] << ", " << this->ActualRange[1]
      << ")\n";
 }
+VTK_ABI_NAMESPACE_END

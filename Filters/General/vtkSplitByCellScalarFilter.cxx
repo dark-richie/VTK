@@ -32,6 +32,7 @@
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplitByCellScalarFilter);
 
 //------------------------------------------------------------------------------
@@ -130,7 +131,7 @@ int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkIdList> newCellPts = vtkSmartPointer<vtkIdList>::New();
   std::vector<std::map<vtkIdType, vtkIdType>> pointMaps(nbBlocks);
 
-  int abortExecute = this->GetAbortExecute();
+  bool abortExecute = this->CheckAbort();
   vtkIdType progressInterval = nbCells / 100;
 
   // Check that the scalars of each cell satisfy the threshold criterion
@@ -139,7 +140,7 @@ int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (cellId % progressInterval == 0)
     {
       this->UpdateProgress(static_cast<double>(cellId) / nbCells);
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
     int cellType = input->GetCellType(cellId);
     vtkIdType v = static_cast<vtkIdType>(inScalars->GetTuple1(cellId));
@@ -238,3 +239,4 @@ void vtkSplitByCellScalarFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Pass All Points: " << (this->GetPassAllPoints() ? "On" : "Off") << std::endl;
 }
+VTK_ABI_NAMESPACE_END

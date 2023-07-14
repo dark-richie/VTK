@@ -25,6 +25,7 @@
 
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOutlineFilter::vtkIndexSet : public std::set<unsigned int>
 {
 };
@@ -254,6 +255,10 @@ int vtkOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
       vtkCompositeDataIterator* iter = compInput->NewIterator();
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
         if (ds)
         {
@@ -276,6 +281,10 @@ int vtkOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
       unsigned int index;
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
         if (ds)
         {
@@ -300,6 +309,8 @@ int vtkOutlineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetPolys(faces.GetPointer());
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -322,3 +333,4 @@ void vtkOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "Composite indices: " << (!this->Indices->empty() ? "(Specified)\n" : "(Not specified)\n");
 }
+VTK_ABI_NAMESPACE_END

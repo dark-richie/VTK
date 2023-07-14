@@ -29,6 +29,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdTypeArray;
 class vtkPointSet;
@@ -132,9 +133,15 @@ protected:
   int CellsNeedToReadTimeStep(
     vtkXMLDataElement* eNested, int& cellstimestep, unsigned long& cellsoffset);
 
+  int CellArrayTimeStepRead;
+  bool CanReadCellArray;
+  const char* CellArrayCachedInputString;
+  const char* CellArrayCachedFileName;
+
 private:
   vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&) = delete;
   void operator=(const vtkXMLUnstructuredDataReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

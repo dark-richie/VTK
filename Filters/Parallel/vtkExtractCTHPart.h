@@ -44,6 +44,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkSmartPointer.h" // for using smartpointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAppendPolyData;
 class vtkContourFilter;
 class vtkDataArray;
@@ -179,7 +180,7 @@ protected:
    */
   vtkSmartPointer<vtkDataSet> ExtractSolid(vtkCompositeDataSet* input, const char* arrayName);
 
-  void ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* output, int maxFlag, int originExtents[3],
+  void ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* output, int maxFlag, int originExtents[6],
     int ext[6], int aAxis, int bAxis, int cAxis);
 
   /**
@@ -256,4 +257,5 @@ private:
   friend class ScaledProgress;
   vtkExtractCTHPartInternal* Internals;
 };
+VTK_ABI_NAMESPACE_END
 #endif

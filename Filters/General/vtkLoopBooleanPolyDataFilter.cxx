@@ -49,6 +49,7 @@
 
 //------------------------------------------------------------------------------
 // Helper typedefs and data structures.
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -635,6 +636,7 @@ int vtkLoopBooleanPolyDataFilter::Impl::GetCellOrientation(
     vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   transformer->SetInputData(cellPD);
   transformer->SetTransform(transform);
+  transformer->SetContainerAlgorithm(this->ParentFilter);
   transformer->Update();
 
   vtkSmartPointer<vtkPolyData> transPD = vtkSmartPointer<vtkPolyData>::New();
@@ -829,8 +831,9 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
   polydataIntersection->SplitFirstOutputOn();
   polydataIntersection->SplitSecondOutputOn();
   polydataIntersection->SetTolerance(this->Tolerance);
+  polydataIntersection->SetContainerAlgorithm(this);
   polydataIntersection->Update();
-  if (polydataIntersection->GetStatus() != 1)
+  if (this->CheckAbort() || polydataIntersection->GetStatus() != 1)
   {
     this->Status = 0;
     return 0;
@@ -852,7 +855,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
   if (this->NumberOfIntersectionPoints == 0 || this->NumberOfIntersectionLines == 0)
   {
     vtkWarningMacro(<< "No intersections!");
-    if (this->NoIntersectionOutput == 0)
+    if (this->CheckAbort() || this->NoIntersectionOutput == 0)
     {
       delete impl;
       return 1;
@@ -899,6 +902,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
         vtkSmartPointer<vtkAppendPolyData> appender = vtkSmartPointer<vtkAppendPolyData>::New();
         appender->AddInputData(impl->Mesh[0]);
         appender->AddInputData(impl->Mesh[1]);
+        appender->SetContainerAlgorithm(this);
         appender->Update();
         outputSurface->DeepCopy(appender->GetOutput());
       }
@@ -955,6 +959,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request
   vtkSmartPointer<vtkPolyDataNormals> normaler = vtkSmartPointer<vtkPolyDataNormals>::New();
   normaler->SetInputData(outputSurface);
   normaler->AutoOrientNormalsOn();
+  normaler->SetContainerAlgorithm(this);
   normaler->Update();
   outputSurface->DeepCopy(normaler->GetOutput());
 
@@ -1405,6 +1410,7 @@ void vtkLoopBooleanPolyDataFilter::Impl::PerformBoolean(vtkPolyData* output, int
     appender->AddInputData(surfaces[0]);
     appender->AddInputData(surfaces[3]);
   }
+  appender->SetContainerAlgorithm(this->ParentFilter);
   appender->Update();
 
   output->DeepCopy(appender->GetOutput());
@@ -1494,3 +1500,4 @@ void vtkLoopBooleanPolyDataFilter::Impl::ThresholdRegions(vtkPolyData** surfaces
     booleanCells[i]->Delete();
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -35,7 +35,7 @@ namespace detail
 {
 namespace smp
 {
-
+VTK_ABI_NAMESPACE_BEGIN
 enum class BackendType
 {
   Sequential = VTK_SMP_BACKEND_SEQUENTIAL,
@@ -74,6 +74,9 @@ public:
   bool IsParallelScope() { return this->IsParallel; }
 
   //--------------------------------------------------------------------------------
+  bool GetSingleThread();
+
+  //--------------------------------------------------------------------------------
   template <typename FunctorInternal>
   void For(vtkIdType first, vtkIdType last, vtkIdType grain, FunctorInternal& fi);
 
@@ -98,15 +101,38 @@ public:
   template <typename RandomAccessIterator, typename Compare>
   void Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp);
 
+  //--------------------------------------------------------------------------------
+  vtkSMPToolsImpl()
+    : NestedActivated(true)
+    , IsParallel(false)
+  {
+  }
+
+  //--------------------------------------------------------------------------------
+  vtkSMPToolsImpl(const vtkSMPToolsImpl& other)
+    : NestedActivated(other.NestedActivated)
+    , IsParallel(other.IsParallel.load())
+  {
+  }
+
+  //--------------------------------------------------------------------------------
+  void operator=(const vtkSMPToolsImpl& other)
+  {
+    this->NestedActivated = other.NestedActivated;
+    this->IsParallel = other.IsParallel.load();
+  }
+
 private:
-  bool NestedActivated = true;
+  bool NestedActivated = false;
   std::atomic<bool> IsParallel{ false };
 };
 
 using ExecuteFunctorPtrType = void (*)(void*, vtkIdType, vtkIdType, vtkIdType);
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkSMPToolsImpl.h */

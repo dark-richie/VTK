@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:
@@ -133,6 +134,10 @@ int vtkProjectedTexture::RequestData(vtkInformation* vtkNotUsed(request),
   // compute s-t coordinates
   for (i = 0; i < numPts; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     output->GetPoint(i, p);
 
     for (j = 0; j < 3; j++)
@@ -270,3 +275,4 @@ void vtkProjectedTexture::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MirrorSeparation: " << this->MirrorSeparation << "\n";
 }
+VTK_ABI_NAMESPACE_END

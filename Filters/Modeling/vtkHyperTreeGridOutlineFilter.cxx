@@ -21,6 +21,7 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridOutlineFilter);
 
 //------------------------------------------------------------------------------
@@ -75,6 +76,7 @@ int vtkHyperTreeGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(reques
 
   this->OutlineSource->SetBounds(input->GetBounds());
   this->OutlineSource->SetGenerateFaces(this->GenerateFaces);
+  this->OutlineSource->SetContainerAlgorithm(this);
   this->OutlineSource->Update();
 
   output->CopyStructure(this->OutlineSource->GetOutput());
@@ -113,3 +115,4 @@ void vtkHyperTreeGridOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Faces: " << (this->GenerateFaces ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

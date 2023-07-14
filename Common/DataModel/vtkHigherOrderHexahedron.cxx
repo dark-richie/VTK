@@ -31,6 +31,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkHigherOrderHexahedron::vtkHigherOrderHexahedron()
 {
   this->Approx = nullptr;
@@ -355,12 +356,21 @@ void vtkHigherOrderHexahedron::EvaluateLocation(
   subId = 0; // LagrangeHexahedron tests that this is set to 0
   this->InterpolateFunctions(pcoords, weights);
 
-  double p[3];
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
+  const double* p;
   x[0] = x[1] = x[2] = 0.;
   vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   for (vtkIdType idx = 0; idx < nPoints; ++idx)
   {
-    this->Points->GetPoint(idx, p);
+    p = pts + 3 * idx;
     for (vtkIdType jdx = 0; jdx < 3; ++jdx)
     {
       x[jdx] += p[jdx] * weights[idx];
@@ -660,7 +670,7 @@ int vtkHigherOrderHexahedron::PointIndexFromIJK(int i, int j, int k, const int* 
 }
 
 vtkIdType vtkHigherOrderHexahedron::NodeNumberingMappingFromVTK8To9(
-  const int order[3], const vtkIdType node_id_vtk8)
+  const int order[3], vtkIdType node_id_vtk8)
 {
   int numPtsPerEdgeWithoutCorners[3];
   numPtsPerEdgeWithoutCorners[0] = order[0] - 1;
@@ -731,7 +741,7 @@ bool vtkHigherOrderHexahedron::TransformFaceToCellParams(int bdyFace, double* pc
 /**\brief Set the degree  of the cell, given a vtkDataSet and cellId
  */
 void vtkHigherOrderHexahedron::SetOrderFromCellData(
-  vtkCellData* cell_data, const vtkIdType numPts, const vtkIdType cell_id)
+  vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id)
 {
   vtkDataArray* v = cell_data->GetHigherOrderDegrees();
   if (v)
@@ -783,3 +793,11 @@ const int* vtkHigherOrderHexahedron::GetOrder()
   }
   return this->Order;
 }
+
+bool vtkHigherOrderHexahedron::PointCountSupportsUniformOrder(vtkIdType pointsPerCell)
+{
+  // Determine if the cube root of N is integral.
+  auto rr = static_cast<int>(std::floor(std::cbrt(pointsPerCell) + 0.5));
+  return (rr * rr * rr == pointsPerCell);
+}
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 
 #include "vtkImplicitFunction.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
@@ -66,7 +67,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&) = delete;
   void operator=(const vtkImplicitFunctionCollection&) = delete;
 };
@@ -81,4 +81,5 @@ inline vtkImplicitFunction* vtkImplicitFunctionCollection::GetNextItem()
   return static_cast<vtkImplicitFunction*>(this->GetNextItemAsObject());
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

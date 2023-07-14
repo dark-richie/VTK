@@ -24,6 +24,7 @@
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRRenderWindowInteractor);
 
 //------------------------------------------------------------------------------
@@ -38,7 +39,7 @@ vtkOpenXRRenderWindowInteractor::vtkOpenXRRenderWindowInteractor()
   {
     this->DeviceInputDownCount[i] = 0;
   }
-  this->ActionManifestFileName = "./vtk_openxr_actions.json";
+  this->ActionManifestFileName = "vtk_openxr_actions.json";
 
   // OpenXR can't have slashes in the action set name (as well as action names)
   this->ActionSetName = "vtk-actions";
@@ -93,9 +94,7 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
       // We lost some data
       case XR_TYPE_EVENT_DATA_EVENTS_LOST:
       {
-        const auto stateEvent = *reinterpret_cast<const XrEventDataEventsLost*>(&eventData);
-        vtkDebugMacro(<< "OpenXR event [XR_TYPE_EVENT_DATA_EVENTS_LOST] : "
-                      << stateEvent.lostEventCount << " events data lost!");
+        vtkDebugMacro(<< "OpenXR event [XR_TYPE_EVENT_DATA_EVENTS_LOST] : some events data lost!");
         // do we care if the runtime loses events?
         break;
       }
@@ -131,9 +130,11 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
           }
           case XR_SESSION_STATE_STOPPING:
             vtkDebugMacro(<< "OpenXR event [XR_SESSION_STATE_STOPPING]");
+            VTK_FALLTHROUGH;
           case XR_SESSION_STATE_LOSS_PENDING:
             // Session was lost, so start over and poll for new systemId.
             vtkDebugMacro(<< "OpenXR event [XR_SESSION_STATE_LOSS_PENDING]");
+            VTK_FALLTHROUGH;
           case XR_SESSION_STATE_EXITING:
           {
             // Do not attempt to restart, because user closed this session.
@@ -142,6 +143,8 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
             this->Done = true;
             break;
           }
+          default:
+            break;
         }
         break;
       }
@@ -197,8 +200,12 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
       }
       default:
       {
-        vtkWarningMacro(<< "Unhandled event type "
-                        << vtkOpenXRUtilities::GetStructureTypeAsString(eventData.type));
+        // Give a chance to the manager to handle connection events
+        if (!xrManager.GetConnectionStrategy()->HandleXrEvent(eventData))
+        {
+          vtkWarningMacro(<< "Unhandled event type "
+                          << vtkOpenXRUtilities::GetStructureTypeAsString(eventData.type));
+        }
         break;
       }
     }
@@ -245,6 +252,8 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
   for (const uint32_t hand :
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
   {
+    // XXX GetHandPose should be replaced by the use of generic API for retrieving devices poses
+    // (see DeviceHandles in vtkVRRenderWindow) in a future refactoring of OpenXR classes.
     XrPosef* handPose = this->GetHandPose(hand);
     if (handPose)
     {
@@ -285,10 +294,46 @@ void vtkOpenXRRenderWindowInteractor::PollXrActions()
       }
     }
   }
+
+  // Handle head movement
+  // XXX This is a temporary solution to stick with the OpenVR behavior.
+  // Move3DEvent is emited by left and right controllers, and the headset.
+  // This is used in vtkOpenXRInteractorStyle for "grounded" movement.
+  // In future refactoring of OpenXR classes, we could add a specific method in
+  // vtkOpenXRManager to retrieve the "real" head pose (for now we use the left
+  // eye direction retrieved in vtkOpenXRRenderWindow::UpdateHMDMatrixPose,
+  // that is close).
+  auto renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
+  if (!renWin)
+  {
+    vtkErrorMacro("Unable to retrieve the OpenXR render window !");
+    return;
+  }
+
+  // Retrieve headset pose matrix in physical coordinates and convert to position and orientation
+  // in world coordinates
+  vtkMatrix4x4* poseMatrix =
+    renWin->GetDeviceToPhysicalMatrixForDevice(vtkEventDataDevice::HeadMountedDisplay);
+  if (poseMatrix == nullptr)
+  {
+    // Can be undefined at the beginning
+    return;
+  }
+  // XXX In future developments, consider adding a function extracting position and orientation in
+  // world coordinates directly from a pose matrix in world coordinates
+  this->ConvertPoseToWorldCoordinates(poseMatrix, pos, wxyz, ppos, wdir);
+
+  // Generate "head movement" event
+  vtkNew<vtkEventDataDevice3D> edd;
+  edd->SetWorldPosition(pos);
+  edd->SetWorldOrientation(wxyz);
+  edd->SetWorldDirection(wdir);
+  edd->SetDevice(vtkEventDataDevice::HeadMountedDisplay);
+  this->InvokeEvent(vtkCommand::Move3DEvent, edd);
 }
 
 //------------------------------------------------------------------------------
-XrPosef* vtkOpenXRRenderWindowInteractor::GetHandPose(const uint32_t hand)
+XrPosef* vtkOpenXRRenderWindowInteractor::GetHandPose(uint32_t hand)
 {
   if (this->MapActionStruct_Name.count("handpose") == 0)
   {
@@ -468,23 +513,23 @@ void vtkOpenXRRenderWindowInteractor::Initialize()
   // Make sure the render window is initialized
   renWin->Initialize();
 
-  if (!renWin->GetInitialized())
+  if (!renWin->GetVRInitialized())
   {
     return;
   }
 
-  // Grip actions are handled by the interactor directly (why?)
-  this->AddAction("leftgripaction", [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
-
-  this->AddAction("rightgripaction", [this](vtkEventData* ed) { this->HandleGripEvents(ed); });
+  // Complex gesture actions are handled by the interactor directly (why?)
+  this->AddAction(
+    "complexgestureaction", [this](vtkEventData* ed) { this->HandleComplexGestureEvents(ed); });
 
   // Create an entry for pose actions that are used to retrieve
   // Orientation and locations of trackers
   this->AddAction("handpose", vtkCommand::Move3DEvent);
-  // this->AddAction("handposehandgrip", vtkCommand::Move3DEvent);
+  // Prevent unbound action warning
+  this->AddAction("handposegrip", [](vtkEventData*) {});
 
-  std::string fullpath =
-    vtksys::SystemTools::CollapseFullPath(this->ActionManifestFileName.c_str());
+  std::string fullpath = vtksys::SystemTools::CollapseFullPath(
+    this->ActionManifestDirectory + this->ActionManifestFileName);
 
   if (!this->LoadActions(fullpath))
   {
@@ -836,3 +881,4 @@ bool vtkOpenXRRenderWindowInteractor::ApplyVibration(const std::string& actionNa
   return vtkOpenXRManager::GetInstance().ApplyVibration(
     actionData->ActionStruct, hand, amplitude, duration, frequency);
 }
+VTK_ABI_NAMESPACE_END

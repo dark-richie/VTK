@@ -30,6 +30,7 @@
 
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointSet);
 vtkStandardExtendedNewMacro(vtkPointSet);
 
@@ -44,7 +45,7 @@ vtkPointSet::vtkPointSet()
   this->Points = nullptr;
   this->PointLocator = nullptr;
   this->CellLocator = nullptr;
-  this->EmptyCell = vtkEmptyCell::New();
+  this->EmptyCell = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -254,6 +255,16 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell* cell, vtkIdType cellId, do
 }
 
 //------------------------------------------------------------------------------
+vtkCell* vtkPointSet::GetCell(vtkIdType)
+{
+  if (!this->EmptyCell)
+  {
+    this->EmptyCell = vtkEmptyCell::New();
+  }
+  return this->EmptyCell;
+}
+
+//------------------------------------------------------------------------------
 vtkCellIterator* vtkPointSet::NewCellIterator()
 {
   vtkPointSetCellIterator* iter = vtkPointSetCellIterator::New();
@@ -356,3 +367,4 @@ void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointLocator: " << this->PointLocator << "\n";
   os << indent << "CellLocator: " << this->CellLocator << "\n";
 }
+VTK_ABI_NAMESPACE_END

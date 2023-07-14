@@ -28,6 +28,7 @@
 #include "vtkQuadraticTriangle.h"
 #include "vtkWedge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticLinearWedge);
 
 //------------------------------------------------------------------------------
@@ -175,8 +176,17 @@ int vtkQuadraticLinearWedge::EvaluatePosition(const double x[3], double* closest
   double params[3];
   double fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  double d, pt[3];
-  double derivs[3 * 12];
+  const double* pt;
+  double d, derivs[3 * 12];
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   //  set initial position for Newton's method
   subId = 0;
@@ -196,7 +206,7 @@ int vtkQuadraticLinearWedge::EvaluatePosition(const double x[3], double* closest
     }
     for (i = 0; i < 12; i++)
     {
-      this->Points->GetPoint(i, pt);
+      pt = pts + 3 * i;
       for (j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
@@ -299,14 +309,23 @@ int vtkQuadraticLinearWedge::EvaluatePosition(const double x[3], double* closest
 void vtkQuadraticLinearWedge::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  double pt[3];
+  const double* pt;
 
   vtkQuadraticLinearWedge::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (int i = 0; i < 12; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (int j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];
@@ -630,7 +649,7 @@ void vtkQuadraticLinearWedge::InterpolationDerivs(const double pcoords[3], doubl
   derivs[34] = (x + 1.0) * (y + 1.0) * 0.5;
   derivs[35] = -(y + 1.0) * (x + y) * 0.5;
 
-  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]
+  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
   for (int i = 0; i < 36; i++)
     derivs[i] *= 2;
 }
@@ -672,3 +691,4 @@ void vtkQuadraticLinearWedge::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

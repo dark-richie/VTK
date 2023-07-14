@@ -42,6 +42,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSMPContourGrid);
 
 //------------------------------------------------------------------------------
@@ -280,6 +281,8 @@ public:
     vtkNew<vtkIdList> pids;
     T range[2];
     vtkIdType cellid;
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
 
     // If UseScalarTree is enabled at this point, we assume that a scalar
     // tree has been computed and thus the way cells are traversed changes.
@@ -289,6 +292,18 @@ public:
       // to invoking contour.
       for (cellid = begin; cellid < end; cellid++)
       {
+        if (cellid % checkAbortInterval == 0)
+        {
+          if (isFirst)
+          {
+            this->Filter->CheckAbort();
+          }
+          if (this->Filter->GetAbortOutput())
+          {
+            break;
+          }
+        }
+
         this->Input->GetCellPoints(cellid, pids);
         cs->SetNumberOfTuples(pids->GetNumberOfIds());
         this->InScalars->GetTuples(pids, cs);
@@ -375,12 +390,19 @@ public:
     { // scalar tree provided
       // The begin / end parameters to this function represent batches of candidate
       // cells.
-      vtkIdType numCellsContoured = 0;
       vtkScalarTree* scalarTree = this->Filter->GetScalarTree();
       const vtkIdType* cellIds;
       vtkIdType numCells;
       for (vtkIdType batchNum = begin; batchNum < end; ++batchNum)
       {
+        if (isFirst)
+        {
+          this->Filter->CheckAbort();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
         cellIds = scalarTree->GetCellBatch(batchNum, numCells);
         for (vtkIdType idx = 0; idx < numCells; ++idx)
         {
@@ -390,7 +412,6 @@ public:
           this->InScalars->GetTuples(pids, cs);
 
           // Okay let's grab the cell and contour it
-          numCellsContoured++;
           this->Input->GetCell(cellid, cell);
           vtkIdType begVertCellSize = vrts->GetNumberOfCells();
           vtkIdType begVertConnSize = vrts->GetNumberOfConnectivityIds();
@@ -647,3 +668,4 @@ void vtkSMPContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Merge Pieces: " << (this->MergePieces ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

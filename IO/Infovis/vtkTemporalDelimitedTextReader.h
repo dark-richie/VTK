@@ -46,6 +46,7 @@
 #include <map>    // To store the TimeMap
 #include <vector> // To store the TimeMap
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOINFOVIS_EXPORT vtkTemporalDelimitedTextReader : public vtkDelimitedTextReader
 {
 public:
@@ -62,7 +63,7 @@ public:
    * Default to empty string.
    */
   vtkGetMacro(TimeColumnName, std::string);
-  void SetTimeColumnName(const std::string name);
+  void SetTimeColumnName(std::string name);
   ///@}
 
   ///@{
@@ -75,7 +76,7 @@ public:
    * Default to -1.
    */
   vtkGetMacro(TimeColumnId, int);
-  void SetTimeColumnId(const int idx);
+  void SetTimeColumnId(int idx);
   ///@}
 
   ///@{
@@ -127,8 +128,8 @@ protected:
   void InternalModified();
 
   // Time column fields
-  std::string TimeColumnName = "";
-  std::string InternalColumnName = "";
+  std::string TimeColumnName;
+  std::string InternalColumnName;
   vtkIdType TimeColumnId = -1;
   bool RemoveTimeStepColumn = true;
   std::map<double, std::vector<vtkIdType>> TimeMap;
@@ -143,4 +144,5 @@ private:
   void operator=(const vtkTemporalDelimitedTextReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

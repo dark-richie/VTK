@@ -32,6 +32,7 @@
 #include <cmath>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplitColumnComponents);
 vtkInformationKeyMacro(vtkSplitColumnComponents, ORIGINAL_ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkSplitColumnComponents, ORIGINAL_COMPONENT_NUMBER, Integer);
@@ -67,6 +68,10 @@ int vtkSplitColumnComponents::RequestData(
   // Add columns from table, split multiple component columns as necessary
   for (int i = 0; i < table->GetNumberOfColumns(); ++i)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkAbstractArray* col = table->GetColumn(i);
     if (col->GetName() == nullptr)
     {
@@ -290,3 +295,4 @@ void vtkSplitColumnComponents::PrintSelf(ostream& os, vtkIndent indent)
       os << "INVALID" << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

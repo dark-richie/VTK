@@ -18,9 +18,13 @@
  *
  *
  * Valid inputs include the vtkMultiBlockDataSet (as created by
- * vtkCityGMLReader) storing 3D buidlings, vtkPointSet storing a point
+ * vtkCityGMLReader) storing 3D buildings, vtkPointSet storing a point
  * cloud or vtkPolyData for storing a mesh.
  *
+ * @sa
+ * vtkCityGMLReader
+ * vtkMultiBlockDataSet
+ * vtkPolyData
  */
 
 #ifndef vtkCesium3DTilesWriter_h
@@ -29,6 +33,7 @@
 #include "vtkIOCesium3DTilesModule.h" // For export macro
 #include "vtkWriter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOCESIUM3DTILES_EXPORT vtkCesium3DTilesWriter : public vtkWriter
 {
 public:
@@ -62,6 +67,19 @@ public:
 
   ///@{
   /**
+   * Optional property texture mapping for the whole dataset.
+   * This is a json file described in <a
+   href="https://github.com/CesiumGS/3d-tiles/tree/main/specification/Metadata">3D Metadata</a> and
+    <a
+   href="https://github.com/CesiumGS/glTF/tree/3d-tiles-next/extensions/2.0/Vendor/EXT_structural_metadata">EXT_structural_metadata</a>
+   * @see vtkCityGMLReader
+   */
+  vtkSetFilePathMacro(PropertyTextureFile);
+  vtkGetFilePathMacro(PropertyTextureFile);
+  ///@}
+
+  ///@{
+  /**
    * Data coordinates are relative to this origin. To get the actual
    * coordinates data has to be translated with the Offset.
    */
@@ -77,7 +95,7 @@ public:
   vtkSetMacro(SaveTextures, bool);
   vtkGetMacro(SaveTextures, bool);
   vtkBooleanMacro(SaveTextures, bool);
-  //@
+  ///@}
 
   ///@{
   /**
@@ -88,11 +106,15 @@ public:
   vtkSetMacro(SaveTiles, bool);
   vtkGetMacro(SaveTiles, bool);
   vtkBooleanMacro(SaveTiles, bool);
-  //@
+  ///@}
 
   ///@{
   /**
-   * Merge all meshes in each tile to end up with one mesh per tile.
+   * Merge all meshes in each tile so we end up with one mesh per tile.
+   * If polydata has textures we merged textures as well such that
+   * the width of the resulting texture is less then MergedTextureWidth (this is
+   * measured in number of input textures). If MergedTextureWidth is not specified
+   * it is computed as sqrt of the number of input textures.
    * Default is false which means that we expect an external program to merge
    * the meshes in each tile to improve performance (such as meshoptimizer).
    * otherwise we merge the polydata in VTK.
@@ -102,21 +124,27 @@ public:
   vtkSetMacro(MergeTilePolyData, bool);
   vtkGetMacro(MergeTilePolyData, bool);
   vtkBooleanMacro(MergeTilePolyData, bool);
-  //@
+  vtkSetMacro(MergedTextureWidth, int);
+  vtkGetMacro(MergedTextureWidth, int);
+  ///@}
 
   ///@{
   /**
    * What is the file type used to save tiles. If ContentGLTF is false
    * (the default) we use B3DM for Buildings or Mesh and PNTS for
-   * PointCloud otherwise  we use GLB (3DTILES_content_gltf
-   * extension).  If the file type is B3DM or GLB, external programs are
-   * needed to convert GLTF -> GLB -> B3DM.
+   * PointCloud otherwise  we use GLB or GLTF (3DTILES_content_gltf
+   * extension, use GLB if ContentGLTFSaveGLB is true (default is true)).
+   * If the file type is B3DM, external programs are
+   * needed to convert GLB -> B3DM.
    *
    */
   vtkSetMacro(ContentGLTF, bool);
   vtkGetMacro(ContentGLTF, bool);
   vtkBooleanMacro(ContentGLTF, bool);
-  //@
+  vtkSetMacro(ContentGLTFSaveGLB, bool);
+  vtkGetMacro(ContentGLTFSaveGLB, bool);
+  vtkBooleanMacro(ContentGLTFSaveGLB, bool);
+  ///@}
 
   ///@{
   /**
@@ -124,7 +152,7 @@ public:
    */
   vtkSetMacro(InputType, int);
   vtkGetMacro(InputType, int);
-  //@
+  ///@}
 
   ///@{
   /**
@@ -133,7 +161,7 @@ public:
    */
   vtkSetMacro(NumberOfFeaturesPerTile, int);
   vtkGetMacro(NumberOfFeaturesPerTile, int);
-  //@
+  ///@}
 
   ///@{
   /**
@@ -157,12 +185,15 @@ protected:
 
   char* DirectoryName;
   char* TextureBaseDirectory;
+  char* PropertyTextureFile;
   double Offset[3];
   bool SaveTextures;
   int InputType;
   bool ContentGLTF;
+  bool ContentGLTFSaveGLB;
   bool SaveTiles;
   bool MergeTilePolyData;
+  int MergedTextureWidth;
   int NumberOfFeaturesPerTile;
   char* CRS;
 
@@ -171,4 +202,5 @@ private:
   void operator=(const vtkCesium3DTilesWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkCesium3DTilesWriter_h

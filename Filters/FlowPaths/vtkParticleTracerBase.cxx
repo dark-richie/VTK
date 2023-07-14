@@ -60,6 +60,7 @@
 // We support up to 6th order hexahedra.
 #define VTK_MAXIMUM_NUMBER_OF_POINTS 216
 
+VTK_ABI_NAMESPACE_BEGIN
 const double vtkParticleTracerBase::Epsilon = 1.0E-12;
 
 using namespace vtkParticleTracerBaseNamespace;
@@ -87,6 +88,7 @@ ParticleTracerSetMacro(ComputeVorticity, bool);
 ParticleTracerSetMacro(RotationScale, double);
 ParticleTracerSetMacro(ForceReinjectionEveryNSteps, int);
 ParticleTracerSetMacro(TerminalSpeed, double);
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -110,6 +112,7 @@ inline int FindInterval(double a, const std::vector<double>& A)
 }
 };
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkParticleTracerBase::vtkParticleTracerBase()
 {
@@ -766,9 +769,11 @@ int vtkParticleTracerBase::ProcessInput(vtkInformationVector** inputVector)
   return 1;
 }
 
+VTK_ABI_NAMESPACE_END
 //------------------------------------------------------------------------------
 namespace vtkParticleTracerBaseNamespace
 {
+VTK_ABI_NAMESPACE_BEGIN
 struct ParticleTracerFunctor
 {
   vtkParticleTracerBase* PT;
@@ -827,9 +832,14 @@ struct ParticleTracerFunctor
     auto& cellVectors = this->TLCellVectors.Local();
     const double& currentTime = this->FromTime;
     const double& targetTime = this->PT->CurrentTimeValue;
+    bool isFirst = this->Sequential || vtkSMPTools::GetSingleThread();
 
     for (vtkIdType i = begin; i < end; ++i)
     {
+      if (isFirst)
+      {
+        this->PT->CheckAbort();
+      }
       auto it = this->ParticleHistories[i];
       this->PT->IntegrateParticle(it, currentTime, targetTime, integrator, interpolator,
         cellVectors, this->ParticleCount, this->EraseMutex, this->Sequential);
@@ -847,8 +857,10 @@ struct ParticleTracerFunctor
     this->PT->ResizeArrays(this->ParticleCount);
   }
 };
+VTK_ABI_NAMESPACE_END
 }
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkParticleTracerBase::ResizeArrays(vtkIdType numTuples)
 {
   // resize first so that if you already have data, you don't lose them
@@ -915,6 +927,8 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   this->OutputPointData->Initialize();
   vtkDebugMacro(<< "About to Interpolate allocate space");
   this->OutputPointData->InterpolateAllocate(this->DataReferenceT[0]->GetPointData());
+  this->RenameGhostArray(this->OutputPointData);
+
   this->ParticleAge->SetName("ParticleAge");
   this->ParticleIds->SetName("ParticleId");
   this->ParticleSourceIds->SetName("ParticleSourceId");
@@ -996,6 +1010,10 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     for (ParticleListIterator itr = this->ParticleHistories.begin();
          itr != this->ParticleHistories.end(); itr++, counter++)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       ParticleInformation& info(*itr);
       this->Interpolator->TestPoint(info.CurrentPosition.x);
       double velocity[3];
@@ -1015,6 +1033,10 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     int pass = 0; // really just for debugging
     while (continueExecuting)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       vtkDebugMacro(<< "Begin Pass " << pass << " with " << this->ParticleHistories.size()
                     << " Particles");
       bool sequential = this->ForceSerialExecution || this->ParticleHistories.size() < 100;
@@ -1052,6 +1074,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       }
       pass++;
     } // end of pass
+    (void)pass;
   }
 
   bool injectionFlag(false);
@@ -1182,7 +1205,7 @@ int vtkParticleTracerBase::RequestData(
     }
   }
 
-  if (!finished)
+  if (!finished && !this->CheckAbort())
   {
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
     this->FirstIteration = false;
@@ -1620,6 +1643,24 @@ void vtkParticleTracerBase::CreateProtoPD(vtkDataObject* input)
 
   this->ProtoPD = vtkSmartPointer<vtkPointData>::New();
   this->ProtoPD->InterpolateAllocate(inputData->GetPointData());
+  this->RenameGhostArray(this->ProtoPD);
+}
+
+//------------------------------------------------------------------------------
+void vtkParticleTracerBase::RenameGhostArray(vtkPointData* pd)
+{
+  if (!pd)
+  {
+    return;
+  }
+
+  // Rename ghost array as ghost information is not valid for the particles
+  std::string ghostArrayName = vtkDataSetAttributes::GhostArrayName();
+  vtkAbstractArray* array = pd->GetArray(ghostArrayName.c_str());
+  if (array)
+  {
+    array->SetName(std::string("Original_" + ghostArrayName).c_str());
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1881,3 +1922,4 @@ void vtkParticleTracerBase::PrintParticleHistories()
   }
   cout << endl;
 }
+VTK_ABI_NAMESPACE_END

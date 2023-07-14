@@ -50,6 +50,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTypedArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 class vtkDenseArray : public vtkTypedArray<T>
 {
@@ -66,7 +67,7 @@ public:
   bool IsDense() override;
   const vtkArrayExtents& GetExtents() override;
   SizeT GetNonNullSize() override;
-  void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates) override;
+  void GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) override;
   vtkArray* DeepCopy() override;
 
   // vtkTypedArray API
@@ -74,12 +75,12 @@ public:
   const T& GetValue(CoordinateT i, CoordinateT j) override;
   const T& GetValue(CoordinateT i, CoordinateT j, CoordinateT k) override;
   const T& GetValue(const vtkArrayCoordinates& coordinates) override;
-  const T& GetValueN(const SizeT n) override;
+  const T& GetValueN(SizeT n) override;
   void SetValue(CoordinateT i, const T& value) override;
   void SetValue(CoordinateT i, CoordinateT j, const T& value) override;
   void SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value) override;
   void SetValue(const vtkArrayCoordinates& coordinates, const T& value) override;
-  void SetValueN(const SizeT n, const T& value) override;
+  void SetValueN(SizeT n, const T& value) override;
 
   // vtkDenseArray API
 
@@ -125,7 +126,7 @@ public:
   class StaticMemoryBlock : public MemoryBlock
   {
   public:
-    StaticMemoryBlock(T* const storage);
+    StaticMemoryBlock(T* storage);
     T* GetAddress() override;
     ///@}
 
@@ -229,6 +230,7 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkDenseArray.txx"
 
 #endif

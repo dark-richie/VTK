@@ -42,6 +42,7 @@
 #define LAGRANGIAN_PARTICLE_CONTROL_TAG 625
 
 // Class used to serialize and stream a particle
+VTK_ABI_NAMESPACE_BEGIN
 class MessageStream
 {
 public:
@@ -1110,7 +1111,7 @@ bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& s
       {
         // Rank 0 reconstruct Composite tree
         vtkCompositeDataSet* mb = vtkCompositeDataSet::SafeDownCast(surfaces);
-        this->TmpSurfaceInputMB->ShallowCopy(mb);
+        this->TmpSurfaceInputMB->CompositeShallowCopy(mb);
         vtkCompositeDataIterator* iter = mb->NewIterator();
         iter->SkipEmptyNodesOff();
         for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
@@ -1179,3 +1180,4 @@ void vtkPLagrangianParticleTracker::DeleteParticle(vtkLagrangianParticle* partic
     this->OutOfDomainParticleMap[particle->GetId()] = particle;
   }
 }
+VTK_ABI_NAMESPACE_END

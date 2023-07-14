@@ -29,6 +29,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierQuadrilateral);
 
 vtkBezierQuadrilateral::vtkBezierQuadrilateral() = default;
@@ -138,7 +139,7 @@ void vtkBezierQuadrilateral::InterpolateFunctions(const double pcoords[3], doubl
 {
   vtkBezierInterpolation::Tensor2ShapeFunctions(this->GetOrder(), pcoords, weights);
 
-  // If the unit cell has rational weigths: weights_i = weights_i * rationalWeights / sum( weights_i
+  // If the unit cell has rational weights: weights_i = weights_i * rationalWeights / sum( weights_i
   // * rationalWeights )
   const bool has_rational_weights = RationalWeights->GetNumberOfTuples() > 0;
   if (has_rational_weights)
@@ -164,7 +165,7 @@ void vtkBezierQuadrilateral::InterpolateDerivs(const double pcoords[3], double* 
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
 void vtkBezierQuadrilateral::SetRationalWeightsFromPointData(
-  vtkPointData* point_data, const vtkIdType numPts)
+  vtkPointData* point_data, vtkIdType numPts)
 {
   vtkDataArray* v = point_data->GetRationalWeights();
   if (v)
@@ -187,3 +188,4 @@ vtkHigherOrderCurve* vtkBezierQuadrilateral::GetEdgeCell()
 {
   return EdgeCell;
 }
+VTK_ABI_NAMESPACE_END

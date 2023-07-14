@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject, Information, vtkInformation);
@@ -500,6 +501,12 @@ void vtkDataObject::ShallowCopy(vtkDataObject* src)
     return;
   }
 
+  if (src == this)
+  {
+    vtkWarningMacro("Attempted to ShallowCopy the data object into itself.");
+    return;
+  }
+
   this->InternalDataObjectCopy(src);
 
   if (!src->FieldData)
@@ -525,6 +532,18 @@ void vtkDataObject::ShallowCopy(vtkDataObject* src)
 //------------------------------------------------------------------------------
 void vtkDataObject::DeepCopy(vtkDataObject* src)
 {
+  if (!src)
+  {
+    vtkWarningMacro("Attempted to DeepCopy from null.");
+    return;
+  }
+
+  if (src == this)
+  {
+    vtkWarningMacro("Attempted to DeepCopy the data object into itself.");
+    return;
+  }
+
   vtkFieldData* srcFieldData = src->GetFieldData();
 
   this->InternalDataObjectCopy(src);
@@ -580,6 +599,8 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject* src)
   // this->PipelineMTime = src->PipelineMTime;
   // this->UpdateTime = src->UpdateTime;
   // this->Locality = src->Locality;
+
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -696,3 +717,4 @@ vtkIdType vtkDataObject::GetNumberOfElements(int type)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

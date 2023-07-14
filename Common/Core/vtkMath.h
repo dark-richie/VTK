@@ -48,8 +48,9 @@
 
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
-#include <algorithm> // for std::clamp
-#include <cassert>   // assert() in inline implementations.
+#include <algorithm>   // for std::clamp
+#include <cassert>     // assert() in inline implementations.
+#include <type_traits> // for type_traits
 
 #ifndef DBL_MIN
 #define VTK_DBL_MIN 2.2250738585072014e-308
@@ -71,19 +72,24 @@
 #endif // DBL_EPSILON
 #endif // VTK_DBL_EPSILON
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkPoints;
 class vtkMathInternal;
 class vtkMinimalStandardRandomSequence;
 class vtkBoxMuellerRandomSequence;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 // forward declaration
 template <typename OutT>
 void RoundDoubleToIntegralIfNecessary(double val, OutT* ret);
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk_detail
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkMath : public vtkObject
 {
 public:
@@ -349,6 +355,20 @@ public:
   }
 
   /**
+   * Addition of two 3-vectors (double version). Result is stored in c according to c = a + b.
+   *
+   * Each parameter needs to implement `operator[]`
+   */
+  template <class VectorT1, class VectorT2, class VectorT3>
+  static void Add(VectorT1&& a, VectorT2&& b, VectorT3& c)
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      c[i] = a[i] + b[i];
+    }
+  }
+
+  /**
    * Subtraction of two 3-vectors (float version). Result is stored in c according to c = a - b.
    */
   static void Subtract(const float a[3], const float b[3], float c[3])
@@ -501,6 +521,14 @@ public:
 
   /**
    * Cross product of two 3-vectors. Result (a x b) is stored in c.
+   *
+   * Input vectors need to implement operator[]
+   */
+  template <class VectorT1, class VectorT2, class VectorT3>
+  static void Cross(VectorT1&& a, VectorT2&& b, VectorT3& c);
+
+  /**
+   * Cross product of two 3-vectors. Result (a x b) is stored in c.
    * (float version)
    */
   static void Cross(const float a[3], const float b[3], float c[3]);
@@ -640,27 +668,27 @@ public:
    * Compute the amplitude of a Gaussian function with mean=0 and specified variance.
    * That is, 1./(std::sqrt(2 Pi * variance)) * exp(-distanceFromMean^2/(2.*variance)).
    */
-  static double GaussianAmplitude(const double variance, const double distanceFromMean);
+  static double GaussianAmplitude(double variance, double distanceFromMean);
 
   /**
    * Compute the amplitude of a Gaussian function with specified mean and variance.
    * That is, 1./(std::sqrt(2 Pi * variance)) * exp(-(position - mean)^2/(2.*variance)).
    */
-  static double GaussianAmplitude(const double mean, const double variance, const double position);
+  static double GaussianAmplitude(double mean, double variance, double position);
 
   /**
    * Compute the amplitude of an unnormalized Gaussian function with mean=0 and specified variance.
    * That is, exp(-distanceFromMean^2/(2.*variance)). When distanceFromMean = 0, this function
    * returns 1.
    */
-  static double GaussianWeight(const double variance, const double distanceFromMean);
+  static double GaussianWeight(double variance, double distanceFromMean);
 
   /**
    * Compute the amplitude of an unnormalized Gaussian function with specified mean and variance.
    * That is, exp(-(position - mean)^2/(2.*variance)). When the distance from 'position' to 'mean'
    * is 0, this function returns 1.
    */
-  static double GaussianWeight(const double mean, const double variance, const double position);
+  static double GaussianWeight(double mean, double variance, double position);
 
   /**
    * Dot product of two 2-vectors. (float version).
@@ -1534,6 +1562,16 @@ public:
    */
   static int QuadraticRoot(double a, double b, double c, double min, double max, double* u);
 
+  /**
+   * Compute the greatest common divisor (GCD) of two positive integers m and n. If the
+   * computed GCD==1, then the two integers are coprime to one another. This is a simple,
+   * recursive implementation.
+   */
+  static vtkIdType ComputeGCD(vtkIdType m, vtkIdType n) { return (n ? ComputeGCD(n, m % n) : m); }
+
+  /**
+   * Support the convolution operations.
+   */
   enum class ConvolutionMode
   {
     FULL,
@@ -1582,11 +1620,11 @@ public:
     switch (mode)
     {
       case ConvolutionMode::SAME:
-        begin = static_cast<int>(std::ceil(std::min(sampleSize, kernelSize) / 2.0)) - 1;
-        end = begin + std::max(sampleSize, kernelSize);
+        begin = static_cast<int>(std::ceil((std::min)(sampleSize, kernelSize) / 2.0)) - 1;
+        end = begin + (std::max)(sampleSize, kernelSize);
         break;
       case ConvolutionMode::VALID:
-        begin = std::min(sampleSize, kernelSize) - 1;
+        begin = (std::min)(sampleSize, kernelSize) - 1;
         end = begin + std::abs(sampleSize - kernelSize) + 1;
         break;
       case ConvolutionMode::FULL:
@@ -1598,11 +1636,24 @@ public:
     {
       Iter3 out = beginOut + i - begin;
       *out = 0;
-      for (int j = std::max(i - sampleSize + 1, 0); j <= std::min(i, kernelSize - 1); j++)
+      for (int j = (std::max)(i - sampleSize + 1, 0); j <= (std::min)(i, kernelSize - 1); j++)
       {
         *out += *(beginSample + (i - j)) * *(beginKernel + j);
       }
     }
+  }
+
+  /**
+   * Get the coordinates of a point along a line defined by p1 and p2, at a
+   * specified offset relative to p2.
+   */
+  static void GetPointAlongLine(double result[3], double p1[3], double p2[3], const double offset)
+  {
+    double directionVector[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
+    vtkMath::Normalize(directionVector);
+    result[0] = p2[0] + (offset * directionVector[0]);
+    result[1] = p2[1] + (offset * directionVector[1]);
+    result[2] = p2[2] + (offset * directionVector[2]);
   }
 
 protected:
@@ -1792,6 +1843,15 @@ inline ReturnTypeT vtkMath::Distance2BetweenPoints(const TupleRangeT1& p1, const
 }
 
 //----------------------------------------------------------------------------
+template <class VectorT1, class VectorT2, class VectorT3>
+void vtkMath::Cross(VectorT1&& a, VectorT2&& b, VectorT3& c)
+{
+  c[0] = a[1] * b[2] - a[2] * b[1];
+  c[1] = a[2] * b[0] - a[0] * b[2];
+  c[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+//----------------------------------------------------------------------------
 // Cross product of two 3-vectors. Result (a x b) is stored in c[3].
 inline void vtkMath::Cross(const float a[3], const float b[3], float c[3])
 {
@@ -1922,6 +1982,7 @@ inline void vtkMath::TensorFromSymmetricTensor(T tensor[9])
   tensor[2] = tensor[6]; // XZ
   tensor[1] = tensor[3]; // XY
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -1965,6 +2026,7 @@ inline void vtkQuaternionToMatrix3x3(const QuaternionT& quat, MatrixT& A)
 }
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 inline void vtkMath::QuaternionToMatrix3x3(const float quat[4], float A[3][3])
 {
@@ -1983,6 +2045,7 @@ inline void vtkMath::QuaternionToMatrix3x3(const QuaternionT& q, MatrixT&& A)
 {
   vtkQuaternionToMatrix3x3(q, A);
 }
+VTK_ABI_NAMESPACE_END
 
 namespace
 {
@@ -2039,6 +2102,7 @@ inline void vtkMatrix3x3ToQuaternion(const MatrixT& A, QuaternionT& quat)
 }
 } // anonymous namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 inline void vtkMath::Matrix3x3ToQuaternion(const float A[3][3], float quat[4])
 {
@@ -2057,9 +2121,11 @@ inline void vtkMath::Matrix3x3ToQuaternion(const MatrixT& A, QuaternionT&& q)
 {
   vtkMatrix3x3ToQuaternion(A, q);
 }
+VTK_ABI_NAMESPACE_END
 
 namespace vtk_detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 // Can't specialize templates inside a template class, so we move the impl here.
 template <typename OutT>
 void RoundDoubleToIntegralIfNecessary(double val, OutT* ret)
@@ -2091,8 +2157,10 @@ inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
 
   *retVal = static_cast<float>(val);
 }
+VTK_ABI_NAMESPACE_END
 } // end namespace vtk_detail
 
+VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
 #if defined(VTK_HAS_ISINF) || defined(VTK_HAS_STD_ISINF)
 #define VTK_MATH_ISINF_IS_INLINE
@@ -2134,4 +2202,5 @@ inline bool vtkMath::IsFinite(double x)
 }
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif

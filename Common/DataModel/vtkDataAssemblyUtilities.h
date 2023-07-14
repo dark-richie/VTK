@@ -30,6 +30,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataAssembly;
 class vtkDataObject;
@@ -117,6 +118,10 @@ public:
   static std::string GetSelectorForCompositeId(unsigned int id, vtkDataAssembly* hierarchy);
   static std::vector<std::string> GetSelectorsForCompositeIds(
     const std::vector<unsigned int>& ids, vtkDataAssembly* hierarchy);
+  static std::vector<std::string> GetSelectorsForCompositeIds(
+    const std::vector<unsigned int>& ids, vtkDataAssembly* hierarchy, vtkDataAssembly* assembly);
+  static std::vector<unsigned int> GetSelectorsCompositeIdsForCompositeIds(
+    const std::vector<unsigned int>& ids, vtkDataAssembly* hierarchy);
   ///@}
 
 protected:
@@ -135,4 +140,5 @@ private:
   void operator=(const vtkDataAssemblyUtilities&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

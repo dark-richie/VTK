@@ -39,6 +39,7 @@
 #include "vtkAbstractCellLinks.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCellArray;
 
@@ -62,10 +63,9 @@ public:
   ///@}
 
   /**
-   * Build the link list array. All subclasses of vtkAbstractCellLinks
-   * must support this method.
+   * Build the link list array from the input dataset.
    */
-  void BuildLinks(vtkDataSet* data) override;
+  void BuildLinks() override;
 
   /**
    * Allocate the specified number of links (i.e., number of points) that
@@ -169,15 +169,7 @@ public:
   void DeepCopy(vtkAbstractCellLinks* src) override;
 
 protected:
-  vtkCellLinks()
-    : Array(nullptr)
-    , Size(0)
-    , MaxId(-1)
-    , Extend(1000)
-    , NumberOfPoints(0)
-    , NumberOfCells(0)
-  {
-  }
+  vtkCellLinks();
   ~vtkCellLinks() override;
 
   /**
@@ -264,4 +256,5 @@ inline void vtkCellLinks::ResizeCellList(vtkIdType ptId, int size)
   this->Array[ptId].cells = cells;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

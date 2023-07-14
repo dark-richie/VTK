@@ -29,6 +29,7 @@
 
 #include <algorithm> // for fill_n
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -183,6 +184,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   this->CellIds->Allocate(8, VTK_CELL_SIZE);
   this->PointIds = vtkIdList::New();
   this->PointIds->Allocate(8, VTK_CELL_SIZE);
+  vtkIdType checkAbortInterval = 0;
 
   if (this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS &&
     this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS &&
@@ -193,6 +195,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
       if (cellId && !(cellId % 5000))
       {
         this->UpdateProgress(0.1 + 0.8 * cellId / numCells);
+        if (this->CheckAbort())
+        {
+          break;
+        }
       }
 
       if (this->Visited[cellId] < 0)
@@ -219,8 +225,13 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
 
     if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS)
     {
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
+        {
+          break;
+        }
         pt = this->Seeds->GetId(i);
         if (pt >= 0)
         {
@@ -234,8 +245,13 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     }
     else if (this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS)
     {
+      checkAbortInterval = std::min(this->Seeds->GetNumberOfIds() / 10 + 1, (vtkIdType)1000);
       for (i = 0; i < this->Seeds->GetNumberOfIds(); i++)
       {
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
+        {
+          break;
+        }
         cellId = this->Seeds->GetId(i);
         if (cellId >= 0)
         {
@@ -247,8 +263,13 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     { // loop over points, find closest one
       double minDist2, dist2, x[3];
       int minId = 0;
+      checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
       for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
       {
+        if (i % checkAbortInterval == 0 && this->CheckAbort())
+        {
+          break;
+        }
         inPts->GetPoint(i, x);
         dist2 = vtkMath::Distance2BetweenPoints(x, this->ClosestPoint);
         if (dist2 < minDist2)
@@ -279,9 +300,14 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // Pass through point data that has been visited
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
+  checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
 
   for (i = 0; i < numPts; i++)
   {
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     if (this->PointMap[i] > -1)
     {
       newPts->InsertPoint(this->PointMap[i], inPts->GetPoint(i));
@@ -331,6 +357,7 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
     newStrips->Delete();
   }
 
+  checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
   if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
     this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
     this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ||
@@ -338,6 +365,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   { // extract any cell that's been visited
     for (cellId = 0; cellId < numCells; cellId++)
     {
+      if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       if (this->Visited[cellId] >= 0)
       {
         this->Mesh->GetCellPoints(cellId, npts, pts);
@@ -362,6 +393,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   {
     for (cellId = 0; cellId < numCells; cellId++)
     {
+      if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       int inReg, regionId;
       if ((regionId = this->Visited[cellId]) >= 0)
       {
@@ -398,6 +433,10 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   {
     for (cellId = 0; cellId < numCells; cellId++)
     {
+      if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        break;
+      }
       if (this->Visited[cellId] == largestRegionId)
       {
         this->Mesh->GetCellPoints(cellId, npts, pts);
@@ -426,13 +465,16 @@ int vtkPolyDataConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(reques
   this->CellIds->Delete();
   this->PointIds->Delete();
 
+#ifndef NDEBUG
   int num = this->GetNumberOfExtractedRegions();
   vtkIdType count = 0;
+  (void)count; // Only used in Debug builds.
 
   for (int ii = 0; ii < num; ii++)
   {
     count += this->RegionSizes->GetValue(ii);
   }
+#endif
   vtkDebugMacro(<< "Total # of cells accounted for: " << count);
   vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() << " cells");
 
@@ -646,3 +688,4 @@ void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

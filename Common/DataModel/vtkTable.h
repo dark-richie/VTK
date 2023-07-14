@@ -59,6 +59,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataSetAttributes;
 class vtkVariant;
@@ -116,7 +117,7 @@ public:
    * as a result of this, but no memory will be released. Existing data is preserved if the table is
    * expanding.
    */
-  void SetNumberOfRows(const vtkIdType);
+  void SetNumberOfRows(vtkIdType);
 
   /**
    * Release previously allocated and now unused memory after performing resizing operations.
@@ -316,4 +317,5 @@ private:
   void operator=(const vtkTable&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

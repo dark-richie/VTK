@@ -28,6 +28,7 @@
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkIdTypeArray;
 class vtkLine;
@@ -208,7 +209,7 @@ public:
    * is an intersection.
    */
   static int IntersectPolygonWithPolygon(int npts, double* pts, double bounds[6], int npts2,
-    double* pts2, double bounds2[3], double tol, double x[3]);
+    double* pts2, double bounds2[6], double tol, double x[3]);
 
   /**
    * Intersect two convex 2D polygons to produce a line segment as output.
@@ -318,4 +319,5 @@ private:
   void operator=(const vtkPolygon&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

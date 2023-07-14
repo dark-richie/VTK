@@ -81,6 +81,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #define VTK_MINC_MAX_DIMS 8
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMINCImageReader);
 
 //------------------------------------------------------------------------------
@@ -863,7 +864,7 @@ void vtkMINCImageReader::ExecuteInformation()
   unsigned int numberOfDimensions = dimensionNames->GetNumberOfValues();
   for (unsigned int i = 0; i < numberOfDimensions; i++)
   {
-    vtkStdString dimName = dimensionNames->GetValue(i);
+    std::string dimName = dimensionNames->GetValue(i);
     vtkIdType dimLength = dimensionLengths->GetValue(i);
 
     // Set the VTK dimension index.
@@ -1193,7 +1194,7 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
   {
     idim--;
 
-    vtkStdString dimName = dimensionNames->GetValue(idim);
+    std::string dimName = dimensionNames->GetValue(idim);
     vtkIdType dimLength = dimensionLengths->GetValue(idim);
     length[idim] = dimLength;
 
@@ -1360,3 +1361,4 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
 
   this->CloseNetCDFFile(ncid);
 }
+VTK_ABI_NAMESPACE_END

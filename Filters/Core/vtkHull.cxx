@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHull);
 
 //------------------------------------------------------------------------------
@@ -524,8 +525,22 @@ void vtkHull::ComputePlaneDistances(vtkPointSet* input)
   // D value for each of the planes. Threaded because for larger models,
   // looping over all the points for each plane can be a lot of work.
   vtkSMPTools::For(1, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
     for (; ptId < endPtId; ++ptId)
     {
+      if (ptId % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
+      }
+
       double v, coord[3];
       inPts->GetPoint(ptId, coord);
       for (auto j = 0; j < numPlanes; j++)
@@ -563,10 +578,16 @@ void vtkHull::ClipPolygonsFromPlanes(
   // vertCount = 0;
   int numPlanes = this->GetNumberOfPlanes();
 
+  int checkAbortInterval = std::min(numPlanes / 10 + 1, 1000);
+
   // For each plane, create a polygon (if it gets completely clipped there
   // won't be a polygon)
   for (i = 0; i < numPlanes; i++)
   {
+    if (i % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     // Create the initial polygon - this is a large square around the
     // projected center of the object (projected onto this plane). We
     // now have four vertices.
@@ -788,3 +809,4 @@ void vtkHull::PrintSelf(ostream& os, vtkIndent indent)
        << " " << this->Planes[i * 4 + 2] << " " << this->Planes[i * 4 + 3] << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

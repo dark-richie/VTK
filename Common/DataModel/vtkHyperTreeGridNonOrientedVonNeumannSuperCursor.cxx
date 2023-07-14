@@ -23,10 +23,10 @@ PURPOSE.  See the above copyright Nonice for more information.
 
 #include <cassert>
 
-vtkStandardNewMacro(vtkHyperTreeGridNonOrientedVonNeumannSuperCursor);
+#include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.inl"
 
-// NOLINTNEXTLINE(bugprone-suspicious-include)
-#include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorData.cxx"
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkHyperTreeGridNonOrientedVonNeumannSuperCursor);
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::Initialize(
@@ -313,3 +313,4 @@ vtkHyperTreeGridNonOrientedVonNeumannSuperCursor::
   ~vtkHyperTreeGridNonOrientedVonNeumannSuperCursor() = default;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include <cmath>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageGradient);
 
 //------------------------------------------------------------------------------
@@ -123,7 +124,7 @@ int vtkImageGradient::RequestUpdateExtent(
     }
   }
 
-  // Store the update extent needed from the intput.
+  // Store the update extent needed from the input.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
 
   return 1;
@@ -334,3 +335,4 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*, vtkInformationVector
       return;
   }
 }
+VTK_ABI_NAMESPACE_END

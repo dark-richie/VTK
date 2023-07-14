@@ -9,20 +9,21 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Instance : public Object
     {
         friend class World;
 
     public:
-        Instance(Group *_group) 
-            : Object(RTW_INSTANCE), 
+        Instance(Group *_group)
+            : Object(RTW_INSTANCE),
             group(_group)
         {
             if(group)
                 group->AddRef();
         }
 
-        ~Instance() 
+        ~Instance()
         {
             if(group)
                 group->Release();
@@ -33,4 +34,5 @@ namespace RTW
     private:
         Group *group;
     };
+VTK_ABI_NAMESPACE_END
 }

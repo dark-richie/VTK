@@ -17,6 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageConnector);
 
 //------------------------------------------------------------------------------
@@ -172,6 +173,7 @@ void vtkImageConnector::MarkData(vtkImageData* data, int numberOfAxes, int exten
     delete seed;
   }
   vtkDebugMacro("Marked " << count << " pixels");
+  (void)count;
 }
 
 void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)
@@ -181,3 +183,4 @@ void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ConnectedValue: " << this->ConnectedValue << "\n";
   os << indent << "UnconnectedValue: " << this->UnconnectedValue << "\n";
 }
+VTK_ABI_NAMESPACE_END

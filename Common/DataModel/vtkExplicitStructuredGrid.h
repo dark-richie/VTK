@@ -54,13 +54,15 @@
 #ifndef vtkExplicitStructuredGrid_h
 #define vtkExplicitStructuredGrid_h
 
+#include "vtkAbstractCellLinks.h"     // For vtkAbstractCellLinks
+#include "vtkCellArray.h"             // For vtkCellArray
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNew.h"                   // for vtkNew
 #include "vtkPointSet.h"
 #include "vtkStructuredData.h" // For static method usage
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
-class vtkAbstractCellLinks;
 class vtkEmptyCell;
 class vtkHexahedron;
 
@@ -157,17 +159,22 @@ public:
   /**
    * Set/Get the cell array defining hexahedron.
    */
-  void SetCells(vtkCellArray* cells);
-  vtkGetObjectMacro(Cells, vtkCellArray);
+  vtkSetSmartPointerMacro(Cells, vtkCellArray);
+  vtkGetSmartPointerMacro(Cells, vtkCellArray);
   ///@}
+
+  /**
+   * Build topological links from points to lists of cells that use each point.
+   * See vtkAbstractCellLinks for more information.
+   */
+  void BuildLinks();
 
   ///@{
   /**
-   * Create/Get upward links from points to cells that use each point.
-   * Enables topologically complex queries.
+   * Set/Get the links that you created possibly without using BuildLinks.
    */
-  void BuildLinks();
-  vtkGetObjectMacro(Links, vtkAbstractCellLinks);
+  vtkSetSmartPointerMacro(Links, vtkAbstractCellLinks);
+  vtkGetSmartPointerMacro(Links, vtkAbstractCellLinks);
   ///@}
 
   /**
@@ -326,6 +333,8 @@ protected:
   vtkExplicitStructuredGrid();
   ~vtkExplicitStructuredGrid() override;
 
+  void ReportReferences(vtkGarbageCollector*) override;
+
   /**
    * Compute the range of the scalars and cache it into ScalarRange
    * only if the cache became invalid (ScalarRangeComputeTime).
@@ -378,8 +387,8 @@ protected:
   vtkNew<vtkHexahedron> Hexahedron;
   vtkNew<vtkEmptyCell> EmptyCell;
 
-  vtkCellArray* Cells;
-  vtkAbstractCellLinks* Links;
+  vtkSmartPointer<vtkCellArray> Cells;
+  vtkSmartPointer<vtkAbstractCellLinks> Links;
   int Extent[6];
   char* FacesConnectivityFlagsArrayName;
 
@@ -435,4 +444,5 @@ inline vtkIdType vtkExplicitStructuredGrid::ComputeCellId(int i, int j, int k, b
     return vtkStructuredData::ComputeCellId(dims, ijk);
   }
 }
+VTK_ABI_NAMESPACE_END
 #endif

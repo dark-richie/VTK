@@ -24,6 +24,7 @@
 #include "vtkAMRBaseParticlesReader.h"
 #include "vtkIOAMRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIndent;
 class vtkPolyData;
 class vtkPointData;
@@ -59,12 +60,12 @@ protected:
   /**
    * See vtkAMRBaseParticlesReader::ReadParticles
    */
-  vtkPolyData* ReadParticles(const int blkidx) override;
+  vtkPolyData* ReadParticles(int blkidx) override;
 
   /**
    * Reads the particlles of the given block from the given file.
    */
-  vtkPolyData* GetParticles(const char* file, const int blkidx);
+  vtkPolyData* GetParticles(const char* file, int blkidx);
 
   vtkFlashReaderInternal* Internal;
 
@@ -73,4 +74,5 @@ private:
   void operator=(const vtkAMRFlashParticlesReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRFlashParticlesReader_h */

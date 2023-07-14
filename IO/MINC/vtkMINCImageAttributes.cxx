@@ -73,6 +73,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 //------------------------------------------------------------------------------
 // A container for mapping attribute names to arrays
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMINCImageAttributeMap
 {
 public:
@@ -113,6 +114,10 @@ protected:
 
   vtkObject* GetObject(const char* name) const
   {
+    if (!name)
+    {
+      return nullptr;
+    }
     MapType::const_iterator iter = this->Map.find(name);
     if (iter != this->Map.end())
     {
@@ -262,7 +267,7 @@ void vtkMINCImageAttributes::AddDimension(const char* dimension, vtkIdType lengt
   vtkIdType n = this->DimensionNames->GetNumberOfValues();
   for (vtkIdType i = 0; i < n; i++)
   {
-    if (dimension == this->DimensionNames->GetValue(i))
+    if (this->DimensionNames->GetValue(i) == dimension)
     {
       vtkErrorMacro("The dimension " << dimension << " has already been created.");
       return;
@@ -379,7 +384,7 @@ const char* vtkMINCImageAttributes::ConvertDataArrayToString(vtkDataArray* array
   // If not, add it to the array.
   if (j == m)
   {
-    j = this->StringStore->InsertNextValue(str.c_str());
+    j = this->StringStore->InsertNextValue(str);
     result = this->StringStore->GetValue(j).c_str();
   }
 
@@ -452,7 +457,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
   }
   for (ivar = 0; ivar < nvar + 1; ivar++)
   {
-    vtkStdString varname = MI_EMPTY_STRING;
+    std::string varname;
     if (ivar == nvar)
     {
       os << "\n// global attributes:\n";
@@ -505,7 +510,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
       vtkIdType natt = attArray->GetNumberOfValues();
       for (vtkIdType iatt = 0; iatt < natt; iatt++)
       {
-        vtkStdString attname = attArray->GetValue(iatt);
+        std::string attname = attArray->GetValue(iatt);
         vtkDataArray* array = this->GetAttributeValueAsArray(varname.c_str(), attname.c_str());
         os << "\t\t" << varname << ":" << attname << " = ";
         if (array->GetDataType() == VTK_CHAR)
@@ -615,7 +620,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
   }
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    vtkStdString varname = this->VariableNames->GetValue(ivar);
+    std::string varname = this->VariableNames->GetValue(ivar);
 
     if (varname == MIimage)
     {
@@ -1451,7 +1456,7 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes* source)
   for (vtkIdType ivar = 0; ivar <= nvar; ivar++)
   {
     // set varname to empty last time around to get global attributes
-    vtkStdString varname = MI_EMPTY_STRING;
+    std::string varname;
     if (ivar < nvar)
     {
       varname = varnames->GetValue(ivar);
@@ -1460,7 +1465,7 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes* source)
     vtkIdType natt = attnames->GetNumberOfValues();
     for (vtkIdType iatt = 0; iatt < natt; iatt++)
     {
-      vtkStdString attname = attnames->GetValue(iatt);
+      std::string attname = attnames->GetValue(iatt);
       this->SetAttributeValueAsArray(varname.c_str(), attname.c_str(),
         source->GetAttributeValueAsArray(varname.c_str(), attname.c_str()));
     }
@@ -1471,3 +1476,4 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes* source)
     this->StringStore->Reset();
   }
 }
+VTK_ABI_NAMESPACE_END

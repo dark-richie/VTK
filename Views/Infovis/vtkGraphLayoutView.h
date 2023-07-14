@@ -45,6 +45,7 @@
 #include "vtkRenderView.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeLayoutStrategy;
 class vtkGraphLayoutStrategy;
 class vtkRenderedGraphRepresentation;
@@ -327,7 +328,7 @@ public:
   /**
    * The size of the font used for vertex labeling
    */
-  virtual void SetVertexLabelFontSize(const int size);
+  virtual void SetVertexLabelFontSize(int size);
   virtual int GetVertexLabelFontSize();
   ///@}
 
@@ -335,7 +336,7 @@ public:
   /**
    * The size of the font used for edge labeling
    */
-  virtual void SetEdgeLabelFontSize(const int size);
+  virtual void SetEdgeLabelFontSize(int size);
   virtual int GetEdgeLabelFontSize();
   ///@}
 
@@ -402,4 +403,5 @@ private:
   bool EdgeLabelsRequested;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

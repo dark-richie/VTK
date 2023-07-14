@@ -27,6 +27,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEarthSource);
 
 // Description:
@@ -50,9 +51,11 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Outline: " << (this->Outline ? "On\n" : "Off\n");
 }
 
-// NOLINTNEXTLINE(bugprone-suspicious-include)
-#include "vtkEarthSourceData.cxx"
+VTK_ABI_NAMESPACE_END
 
+#include "vtkEarthSourceData.inl"
+
+VTK_ABI_NAMESPACE_BEGIN
 int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -95,6 +98,10 @@ int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
   offset = 0;
   while (true)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // read a polygon
     npts = vtkEarthData[offset++];
     if ((npts == 0) || (actualpolys > maxPolys))
@@ -179,3 +186,4 @@ int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

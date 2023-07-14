@@ -2,6 +2,7 @@ set(classes
   vtkOSPRayActorNode
   vtkOSPRayAMRVolumeMapperNode
   vtkOSPRayCameraNode
+  vtkOSPRayCompositePolyDataMapperNode
   vtkOSPRayCompositePolyDataMapper2Node
   vtkOSPRayLightNode
   vtkOSPRayMaterialHelpers
@@ -60,7 +61,7 @@ if (VTK_ENABLE_OSPRAY)
     VERSION 2.1)
 
   vtk_module_link(VTK::RenderingRayTracing
-    PUBLIC
+    PRIVATE
       ospray::ospray
       )
   if (VTKOSPRAY_ENABLE_DENOISER)
@@ -100,3 +101,4 @@ if (VTK_ENABLE_VISRTX)
     PRIVATE
       VTK_ENABLE_VISRTX)
 endif ()
+vtk_add_test_mangling(VTK::RenderingRayTracing)

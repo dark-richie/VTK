@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOBBDicer);
 
 void vtkOBBDicer::BuildTree(vtkIdList* ptIds, vtkOBBNode* OBBptr, vtkDataSet* input)
@@ -193,6 +194,10 @@ int vtkOBBDicer::RequestData(
 
 void vtkOBBDicer::MarkPoints(vtkOBBNode* OBBptr, vtkShortArray* groupIds)
 {
+  if (this->CheckAbort())
+  {
+    return;
+  }
   if (OBBptr->Kids == nullptr) // leaf OBB
   {
     vtkIdList* ptIds;
@@ -231,3 +236,4 @@ void vtkOBBDicer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

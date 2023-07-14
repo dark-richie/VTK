@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNewickTreeWriter);
 
 //------------------------------------------------------------------------------
@@ -60,7 +61,7 @@ void vtkNewickTreeWriter::WriteData()
 }
 
 //------------------------------------------------------------------------------
-void vtkNewickTreeWriter::WriteVertex(ostream* fp, vtkTree* const input, vtkIdType vertex)
+void vtkNewickTreeWriter::WriteVertex(ostream* fp, vtkTree* input, vtkIdType vertex)
 {
   vtkIdType numChildren = input->GetNumberOfChildren(vertex);
   if (numChildren > 0)
@@ -127,3 +128,4 @@ void vtkNewickTreeWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EdgeWeightArrayName: " << this->EdgeWeightArrayName << endl;
   os << indent << "NodeNameArrayName: " << this->NodeNameArrayName << endl;
 }
+VTK_ABI_NAMESPACE_END

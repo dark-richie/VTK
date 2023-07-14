@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridNonOrientedCursor);
 
 //------------------------------------------------------------------------------
@@ -176,6 +177,7 @@ void vtkHyperTreeGridNonOrientedCursor::ToChild(unsigned char ichild)
 {
   unsigned int oldLastValidEntry = this->LastValidEntry;
   this->LastValidEntry++;
+
   //
   if (this->Entries.size() == static_cast<size_t>(this->LastValidEntry))
   {
@@ -191,7 +193,7 @@ void vtkHyperTreeGridNonOrientedCursor::ToChild(unsigned char ichild)
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridNonOrientedCursor::ToRoot()
 {
-  assert("pre: hypertree_exist" && this->Entries.size() > 0);
+  assert("pre: hypertree_exist" && !this->Entries.empty());
   this->LastValidEntry = 0;
   this->Level = 0;
 }
@@ -234,3 +236,4 @@ vtkHyperTreeGridNonOrientedCursor::vtkHyperTreeGridNonOrientedCursor()
 vtkHyperTreeGridNonOrientedCursor::~vtkHyperTreeGridNonOrientedCursor() = default;
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

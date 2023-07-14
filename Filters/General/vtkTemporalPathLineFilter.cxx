@@ -34,6 +34,7 @@
 #include <string>
 #include <vector>
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //------------------------------------------------------------------------------
 //
@@ -569,6 +570,10 @@ int vtkTemporalPathLineFilter::RequestData(vtkInformation* vtkNotUsed(informatio
   for (vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.begin();
        t != this->Internals->Trails.end(); ++t)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     TrailPointer tp = t->second;
     if (tp->length > 0)
     {
@@ -640,3 +645,4 @@ void vtkTemporalPathLineFilter::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaxStepDistance[1] << "," << this->MaxStepDistance[2] << "}\n";
   os << indent << "KeepDeadTrails: " << this->KeepDeadTrails << "\n";
 }
+VTK_ABI_NAMESPACE_END

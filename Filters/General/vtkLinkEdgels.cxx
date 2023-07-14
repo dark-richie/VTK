@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinkEdgels);
 
 // Construct instance of vtkLinkEdgels with GradientThreshold set to
@@ -85,6 +86,10 @@ int vtkLinkEdgels::RequestData(vtkInformation* vtkNotUsed(request),
   //
   for (ptId = 0; ptId < dimensions[2]; ptId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     CurrMap = inDataPtr + dimensions[0] * dimensions[1] * ptId;
 
     this->LinkEdgels(dimensions[0], dimensions[1], CurrMap, inVectors, newLines, newPts, outScalars,
@@ -335,3 +340,4 @@ void vtkLinkEdgels::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LinkThreshold:" << this->LinkThreshold << "\n";
   os << indent << "PhiThreshold:" << this->PhiThreshold << "\n";
 }
+VTK_ABI_NAMESPACE_END

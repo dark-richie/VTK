@@ -30,6 +30,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkTextProperty : public vtkObject
 {
 public:
@@ -399,7 +400,7 @@ inline int vtkTextProperty::GetFontFamily()
   return GetFontFamilyFromString(this->FontFamilyAsString);
 }
 
-inline const char* vtkTextProperty::GetJustificationAsString(void)
+inline const char* vtkTextProperty::GetJustificationAsString()
 {
   if (this->Justification == VTK_TEXT_LEFT)
   {
@@ -416,7 +417,7 @@ inline const char* vtkTextProperty::GetJustificationAsString(void)
   return "Unknown";
 }
 
-inline const char* vtkTextProperty::GetVerticalJustificationAsString(void)
+inline const char* vtkTextProperty::GetVerticalJustificationAsString()
 {
   if (this->VerticalJustification == VTK_TEXT_BOTTOM)
   {
@@ -433,4 +434,5 @@ inline const char* vtkTextProperty::GetVerticalJustificationAsString(void)
   return "Unknown";
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

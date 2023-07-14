@@ -26,6 +26,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPNGWriter::vtkInternals
 {
 public:
@@ -201,6 +202,9 @@ extern "C"
 #if defined(_MSC_VER) && !defined(VTK_DISPLAY_WIN32_WARNINGS)
 #pragma warning(disable : 4611)
 #endif
+
+static constexpr unsigned int VTK_MAXIMUM_UNCOMPRESSED_TEXT_SIZE = 10000;
+
 void vtkPNGWriter::WriteSlice(vtkImageData* data, int* uExtent)
 {
   vtkInternals* impl = this->Internals;
@@ -302,10 +306,17 @@ void vtkPNGWriter::WriteSlice(vtkImageData* data, int* uExtent)
     std::vector<png_text> pngText(impl->TextKeyValue.size());
     for (size_t i = 0; i < pngText.size(); ++i)
     {
-      pngText[i].compression = PNG_TEXT_COMPRESSION_NONE;
       pngText[i].key = const_cast<char*>(impl->TextKeyValue[i].first.c_str());
       pngText[i].text = const_cast<char*>(impl->TextKeyValue[i].second.c_str());
       pngText[i].text_length = impl->TextKeyValue[i].second.length();
+      if (pngText[i].text_length < VTK_MAXIMUM_UNCOMPRESSED_TEXT_SIZE)
+      {
+        pngText[i].compression = PNG_TEXT_COMPRESSION_NONE;
+      }
+      else
+      {
+        pngText[i].compression = PNG_TEXT_COMPRESSION_zTXt;
+      }
 #ifdef PNG_iTXt_SUPPORTED
       pngText[i].itxt_length = 0;
       pngText[i].lang = nullptr;
@@ -398,3 +409,4 @@ void vtkPNGWriter::ClearText()
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

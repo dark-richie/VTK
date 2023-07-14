@@ -32,7 +32,7 @@
  * where S is the local scalar value; E is a user-defined eccentricity factor
  * that controls the elliptical shape of the splat; z is the distance of the
  * current voxel sample point along the local normal N; and rxy is the
- * distance to neighbor point x in the direction prependicular to N.
+ * distance to neighbor point x in the direction perpendicular to N.
  *
  * @warning
  * The weights are normalized so that SUM(Wi) = 1. If a neighbor point p
@@ -51,6 +51,7 @@
 #include "vtkGeneralizedKernel.h"
 #include "vtkStdString.h" // For vtkStdString ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDataArray;
 class vtkDoubleArray;
@@ -192,4 +193,5 @@ private:
   void operator=(const vtkEllipsoidalGaussianKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

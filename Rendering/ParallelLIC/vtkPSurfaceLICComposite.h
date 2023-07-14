@@ -35,6 +35,7 @@
 #include <list>             // for list
 #include <vector>           // for vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkRenderWindow;
 class vtkTextureObject;
@@ -166,7 +167,6 @@ private:
     std::deque<std::deque<vtkPixelExtent>>& guardExts,
     std::deque<std::deque<vtkPixelExtent>>& disjointGuardExts, float* vectors);
 
-private:
   vtkPPainterCommunicator* PainterComm; // mpi state
   vtkPPixelExtentOps* PixelOps;
   int CommRank;
@@ -191,4 +191,5 @@ private:
 VTKRENDERINGPARALLELLIC_EXPORT
 ostream& operator<<(ostream& os, vtkPSurfaceLICComposite& ss);
 
+VTK_ABI_NAMESPACE_END
 #endif

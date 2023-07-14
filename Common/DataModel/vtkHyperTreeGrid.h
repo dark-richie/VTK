@@ -70,6 +70,7 @@
 #include <map>     // std::map
 #include <memory>  // std::shared_ptr
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkBoundingBox;
 class vtkCellLinks;
@@ -80,10 +81,12 @@ class vtkHyperTreeGridOrientedCursor;
 class vtkHyperTreeGridOrientedGeometryCursor;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor;
 class vtkHyperTreeGridNonOrientedVonNeumannSuperCursor;
 class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
 class vtkHyperTreeGridNonOrientedMooreSuperCursor;
 class vtkHyperTreeGridNonOrientedMooreSuperCursorLight;
+class vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor;
 class vtkDoubleArray;
 class vtkDataSetAttributes;
 class vtkIdTypeArray;
@@ -390,35 +393,45 @@ public:
   vtkGetMacro(DepthLimiter, unsigned int);
   ///@}
 
+  ///@{
   /**
-   * JB
+   * Used to initialize a cursor of the given type.
+   *
+   * cursor: the cursor to initialize
+   *
+   * index: the index of the tree to use in the HTG
+   *
+   * create: allow to construct the hyper tree if the slot is empty
    */
   void InitializeOrientedCursor(
     vtkHyperTreeGridOrientedCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridOrientedCursor* NewOrientedCursor(vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeOrientedGeometryCursor(
     vtkHyperTreeGridOrientedGeometryCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridOrientedGeometryCursor* NewOrientedGeometryCursor(
     vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedCursor(
     vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedCursor* NewNonOrientedCursor(vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedGeometryCursor(
     vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedGeometryCursor* NewNonOrientedGeometryCursor(
     vtkIdType index, bool create = false);
+
+  void InitializeNonOrientedUnlimitedGeometryCursor(
+    vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* cursor, vtkIdType index,
+    bool create = false);
+  VTK_NEWINSTANCE
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor* NewNonOrientedUnlimitedGeometryCursor(
+    vtkIdType index, bool create = false);
+  ///@}
 
   /**
    * JB Retourne un curseur geometrique pointant une des mailles comportant la position spatiale x
@@ -427,47 +440,57 @@ public:
 
 private:
   unsigned int RecurseDichotomic(
-    double value, vtkDoubleArray* coord, unsigned int ideb, unsigned int ifin) const;
+    double value, vtkDoubleArray* coord, double tol, unsigned int ideb, unsigned int ifin) const;
 
-  unsigned int FindDichotomic(double value, vtkDataArray* coord) const;
+  unsigned int FindDichotomic(double value, vtkDataArray* coord, double tol) const;
 
 public:
-  virtual unsigned int FindDichotomicX(double value) const;
-  virtual unsigned int FindDichotomicY(double value) const;
-  virtual unsigned int FindDichotomicZ(double value) const;
+  virtual unsigned int FindDichotomicX(double value, double tol = 0.0) const;
+  virtual unsigned int FindDichotomicY(double value, double tol = 0.0) const;
+  virtual unsigned int FindDichotomicZ(double value, double tol = 0.0) const;
 
+  ///@{
   /**
-   * JB
+   * Used to initialize a cursor of the given type.
+   *
+   * cursor: the cursor to initialize
+   *
+   * index: the index of the tree to use in the HTG
+   *
+   * create: allow to construct the hyper tree if the slot is empty
    */
   void InitializeNonOrientedVonNeumannSuperCursor(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* NewNonOrientedVonNeumannSuperCursor(
     vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedVonNeumannSuperCursorLight(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor, vtkIdType index,
     bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* NewNonOrientedVonNeumannSuperCursorLight(
     vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedMooreSuperCursor(
     vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedMooreSuperCursor* NewNonOrientedMooreSuperCursor(
     vtkIdType index, bool create = false);
 
-  /**
-   * JB
-   */
   void InitializeNonOrientedMooreSuperCursorLight(
     vtkHyperTreeGridNonOrientedMooreSuperCursorLight* cursor, vtkIdType index, bool create = false);
+  VTK_NEWINSTANCE
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight* NewNonOrientedMooreSuperCursorLight(
     vtkIdType index, bool create = false);
+
+  void InitializeNonOrientedUnlimitedMooreSuperCursor(
+    vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* cursor, vtkIdType index,
+    bool create = false);
+  VTK_NEWINSTANCE
+  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor* NewNonOrientedUnlimitedMooreSuperCursor(
+    vtkIdType index, bool create = false);
+  ///@}
 
   /**
    * Restore data object to initial state.
@@ -822,4 +845,5 @@ private:
   void operator=(const vtkHyperTreeGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

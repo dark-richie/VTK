@@ -19,6 +19,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -30,6 +31,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVoxel);
 
 //------------------------------------------------------------------------------
@@ -118,17 +120,26 @@ double vtkVoxel::ComputeBoundingSphere(double center[3]) const
 int vtkVoxel::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
-  double pt1[3], pt2[3], pt3[3], pt4[3];
+  const double *pt1, *pt2, *pt3, *pt4;
   int i;
 
   subId = 0;
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   //
   // Get coordinate system
   //
-  this->Points->GetPoint(0, pt1);
-  this->Points->GetPoint(1, pt2);
-  this->Points->GetPoint(2, pt3);
-  this->Points->GetPoint(4, pt4);
+  pt1 = pts;
+  pt2 = pts + 3;
+  pt3 = pts + 6;
+  pt4 = pts + 12;
   //
   // Develop parametric coordinates
   //
@@ -180,15 +191,23 @@ int vtkVoxel::EvaluatePosition(const double x[3], double closestPoint[3], int& s
 void vtkVoxel::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
-  double pt1[3], pt2[3], pt3[3], pt4[3];
-  int i;
+  const double *pt1, *pt2, *pt3, *pt4;
 
-  this->Points->GetPoint(0, pt1);
-  this->Points->GetPoint(1, pt2);
-  this->Points->GetPoint(2, pt3);
-  this->Points->GetPoint(4, pt4);
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
-  for (i = 0; i < 3; i++)
+  pt1 = pts;
+  pt2 = pts + 3;
+  pt3 = pts + 6;
+  pt4 = pts + 12;
+
+  for (int i = 0; i < 3; i++)
   {
     x[i] = pt1[i] + pcoords[0] * (pt2[i] - pt1[i]) + pcoords[1] * (pt3[i] - pt1[i]) +
       pcoords[2] * (pt4[i] - pt1[i]);
@@ -446,8 +465,10 @@ constexpr vtkIdType pointToOneRingPoints[vtkVoxel::NumberOfPoints][vtkVoxel::Max
 //
 // Marching cubes case table
 //
+VTK_ABI_NAMESPACE_END
 #include "vtkMarchingCubesTriangleCases.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 void vtkVoxel::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
   vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd)
@@ -893,3 +914,4 @@ void vtkVoxel::PrintSelf(ostream& os, vtkIndent indent)
     os << "None\n";
   }
 }
+VTK_ABI_NAMESPACE_END

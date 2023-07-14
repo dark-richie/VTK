@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSpherePuzzleArrows);
 
 //------------------------------------------------------------------------------
@@ -74,6 +75,10 @@ int vtkSpherePuzzleArrows::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (idx = 0; idx < 32; ++idx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (this->Permutation[idx] != idx)
     {
       // this->AppendArrow(idx, this->Permutation[idx], pts, polys);
@@ -213,3 +218,4 @@ void vtkSpherePuzzleArrows::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

@@ -25,13 +25,13 @@
 #include "vtkPointData.h"
 #include "vtkSparseArray.h"
 #include "vtkTable.h"
-#include "vtkmFilterPolicy.h"
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
 #include <vtkm/filter/density_estimate/NDHistogram.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmNDHistogram);
 
 //------------------------------------------------------------------------------
@@ -199,3 +199,4 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return 1;
 }
+VTK_ABI_NAMESPACE_END

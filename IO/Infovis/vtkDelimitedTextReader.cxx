@@ -54,6 +54,7 @@
 /// Output iterator object that parses a stream of Unicode characters into records and
 /// fields, inserting them into a vtkTable.
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -491,7 +492,7 @@ int vtkDelimitedTextReader::RequestData(
   return this->ReadData(output_table);
 }
 
-int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
+int vtkDelimitedTextReader::ReadData(vtkTable* output_table)
 {
   this->LastError = "";
 
@@ -532,6 +533,32 @@ int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
       input_stream_pt = &string_stream;
     }
 
+    {
+      namespace vtkfs = vtksys::FStream;
+      vtkfs::BOM fBOM = vtkfs::ReadBOM(*input_stream_pt);
+
+      if (!this->UnicodeCharacterSet)
+      {
+        switch (fBOM)
+        {
+          case vtkfs::BOM_UTF8:
+            this->UnicodeCharacterSet = new char[6];
+            strcpy(this->UnicodeCharacterSet, "UTF-8");
+            break;
+          case vtkfs::BOM_UTF16BE:
+            this->UnicodeCharacterSet = new char[9];
+            strcpy(this->UnicodeCharacterSet, "UTF-16BE");
+            break;
+          case vtkfs::BOM_UTF16LE:
+            this->UnicodeCharacterSet = new char[9];
+            strcpy(this->UnicodeCharacterSet, "UTF-16LE");
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
     vtkTextCodec* transCodec = nullptr;
 
     if (this->UnicodeCharacterSet)
@@ -540,20 +567,21 @@ int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
     }
     else
     {
-      char tstring[2];
-      tstring[1] = '\0';
-      tstring[0] = this->StringDelimiter;
-      // don't use Set* methods since they change the MTime in
-      // RequestData() !!!!!
-      std::string fieldDelimiterCharacters = this->FieldDelimiterCharacters;
-      if (this->AddTabFieldDelimiter)
-      {
-        fieldDelimiterCharacters.push_back('\t');
-      }
-      this->UnicodeFieldDelimiters = fieldDelimiterCharacters;
-      this->UnicodeStringDelimiters = tstring;
       transCodec = vtkTextCodecFactory::CodecToHandle(*input_stream_pt);
     }
+
+    char tstring[2];
+    tstring[1] = '\0';
+    tstring[0] = this->StringDelimiter;
+    // don't use Set* methods since they change the MTime in
+    // RequestData() !!!!!
+    std::string fieldDelimiterCharacters = this->FieldDelimiterCharacters;
+    if (this->AddTabFieldDelimiter)
+    {
+      fieldDelimiterCharacters.push_back('\t');
+    }
+    this->UnicodeFieldDelimiters = fieldDelimiterCharacters;
+    this->UnicodeStringDelimiters = tstring;
 
     if (nullptr == transCodec)
     {
@@ -631,3 +659,4 @@ int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -26,6 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractGhostCells);
 
 //------------------------------------------------------------------------------
@@ -73,6 +74,7 @@ int vtkExtractGhostCells::RequestData(
   threshold->SetThresholdFunction(vtkThreshold::THRESHOLD_UPPER);
   threshold->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::GhostArrayName());
+  threshold->SetContainerAlgorithm(this);
   threshold->Update();
 
   outputUG->ShallowCopy(threshold->GetOutputDataObject(0));
@@ -101,3 +103,4 @@ void vtkExtractGhostCells::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputGhostArrayName: "
      << (this->OutputGhostArrayName ? this->OutputGhostArrayName : "(nullptr)") << std::endl;
 }
+VTK_ABI_NAMESPACE_END

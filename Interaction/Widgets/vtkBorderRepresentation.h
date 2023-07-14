@@ -42,10 +42,12 @@
 #include "vtkCoordinate.h"               //Because of the viewport coordinate macro
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
 #include "vtkNew.h" // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPolyData;
 class vtkTransform;
@@ -279,6 +281,14 @@ public:
   ///@}
 
   /**
+   * Update window location if a window location is set.
+   *
+   * This function was made public for VTK issue #18987.
+   * Positioning and scaling needs a better API.
+   */
+  virtual void UpdateWindowLocation();
+
+  /**
    * Define the various states that the representation can be in.
    */
   enum InteractionStateType
@@ -439,7 +449,6 @@ protected:
 
   // Window location by enumeration
   int WindowLocation = AnyLocation;
-  virtual void UpdateWindowLocation();
 
   // Sometimes subclasses must negotiate with their superclasses
   // to achieve the correct layout.
@@ -494,12 +503,13 @@ protected:
    * Computed points are stored in the vtkPoints 'points' and
    * inserted in the vtkCellArray 'polys'
    */
-  void ComputeOneRoundCorner(vtkCellArray* polys, vtkPoints* points, const double radius,
-    vtkIdType xPt, vtkIdType yPt, const double startAngle);
+  void ComputeOneRoundCorner(vtkCellArray* polys, vtkPoints* points, double radius, vtkIdType xPt,
+    vtkIdType yPt, double startAngle);
 
 private:
   vtkBorderRepresentation(const vtkBorderRepresentation&) = delete;
   void operator=(const vtkBorderRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

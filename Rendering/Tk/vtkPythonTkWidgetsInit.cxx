@@ -23,6 +23,7 @@
 //------------------------------------------------------------------------------
 // Vtkrenderingtk_Init
 // Called upon system startup to create the widget commands.
+VTK_ABI_NAMESPACE_BEGIN
 extern "C"
 {
   VTK_EXPORT int Vtkrenderingtk_Init(Tcl_Interp* interp);
@@ -48,7 +49,7 @@ int Vtkrenderingtk_Init(Tcl_Interp* interp)
   if (Vtktkrenderwidget_Init(interp) == TCL_OK && Vtktkimageviewerwidget_Init(interp) == TCL_OK)
   {
     // Report that the package is provided.
-    return Tcl_PkgProvide(interp, (char*)"Vtkrenderingtk", (char*)VTKTK_VERSION);
+    return Tcl_PkgProvide(interp, "Vtkrenderingtk", VTKTK_VERSION);
   }
   else
   {
@@ -56,3 +57,4 @@ int Vtkrenderingtk_Init(Tcl_Interp* interp)
     return TCL_ERROR;
   }
 }
+VTK_ABI_NAMESPACE_END

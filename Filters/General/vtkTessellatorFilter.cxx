@@ -34,6 +34,7 @@
 #include "vtkTessellatorFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTessellatorFilter);
 
 namespace
@@ -1221,11 +1222,15 @@ int vtkTessellatorFilter::RequestData(
   vtkIdType progCells = 0;
 
   vtkTessellatorHasPolys = 0; // print error message once per invocation, if needed
-  for (progress = 0; progress < progMax; ++progress)
+  for (progress = 0; progress < progMax && !this->CheckAbort(); ++progress)
   {
     progCells += deltaProg;
     for (; (cell < progCells) && (cell < numCells); ++cell)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       const vtkIdType nextOutCellId = this->OutputMesh->GetNumberOfCells();
 
       this->Subdivider->SetCellId(cell);
@@ -1694,3 +1699,4 @@ int vtkTessellatorFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

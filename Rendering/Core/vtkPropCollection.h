@@ -32,6 +32,7 @@
 
 #include "vtkProp.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
 {
 public:
@@ -79,7 +80,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkPropCollection(const vtkPropCollection&) = delete;
   void operator=(const vtkPropCollection&) = delete;
 };
@@ -106,4 +106,5 @@ inline vtkProp* vtkPropCollection::GetLastProp()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

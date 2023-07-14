@@ -35,6 +35,7 @@
 #include "time.h"
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDateToNumeric);
 //------------------------------------------------------------------------------
 vtkDateToNumeric::vtkDateToNumeric()
@@ -78,6 +79,10 @@ int vtkDateToNumeric::RequestData(
   // now filter arrays for each of the associations.
   for (int association = 0; association < vtkDataObject::NUMBER_OF_ASSOCIATIONS; ++association)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
     {
       continue;
@@ -180,3 +185,4 @@ void vtkDateToNumeric::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DateFormat: " << (this->DateFormat ? this->DateFormat : "(none)");
 }
+VTK_ABI_NAMESPACE_END

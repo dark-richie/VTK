@@ -33,6 +33,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPassArrays);
 
 namespace
@@ -86,7 +87,7 @@ void vtkPassArrays::AddArray(int fieldType, const char* name)
     return;
   }
   std::string n = name;
-  this->Implementation->Arrays.push_back(std::make_pair(fieldType, n));
+  this->Implementation->Arrays.emplace_back(fieldType, n);
   this->Modified();
 }
 
@@ -241,6 +242,10 @@ int vtkPassArrays::RequestData(
   itEnd = this->Implementation->Arrays.end();
   for (it = this->Implementation->Arrays.begin(); it != itEnd; ++it)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (this->UseFieldTypes)
     {
       // Make sure this is a field type we are interested in
@@ -286,6 +291,8 @@ int vtkPassArrays::RequestData(
       }
     }
   }
+
+  this->CheckAbort();
 
   return 1;
 }
@@ -357,3 +364,4 @@ void vtkPassArrays::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RemoveArrays: " << (this->RemoveArrays ? "on" : "off") << endl;
   os << indent << "UseFieldTypes: " << (this->UseFieldTypes ? "on" : "off") << endl;
 }
+VTK_ABI_NAMESPACE_END

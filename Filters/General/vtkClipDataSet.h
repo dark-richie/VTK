@@ -63,6 +63,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
@@ -193,6 +194,15 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
+  ///@{
+  /**
+   * Setter/Getter for stable clipping non-linear cells (default value is true)
+   */
+  vtkGetMacro(StableClipNonLinear, bool);
+  vtkSetMacro(StableClipNonLinear, bool);
+  vtkBooleanMacro(StableClipNonLinear, bool);
+  ///@}
+
 protected:
   vtkClipDataSet(vtkImplicitFunction* cf = nullptr);
   ~vtkClipDataSet() override;
@@ -224,9 +234,12 @@ protected:
   bool UseValueAsOffset;
   int OutputPointsPrecision;
 
+  bool StableClipNonLinear = true;
+
 private:
   vtkClipDataSet(const vtkClipDataSet&) = delete;
   void operator=(const vtkClipDataSet&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

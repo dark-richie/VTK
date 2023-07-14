@@ -33,6 +33,7 @@
 
 namespace vtkMathPrivate
 {
+VTK_ABI_NAMESPACE_BEGIN
 static constexpr int VTK_MATH_PRIVATE_PACK_SIZE = 4;
 
 //=============================================================================
@@ -219,7 +220,7 @@ private:
 };
 
 //=============================================================================
-// This class returns zero. Is is used for rectangular diagonal matrices, when
+// This class returns zero. It is used for rectangular diagonal matrices, when
 // lines / rows are filled with zeros.
 template <class ScalarT>
 class NullContractRowWithCol
@@ -953,5 +954,6 @@ public:
     y[2] = x[2] / M[2];
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace vtkMathPrivate
 #endif

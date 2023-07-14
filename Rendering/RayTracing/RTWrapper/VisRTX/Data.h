@@ -6,6 +6,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Data : public Object
     {
     public:
@@ -54,7 +55,7 @@ namespace RTW
 
         Data(const void *source, RTWDataType type, size_t width, size_t height, bool shared = false)
             : Data(source, type, width, height, 1, shared) {};
-        
+
         Data(const void *source, RTWDataType type, size_t width, size_t height, size_t depth, bool shared = false)
             : Object(RTW_DATA)
         {
@@ -78,7 +79,7 @@ namespace RTW
 
             // Increase references
             if(type >= RTW_OBJECT && type <= RTW_WORLD)
-            { 
+            {
                 for (size_t i = 0; i < GetNumElements(); ++i)
                 {
                     Object* obj = reinterpret_cast<Object**>(this->data)[i];
@@ -168,4 +169,5 @@ namespace RTW
         bool shared = false;
         bool dirty = true;
     };
+VTK_ABI_NAMESPACE_END
 }

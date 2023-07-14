@@ -60,6 +60,7 @@
 #include <vector>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkXdmfDomain;
 class VTKIOXDMF2_EXPORT vtkXdmfDocument
 {
@@ -110,7 +111,6 @@ private:
   // Populates the list of domains.
   void UpdateDomains();
 
-private:
   int ActiveDomainIndex;
   xdmf2::XdmfDOM XMLDOM;
   vtkXdmfDomain* ActiveDomain;
@@ -214,7 +214,7 @@ public:
    * After instantiating, check that the domain is valid. If this returns false,
    * it means that the specified domain could not be located.
    */
-  bool IsValid() { return (this->XMLDomain != 0); }
+  bool IsValid() { return (this->XMLDomain != nullptr); }
 
   //---------------------------------------------------------------------------
   vtkGraph* GetSIL() { return this->SIL; }
@@ -341,5 +341,6 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkXdmfReaderInternal.h

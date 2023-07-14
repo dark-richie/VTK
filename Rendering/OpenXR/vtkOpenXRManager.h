@@ -27,14 +27,18 @@
 
 #include "vtkRenderingOpenXRModule.h" // needed for exports
 
+#include "vtkNew.h"
 #include "vtkOpenXR.h"
-#include "vtkSystemIncludes.h"
+#include "vtkOpenXRManagerConnection.h"
+#include "vtkOpenXRManagerGraphics.h"
+#include "vtkSmartPointer.h"
 
 #include <array>
 #include <memory>
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManager
@@ -99,6 +103,13 @@ public:
    * Return as a tuple the OpenXR recommended texture size to be sent to the device.
    */
   std::tuple<uint32_t, uint32_t> GetRecommendedImageRectSize();
+  ///@}
+
+  ///@{
+  /**
+   * Return the recommended swapchain sample count.
+   */
+  uint32_t GetRecommendedSampleCount();
   ///@}
 
   /**
@@ -208,11 +219,11 @@ public:
   ///@{
   /**
    * Prepare the rendering resources for the specified eye and store in \p colorTextureId and
-   * in \p depthTextureId (if the depth extension is supported) the OpenGL texture in which
-   * we need to draw pixels.
+   * in \p depthTextureId (if the depth extension is supported) the texture in which we need
+   * to draw pixels.
    * Return true if no error occurred.
    */
-  bool PrepareRendering(uint32_t eye, GLuint& colorTextureId, GLuint& depthTextureId);
+  bool PrepareRendering(uint32_t eye, void* colorTextureId, void* depthTextureId);
   ///@}
 
   ///@{
@@ -312,7 +323,7 @@ public:
    *    using the PredictedDisplayTime
    *  - we can store its pose velocity if StorePoseVelocities is true.
    */
-  bool UpdateActionData(Action_t& action_t, const int hand);
+  bool UpdateActionData(Action_t& action_t, int hand);
   ///@}
 
   /**
@@ -320,8 +331,8 @@ public:
    * \p action to emit vibration on \p hand to emit on \p amplitude 0.0 to 1.0.
    * \p duration nanoseconds, default 25ms \p frequency (hz)
    */
-  bool ApplyVibration(const Action_t& actionT, const int hand, const float amplitude = 0.5f,
-    const float duration = 25000000.0f, const float frequency = XR_FREQUENCY_UNSPECIFIED);
+  bool ApplyVibration(const Action_t& actionT, int hand, float amplitude = 0.5f,
+    float duration = 25000000.0f, float frequency = XR_FREQUENCY_UNSPECIFIED);
 
   enum ControllerIndex
   {
@@ -350,8 +361,24 @@ public:
     XrSpaceVelocity PoseVelocities[ControllerIndex::NumberOfControllers];
   };
 
+  ///@{
+  /**
+   * Set/Get the rendering backend strategy.
+   */
+  void SetGraphicsStrategy(vtkOpenXRManagerGraphics* gs) { this->GraphicsStrategy = gs; }
+  vtkOpenXRManagerGraphics* GetGraphicsStrategy() { return this->GraphicsStrategy; }
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the connection strategy.
+   */
+  void SetConnectionStrategy(vtkOpenXRManagerConnection* cs) { this->ConnectionStrategy = cs; }
+  vtkOpenXRManagerConnection* GetConnectionStrategy() { return this->ConnectionStrategy; }
+  ///@}
+
 protected:
-  vtkOpenXRManager() = default;
+  vtkOpenXRManager();
   ~vtkOpenXRManager() = default;
 
   ///@{
@@ -380,20 +407,10 @@ protected:
 
   ///@{
   /**
-   * OpenXR requires checking graphics requirements before creating a session.
-   * This uses a function pointer loaded with the selected graphics API extension.
+   * Enable system properties such as hand tracking,
+   * and choose environment blend modes.
    */
-  bool CheckGraphicsRequirements();
-  ///@}
-
-  ///@{
-  /**
-   * Create the graphics binding and store it in GraphicsBindings ptr.
-   * It points to a XrGraphicsBindingXXX structure, depending on the
-   * desired rendering backend.
-   * \pre \p helperWindow must be initialized
-   */
-  bool CreateGraphicsBinding(vtkOpenGLRenderWindow* helperWindow);
+  bool CreateSystemProperties();
   ///@}
 
   ///@{
@@ -423,26 +440,23 @@ protected:
 
   ///@{
   /**
-   * During the creation of the swapchains, we need to
-   * check the runtime available pixels formats, and we pick
-   * the first one from the list of our supported color and
-   * depth formats returned by GetSupportedColorFormats and
-   * GetSupportedDepthFormats
+   * During the creation of the swapchains, we need to check the runtime available
+   * pixels formats, and we pick the first one from the list of our supported color
+   * and depth formats returned by vtkOpenXRManagerGraphics::GetSupportedColorFormats
+   * and vtkOpenXRManagerGraphics::GetSupportedDepthFormats
    */
   std::tuple<int64_t, int64_t> SelectSwapchainPixelFormats();
-  const std::vector<int64_t>& GetSupportedColorFormats();
-  const std::vector<int64_t>& GetSupportedDepthFormats();
   ///@}
 
-  struct SwapchainOpenGL_t;
+  struct Swapchain_t;
 
   ///@{
   /**
    * Create an XrSwapchain handle used to present rendered image
    * to the user with the given parameters for the XrSwapchainCreateInfo structure
    */
-  SwapchainOpenGL_t CreateSwapchainOpenGL(int64_t format, uint32_t width, uint32_t height,
-    uint32_t sampleCount, XrSwapchainCreateFlags createFlags, XrSwapchainUsageFlags usageFlags);
+  Swapchain_t CreateSwapchain(int64_t format, uint32_t width, uint32_t height, uint32_t sampleCount,
+    XrSwapchainCreateFlags createFlags, XrSwapchainUsageFlags usageFlags);
   ///@}
 
   ///@{
@@ -489,7 +503,7 @@ protected:
   // Three available types: VIEW, LOCAL and STAGE.  We use LOCAL space which
   // establishes a world-locked origin, rather than VIEW space, which tracks the
   // view origin.
-  constexpr static XrReferenceSpaceType ReferenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
+  XrReferenceSpaceType ReferenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
 
   // Communication with the runtime happens through this instance
   XrInstance Instance;
@@ -508,11 +522,8 @@ protected:
   // choose XR_ENVIRONMENT_BLEND_MODE_ADDITIVE or XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND
   XrEnvironmentBlendMode EnvironmentBlendMode;
 
-  // See vtkXrExtensions.h
-  xr::ExtensionDispatchTable Extensions;
-
   // Non optional extension
-  bool HasOpenGLExtension = false;
+  bool RenderingBackendExtensionSupported = false;
 
   ///@{
   /**
@@ -525,22 +536,22 @@ protected:
     bool ControllerModelExtensionSupported{ false };
     bool UnboundedRefSpaceSupported{ false };
     bool SpatialAnchorSupported{ false };
+    bool HandInteractionSupported{ false };
     bool HandTrackingSupported{ false };
+    bool RemotingSupported{ false };
   } OptionalExtensions;
   ///@}
 
-  std::shared_ptr<void> GraphicsBinding;
-
   /**
-   * Swapchain structure for OpenGL backend.
+   * Swapchain structure storing information common to all rendering backend.
+   * Backend specific images are stored in vtkOpenXRManagerGraphics implementations.
    */
-  struct SwapchainOpenGL_t
+  struct Swapchain_t
   {
     XrSwapchain Swapchain;
-    int64_t Format{ GL_NONE };
+    int64_t Format{ 0 };
     uint32_t Width{ 0 };
     uint32_t Height{ 0 };
-    std::vector<XrSwapchainImageOpenGLKHR> Images;
   };
 
   ///@{
@@ -558,8 +569,8 @@ protected:
     // One configuration view per view : this store
     std::vector<XrViewConfigurationView> ConfigViews;
 
-    std::vector<SwapchainOpenGL_t> ColorSwapchains;
-    std::vector<SwapchainOpenGL_t> DepthSwapchains;
+    std::vector<Swapchain_t> ColorSwapchains;
+    std::vector<Swapchain_t> DepthSwapchains;
 
     std::vector<XrCompositionLayerProjectionView> ProjectionLayerViews;
     std::vector<XrCompositionLayerDepthInfoKHR> DepthInfoViews;
@@ -587,10 +598,15 @@ protected:
   // pose velocities for pose actions
   bool StorePoseVelocities = false;
 
+  vtkSmartPointer<vtkOpenXRManagerGraphics> GraphicsStrategy;
+
+  vtkSmartPointer<vtkOpenXRManagerConnection> ConnectionStrategy;
+
 private:
   vtkOpenXRManager(const vtkOpenXRManager&) = delete;
   void operator=(const vtkOpenXRManager&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenXRManager.h

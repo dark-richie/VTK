@@ -39,6 +39,7 @@
 #include <new>
 
 // Use a user-managed heap to remove memory leaks
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkVRMLAllocator
 {
   static void Initialize()
@@ -75,7 +76,7 @@ public:
     this->Init();
   }
 
-  ~vtkVRMLVectorType(void)
+  ~vtkVRMLVectorType()
   {
     if (this->UseNew)
     {
@@ -89,6 +90,7 @@ public:
     if (!this->UseNew)
     {
       vtkVRMLAllocator::Initialize();
+      // NOLINTNEXTLINE(bugprone-sizeof-expression)
       void* mem = vtkVRMLAllocator::AllocateMemory(this->Allocated * sizeof(T));
       this->Data = new (mem) T[this->Allocated];
     }
@@ -108,6 +110,7 @@ public:
       T* temp = this->Data;
       if (!this->UseNew)
       {
+        // NOLINTNEXTLINE(bugprone-sizeof-expression)
         void* mem = vtkVRMLAllocator::AllocateMemory(this->Allocated * sizeof(T));
         this->Data = new (mem) T[this->Allocated];
       }
@@ -119,6 +122,7 @@ public:
       {
         return;
       }
+      // NOLINTNEXTLINE(bugprone-sizeof-expression)
       memcpy((void*)this->Data, (void*)temp, oldSize * sizeof(T));
       if (this->UseNew)
       {
@@ -133,7 +137,7 @@ public:
     this->Used = newSize;
   }
 
-  int Count(void) const { return this->Used; }
+  int Count() const { return this->Used; }
 
   T& Get(int index) const
   {
@@ -664,5 +668,6 @@ PROTO WorldInfo [ \n\
 ] { }",
   "" };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkVRML.h

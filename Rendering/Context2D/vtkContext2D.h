@@ -30,6 +30,9 @@
 #include "vtkObject.h"
 #include "vtkRenderingContext2DModule.h" // For export macro
 
+#include <cstdint> // For std::uintptr_t
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 
 class vtkContext3D;
@@ -37,6 +40,7 @@ class vtkStdString;
 class vtkTextProperty;
 
 class vtkPoints2D;
+class vtkDataArray;
 class vtkVector2f;
 class vtkRectf;
 class vtkUnsignedCharArray;
@@ -165,6 +169,8 @@ public:
    * memory layout of the coordinates.
    */
   void DrawPoints(vtkPoints2D* points);
+  void DrawPoints(
+    vtkDataArray* positions, vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier);
 
   /**
    * Draw a poly line between the specified points, where the float array is of
@@ -190,6 +196,8 @@ public:
   void DrawPointSprites(vtkImageData* sprite, vtkPoints2D* points, vtkUnsignedCharArray* colors);
   void DrawPointSprites(
     vtkImageData* sprite, float* points, int n, unsigned char* colors, int nc_comps);
+  void DrawPointSprites(vtkImageData* sprite, vtkDataArray* positions, vtkUnsignedCharArray* colors,
+    std::uintptr_t cacheIdentifier);
   ///@}
 
   /**
@@ -223,6 +231,12 @@ public:
   virtual void DrawMarkers(
     int shape, bool highlight, vtkPoints2D* points, vtkUnsignedCharArray* colors);
   ///@}
+
+  /**
+   * Cached draw command for markers. VBOs are rebuilt if available.
+   */
+  virtual void DrawMarkers(int shape, bool highlight, vtkDataArray* positions,
+    vtkUnsignedCharArray* colors, std::uintptr_t cacheIdentifier);
 
   /**
    * Draw a rectangle with origin at x, y and width w, height h
@@ -578,4 +592,5 @@ inline int vtkContext2D::FloatToInt(float x)
   return static_cast<int>(x + tol);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContext2D_h

@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataStreamer);
 
 //------------------------------------------------------------------------------
@@ -35,6 +36,8 @@ vtkPolyDataStreamer::vtkPolyDataStreamer()
   this->ColorByPiece = 0;
 
   this->Append = vtkAppendPolyData::New();
+
+  this->Append->SetContainerAlgorithm(this);
 }
 
 //------------------------------------------------------------------------------
@@ -98,6 +101,10 @@ int vtkPolyDataStreamer::ExecutePass(
     pieceColors->SetNumberOfTuples(numCells);
     for (vtkIdType j = 0; j < numCells; ++j)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       pieceColors->SetValue(j, inPiece);
     }
     int idx = copy->GetCellData()->AddArray(pieceColors);
@@ -149,3 +156,4 @@ int vtkPolyDataStreamer::FillInputPortInformation(int vtkNotUsed(port), vtkInfor
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

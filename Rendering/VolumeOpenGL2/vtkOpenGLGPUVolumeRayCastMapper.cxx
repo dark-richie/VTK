@@ -101,6 +101,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 
 //------------------------------------------------------------------------------
@@ -884,7 +885,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingShaderParameters(
     // sqrt(3) corresponds to the maximum (the diagonal of the cube)
     float* invTexMat = this->InvTexMatVec.data();
     float minCoef = VTK_FLOAT_MAX;
-    // only take 3x3 sub-matrix because it will be multplied by a vec4(..., 0.0) normalized vec
+    // only take 3x3 sub-matrix because it will be multiplied by a vec4(..., 0.0) normalized vec
     for (int i = 0; i < 3; i++)
     {
       // diagonal coefficient
@@ -3157,6 +3158,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
 {
   vtkOpenGLClearErrorMacro();
 
+  const bool isInteractive = vol->GetAllocatedRenderTime() < 1.0;
+  const auto previousVolumetricScatteringBlending = this->VolumetricScatteringBlending;
+  if (isInteractive)
+  {
+    // Turn off volumetric multi-scattering for interactive renders
+    this->VolumetricScatteringBlending = 0;
+  }
+
   vtkOpenGLCamera* cam = vtkOpenGLCamera::SafeDownCast(ren->GetActiveCamera());
 
   if (this->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND &&
@@ -3271,6 +3280,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   }
 
   glFinish();
+
+  // Restore the previous scattering blending settings
+  this->VolumetricScatteringBlending = previousVolumetricScatteringBlending;
 }
 
 //------------------------------------------------------------------------------
@@ -3661,7 +3673,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetCameraShaderParameters(
     prog->SetUniform3fv("in_projectionDirection", 1, &fvalue3);
   }
 
-  vtkInternal::ToFloat(cam->GetPosition(), fvalue3, 3);
+  if (!cam->GetUseOffAxisProjection())
+  {
+    vtkInternal::ToFloat(cam->GetPosition(), fvalue3, 3);
+  }
+  else
+  {
+    double eyePos[3];
+    cam->GetEyePosition(eyePos);
+    vtkInternal::ToFloat(eyePos, fvalue3, 3);
+  }
   prog->SetUniform3fv("in_cameraPos", 1, &fvalue3);
 
   // TODO Take consideration of reduction factor
@@ -3943,6 +3964,42 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetPartitions(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double* ratio)
+{
+  ratio[0] = ratio[1] = ratio[2] = 1.0; // default
+
+  vtkImageData* input = vtkImageData::SafeDownCast(this->GetInput());
+  if (!input)
+  {
+    return;
+  }
+
+  const int* dims = input->GetDimensions();
+  const int dimCount = input->GetDataDimension();
+  const size_t scalarSize = static_cast<size_t>(input->GetScalarSize());
+  const size_t currentSize = static_cast<size_t>(dims[0]) * dims[1] * dims[2] * scalarSize;
+  const size_t maxSize = static_cast<size_t>(
+    this->GetMaxMemoryInBytes() * static_cast<double>(this->GetMaxMemoryFraction()));
+
+  if (currentSize > maxSize)
+  {
+    const double totalRatio = static_cast<double>(maxSize) / currentSize;
+
+    ratio[0] = 1.0 - ((1.0 - totalRatio) / dimCount);
+
+    if (dims[1] != 1)
+    {
+      ratio[1] = ratio[0];
+    }
+
+    if (dims[2] != 1)
+    {
+      ratio[2] = ratio[0];
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkMTimeType vtkOpenGLGPUVolumeRayCastMapper::GetRenderPassStageMTime(vtkVolume* vol)
 {
   vtkInformation* info = vol->GetPropertyKeys();
@@ -4063,3 +4120,4 @@ void vtkOpenGLGPUVolumeRayCastMapper::SetShaderParametersRenderPass()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -36,6 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define Assert(a)
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class StreakParticle
 {
 public:
@@ -96,7 +97,7 @@ void StreaklineFilterInternal::Finalize()
       }
       Streak& streak = streaks[streakId];
       float age = particleAge->GetValue(i);
-      streak.push_back(StreakParticle(i, age));
+      streak.emplace_back(i, age);
     }
 
     // sort streaks based on age
@@ -151,3 +152,4 @@ void vtkStreaklineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

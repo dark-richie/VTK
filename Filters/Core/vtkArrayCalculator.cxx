@@ -35,6 +35,7 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkArrayCalculator);
 
@@ -196,13 +197,17 @@ public:
     this->MaxTupleSize = 3;
     for (int i = 0; i < this->ScalarArrayNamesSize; i++)
     {
-      this->MaxTupleSize = std::max(this->MaxTupleSize,
-        this->InFD->GetArray(this->ScalarArrayNames[i].c_str())->GetNumberOfComponents());
+      if (auto scalarArray = this->InFD->GetAbstractArray(this->ScalarArrayNames[i].c_str()))
+      {
+        this->MaxTupleSize = std::max(this->MaxTupleSize, scalarArray->GetNumberOfComponents());
+      }
     }
     for (int i = 0; i < this->VectorArrayNamesSize; i++)
     {
-      this->MaxTupleSize = std::max(this->MaxTupleSize,
-        this->InFD->GetArray(this->VectorArrayNames[i].c_str())->GetNumberOfComponents());
+      if (auto vectorArray = this->InFD->GetAbstractArray(this->VectorArrayNames[i].c_str()))
+      {
+        this->MaxTupleSize = std::max(this->MaxTupleSize, vectorArray->GetNumberOfComponents());
+      }
     }
   }
 
@@ -211,7 +216,7 @@ public:
    */
   void Initialize()
   {
-    auto& functionParser = FunctionParser.Local();
+    auto& functionParser = this->FunctionParser.Local();
     this->Tuple.Local().resize(static_cast<size_t>(this->MaxTupleSize));
     auto tuple = this->Tuple.Local().data();
     int i;
@@ -287,7 +292,7 @@ public:
     }
 
     // Tell the parser about the coordinate arrays
-    if (this->AttributeType == vtkDataObject::POINT || AttributeType == vtkDataObject::VERTEX)
+    if (this->AttributeType == vtkDataObject::POINT || this->AttributeType == vtkDataObject::VERTEX)
     {
       double pt[3];
       for (i = 0; i < this->CoordinateScalarVariableNamesSize; i++)
@@ -325,7 +330,7 @@ public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
     auto resultArrayItr = vtk::DataArrayTupleRange(this->ResultArray, begin, end).begin();
-    auto& functionParser = FunctionParser.Local();
+    auto& functionParser = this->FunctionParser.Local();
     auto tuple = this->Tuple.Local().data();
     vtkDataArray* currentArray;
     int j = 0;
@@ -425,7 +430,14 @@ struct vtkArrayCalculatorWorker
       selectedCoordinateScalarComponents, selectedCoordinateVectorComponents, scalarArrays,
       vectorArrays, scalarArrayIndices, vectorArrayIndices, resultArray);
 
-    vtkSMPTools::For(1, numTuples, arrayCalculatorFunctor);
+    vtkIdType grain = 0;
+    if (resultArray->GetDataType() == VTK_BIT)
+    {
+      // The grain size needs to be defined to prevent false sharing
+      // when writing to a vtkBitArray.
+      grain = sizeof(vtkIdType) * 64;
+    }
+    vtkSMPTools::For(0, numTuples, grain, arrayCalculatorFunctor);
   }
 };
 
@@ -603,7 +615,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
 
   vtkSmartPointer<vtkPoints> resultPoints;
   vtkSmartPointer<vtkDataArray> resultArray;
-  if (resultType == VECTOR_RESULT && CoordinateResults != 0 &&
+  if (resultType == VECTOR_RESULT && this->CoordinateResults != 0 &&
     (psOutput || vtkGraph::SafeDownCast(output)))
   {
     resultPoints = vtkSmartPointer<vtkPoints>::New();
@@ -611,7 +623,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     resultPoints->SetNumberOfPoints(numTuples);
     resultArray = resultPoints->GetData();
   }
-  else if (CoordinateResults != 0)
+  else if (this->CoordinateResults != 0)
   {
     if (resultType != VECTOR_RESULT)
     {
@@ -1211,3 +1223,4 @@ void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Replace Invalid Values: " << (this->ReplaceInvalidValues ? "On" : "Off") << endl;
   os << indent << "Replacement Value: " << this->ReplacementValue << endl;
 }
+VTK_ABI_NAMESPACE_END

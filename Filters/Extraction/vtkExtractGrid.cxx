@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.
@@ -114,7 +115,7 @@ int vtkExtractGrid::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     vtkLogF(TRACE, "oUExt: %d,%d   %d,%d  %d,%d", oUExt[0], oUExt[1], oUExt[2], oUExt[3], oUExt[4],
       oUExt[5]);
 
-    int oWExt[6]; // For parallel parititon this will be different.
+    int oWExt[6]; // For parallel partition this will be different.
     this->Internal->GetOutputWholeExtent(oWExt);
     vtkLogF(TRACE, "oWExt: %d,%d   %d,%d  %d,%d", oWExt[0], oWExt[1], oWExt[2], oWExt[3], oWExt[4],
       oWExt[5]);
@@ -213,6 +214,8 @@ bool vtkExtractGrid::RequestDataImpl(
 
   this->Internal->CopyCellData(inExt, outExt, cd, outCD);
 
+  this->CheckAbort();
+
   return true;
 }
 
@@ -230,3 +233,4 @@ void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Include Boundary: " << (this->IncludeBoundary ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

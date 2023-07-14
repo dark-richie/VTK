@@ -16,6 +16,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContourValues);
 
 // Construct object with a single contour value at 0.0.
@@ -75,7 +76,7 @@ void vtkContourValues::GetValues(double* contourValues)
 // Set the number of contours to place into the list. You only really
 // need to use this method to reduce list size. The method SetValue()
 // will automatically increase list size as needed.
-void vtkContourValues::SetNumberOfContours(const int number)
+void vtkContourValues::SetNumberOfContours(int number)
 {
   vtkIdType currentNumber = this->Contours->GetMaxId() + 1;
   vtkIdType n = (number < 0 ? 0 : number);
@@ -177,3 +178,4 @@ void vtkContourValues::DeepCopy(vtkContourValues* other)
 {
   this->Contours->DeepCopy(other->Contours);
 }
+VTK_ABI_NAMESPACE_END

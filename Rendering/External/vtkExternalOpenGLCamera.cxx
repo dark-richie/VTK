@@ -19,13 +19,13 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
-#include "vtkOutputWindow.h"
 #include "vtkPerspectiveTransform.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExternalOpenGLCamera);
 
 //------------------------------------------------------------------------------
@@ -87,3 +87,4 @@ void vtkExternalOpenGLCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

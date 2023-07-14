@@ -34,6 +34,7 @@
 
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 void ConvertXYZToLatLonDepth(double xyz[3], double lonLatDepth[3], double center[3])
@@ -149,6 +150,10 @@ void vtkProjectSphereFilter::TransformPointInformation(
   double minDist2ToCenterLine = VTK_DOUBLE_MAX;
   for (vtkIdType i = 0; i < numberOfPoints; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     double coordIn[3], coordOut[3];
     input->GetPoint(i, coordIn);
     ConvertXYZToLatLonDepth(coordIn, coordOut, this->Center);
@@ -240,6 +245,10 @@ void vtkProjectSphereFilter::TransformCellInformation(
   vtkIdType mostPointsInCell = 0;
   for (vtkIdType cellId = 0; cellId < numberOfCells; cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     bool onLeftBoundary = false;
     bool onRightBoundary = false;
     bool leftSideInterior = false;  // between SplitLongitude and SplitLongitude+90
@@ -375,6 +384,10 @@ void vtkProjectSphereFilter::TransformCellInformation(
   vtkIdType skipCounter = 0;
   for (vtkIdType cellId = 0; cellId < input->GetNumberOfCells(); cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (skippedCells->IsId(cellId) != -1)
     {
       skippedCells->DeleteId(cellId);
@@ -553,3 +566,4 @@ void vtkProjectSphereFilter::SetCellInformation(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

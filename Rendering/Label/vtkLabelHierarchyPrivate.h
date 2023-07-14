@@ -8,6 +8,7 @@
 //----------------------------------------------------------------------------
 // vtkLabelHierarchy::Implementation
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLabelHierarchy::Implementation
 {
 public:
@@ -101,7 +102,6 @@ public:
     }
 
     LabelSet()
-      : std::multiset<vtkIdType, PriorityComparator>()
     {
       this->TotalAnchors = 0;
       this->Size = 1.;
@@ -243,5 +243,6 @@ inline void vtkLabelHierarchy::Implementation::LabelSet::AddChildren(
   this->SetChildGeometry(self);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkLabelHierarchyPrivate_h
 // VTK-HeaderTest-Exclude: vtkLabelHierarchyPrivate.h

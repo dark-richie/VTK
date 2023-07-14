@@ -23,6 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableToStructuredGrid);
 //------------------------------------------------------------------------------
 vtkTableToStructuredGrid::vtkTableToStructuredGrid()
@@ -131,6 +132,10 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input, vtkStructuredGrid* output
   // Add all other columns as point data.
   for (int cc = 0; cc < input->GetNumberOfColumns(); cc++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkAbstractArray* arr = input->GetColumn(cc);
     if (arr != xarray && arr != yarray && arr != zarray)
     {
@@ -154,3 +159,4 @@ void vtkTableToStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ZColumn: " << (this->ZColumn ? this->ZColumn : "(none)") << endl;
   os << indent << "ZComponent: " << this->ZComponent << endl;
 }
+VTK_ABI_NAMESPACE_END

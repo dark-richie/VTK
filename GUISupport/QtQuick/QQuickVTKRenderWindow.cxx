@@ -12,6 +12,9 @@
   PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// this class is deprecated, don't warn about deprecated classes it uses
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "QQuickVTKRenderWindow.h"
 
 // vtk includes
@@ -32,6 +35,7 @@
 #include <QSurfaceFormat>
 
 //-------------------------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 QQuickVTKRenderWindow::QQuickVTKRenderWindow(QQuickItem* parent)
   : Superclass(parent)
 {
@@ -403,3 +407,4 @@ Use QQuickVTKRenderWindow::setupGraphicsBackend() to set the right backend.)***"
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END

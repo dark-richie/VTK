@@ -45,6 +45,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointCloudRepresentation);
 
 //------------------------------------------------------------------------------
@@ -375,24 +376,22 @@ int vtkPointCloudRepresentation::ComputeInteractionState(int X, int Y, int vtkNo
 //------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  if (!pc)
+  if (pc != nullptr && this->GetVisibility())
   {
-    return;
+    pc->AddItem(this->SelectionActor);
   }
-  pc->AddItem(this->SelectionActor);
   this->Superclass::GetActors2D(pc);
 }
 
 //------------------------------------------------------------------------------
 void vtkPointCloudRepresentation::GetActors(vtkPropCollection* pc)
 {
-  if (!pc)
+  if (pc != nullptr && this->GetVisibility())
   {
-    return;
-  }
-  if (this->PointCloudActor)
-  {
-    pc->AddItem(this->PointCloudActor);
+    if (this->PointCloudActor)
+    {
+      pc->AddItem(this->PointCloudActor);
+    }
   }
   this->Superclass::GetActors(pc);
 }
@@ -516,3 +515,4 @@ void vtkPointCloudRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selection Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

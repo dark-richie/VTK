@@ -33,26 +33,21 @@
 #include <cctype>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //------------------------------------------------------------------------------
 vtkEnSight6Reader::vtkEnSight6Reader()
 {
   this->NumberOfUnstructuredPoints = 0;
-  this->UnstructuredPoints = vtkPoints::New();
+  this->UnstructuredPoints = nullptr;
   this->UnstructuredNodeIds = nullptr;
 }
 
 //------------------------------------------------------------------------------
 vtkEnSight6Reader::~vtkEnSight6Reader()
 {
-  if (this->UnstructuredNodeIds)
-  {
-    this->UnstructuredNodeIds->Delete();
-    this->UnstructuredNodeIds = nullptr;
-  }
-  this->UnstructuredPoints->Delete();
-  this->UnstructuredPoints = nullptr;
+  this->CleanUpCache();
 }
 
 //------------------------------------------------------------------------------
@@ -243,6 +238,8 @@ int vtkEnSight6Reader::ReadGeometryFile(
   // ReadNextDataLine because the description line could be blank.
   this->ReadLine(line);
 
+  this->CleanUpCache();
+
   // Read the node id and element id lines.
   this->ReadLine(line);
   sscanf(line, " %*s %*s %s", subLine);
@@ -264,8 +261,11 @@ int vtkEnSight6Reader::ReadGeometryFile(
 
   this->ReadNextDataLine(line); // "coordinates"
   this->ReadNextDataLine(line);
+
   this->NumberOfUnstructuredPoints = atoi(line);
+  this->UnstructuredPoints = vtkPoints::New();
   this->UnstructuredPoints->Allocate(this->NumberOfUnstructuredPoints);
+
   int* tmpIds = new int[this->NumberOfUnstructuredPoints];
 
   int maxId = 0;
@@ -2194,3 +2194,21 @@ void vtkEnSight6Reader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+
+//------------------------------------------------------------------------------
+void vtkEnSight6Reader::CleanUpCache()
+{
+  if (this->UnstructuredPoints)
+  {
+    this->NumberOfUnstructuredPoints = 0;
+    this->UnstructuredPoints->Delete();
+    this->UnstructuredPoints = nullptr;
+  }
+  if (this->UnstructuredNodeIds)
+  {
+    this->UnstructuredNodeIds->Delete();
+    this->UnstructuredNodeIds = nullptr;
+  }
+}
+
+VTK_ABI_NAMESPACE_END

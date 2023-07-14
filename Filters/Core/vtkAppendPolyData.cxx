@@ -32,6 +32,7 @@
 #include <cassert>
 #include <cstdlib>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //------------------------------------------------------------------------------
@@ -339,8 +340,13 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[],
   vtkIdType polysOffset = numVerts + numLines;
   vtkIdType stripsOffset = numVerts + numLines + numPolys;
   countPD = countCD = 0;
+  int checkAbortInterval = std::min(numInputs / 10 + 1, 1000);
   for (idx = 0; idx < numInputs; ++idx)
   {
+    if (idx % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     this->UpdateProgress(0.2 + 0.8 * idx / numInputs);
     ds = inputs[idx];
     // this check is not necessary, but I'll put it in anyway
@@ -603,3 +609,4 @@ int vtkAppendPolyData::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
   return 1;
 }
+VTK_ABI_NAMESPACE_END

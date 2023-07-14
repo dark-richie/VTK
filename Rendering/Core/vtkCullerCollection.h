@@ -31,6 +31,7 @@
 #include "vtkCuller.h"              // for inline functions
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
 {
 public:
@@ -70,7 +71,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkCullerCollection(const vtkCullerCollection&) = delete;
   void operator=(const vtkCullerCollection&) = delete;
 };
@@ -87,4 +87,5 @@ inline vtkCuller* vtkCullerCollection::GetLastItem()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

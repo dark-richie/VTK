@@ -29,6 +29,7 @@
 
 #include "vtkNew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageDataToPointSet);
 
 //------------------------------------------------------------------------------
@@ -82,6 +83,10 @@ int vtkImageDataToPointSet::RequestData(vtkInformation* vtkNotUsed(request),
   points->SetNumberOfPoints(nbPoints);
   for (vtkIdType i = 0; i < nbPoints; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     double p[3];
     inData->GetPoint(i, p);
     points->SetPoint(i, p);
@@ -95,3 +100,4 @@ int vtkImageDataToPointSet::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

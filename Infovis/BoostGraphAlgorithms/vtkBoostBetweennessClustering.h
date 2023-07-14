@@ -34,6 +34,7 @@
 #include "vtkGraphAlgorithm.h"
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBetweennessClustering : public vtkGraphAlgorithm
 {
 public:
@@ -46,7 +47,7 @@ public:
 
   ///@{
   /**
-   * Get/Set the threshold value. Algorithm terminats when the maximum edge
+   * Get/Set the threshold value. Algorithm terminates when the maximum edge
    * centrality is below this threshold.
    */
   vtkSetMacro(Threshold, double);
@@ -99,4 +100,5 @@ private:
   void operator=(const vtkBoostBetweennessClustering&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkBoostBetweennessClustering_h

@@ -427,6 +427,18 @@ struct ReverseCellAtIdImpl
   }
 };
 
+struct ReplaceCellPointAtIdImpl
+{
+  template <typename CellStateT>
+  void operator()(
+    CellStateT& cells, vtkIdType cellId, vtkIdType cellPointIndex, vtkIdType newPointId) const
+  {
+    using ValueType = typename CellStateT::ValueType;
+
+    cells.GetCellRange(cellId)[cellPointIndex] = static_cast<ValueType>(newPointId);
+  }
+};
+
 struct ReplaceCellAtIdImpl
 {
   template <typename CellStateT>
@@ -521,6 +533,7 @@ struct AppendImpl
 
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCellArray::vtkCellArray() = default;
 vtkCellArray::~vtkCellArray() = default;
 vtkStandardNewMacro(vtkCellArray);
@@ -855,6 +868,8 @@ void vtkCellArray::SetData(
 #endif
 }
 
+VTK_ABI_NAMESPACE_END
+
 namespace
 {
 
@@ -897,6 +912,7 @@ struct GenerateOffsetsImpl
 
 } // end anon namespace
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 bool vtkCellArray::SetData(vtkDataArray* offsets, vtkDataArray* connectivity)
 {
@@ -1148,6 +1164,13 @@ void vtkCellArray::ReplaceCellAtId(
 }
 
 //------------------------------------------------------------------------------
+void vtkCellArray::ReplaceCellPointAtId(
+  vtkIdType cellId, vtkIdType cellPointIndex, vtkIdType newPointId)
+{
+  this->Visit(ReplaceCellPointAtIdImpl{}, cellId, cellPointIndex, newPointId);
+}
+
+//------------------------------------------------------------------------------
 void vtkCellArray::ExportLegacyFormat(vtkIdTypeArray* data)
 {
   data->Allocate(this->Visit(GetLegacyDataSizeImpl{}));
@@ -1212,3 +1235,4 @@ vtkIdType vtkCellArray::IsHomogeneous()
 {
   return this->Visit(IsHomogeneousImpl{});
 }
+VTK_ABI_NAMESPACE_END

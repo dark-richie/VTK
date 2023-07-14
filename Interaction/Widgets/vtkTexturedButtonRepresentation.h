@@ -23,7 +23,7 @@
  *
  * To use this representation, always begin by specifying the number of
  * button states.  Then provide a polydata (the polydata should have associated
- * texture coordinates), and a list of textures cooresponding to the button
+ * texture coordinates), and a list of textures corresponding to the button
  * states. Optionally, the HoveringProperty and SelectionProperty can be
  * adjusted to obtain the appropriate appearance.
  *
@@ -50,6 +50,7 @@
 #include "vtkButtonRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellPicker;
 class vtkActor;
 class vtkProperty;
@@ -199,4 +200,5 @@ private:
   void operator=(const vtkTexturedButtonRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

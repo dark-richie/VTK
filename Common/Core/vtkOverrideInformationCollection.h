@@ -30,6 +30,7 @@
 
 #include "vtkOverrideInformation.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkOverrideInformationCollection : public vtkCollection
 {
 public:
@@ -64,7 +65,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkOverrideInformationCollection(const vtkOverrideInformationCollection&) = delete;
   void operator=(const vtkOverrideInformationCollection&) = delete;
 };
@@ -79,4 +79,5 @@ inline vtkOverrideInformation* vtkOverrideInformationCollection::GetNextItem()
   return static_cast<vtkOverrideInformation*>(this->GetNextItemAsObject());
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

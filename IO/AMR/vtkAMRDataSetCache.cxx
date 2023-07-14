@@ -22,6 +22,7 @@
 #include "vtkUniformGrid.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRDataSetCache);
 
 vtkAMRDataSetCache::vtkAMRDataSetCache() = default;
@@ -150,7 +151,7 @@ vtkDataArray* vtkAMRDataSetCache::GetAMRBlockPointData(int compositeIdx, const c
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRDataSetCache::GetAMRBlock(const int compositeIdx)
+vtkUniformGrid* vtkAMRDataSetCache::GetAMRBlock(int compositeIdx)
 {
   if (this->HasAMRBlock(compositeIdx))
   {
@@ -215,3 +216,4 @@ bool vtkAMRDataSetCache::HasAMRBlock(int compositeIdx)
   vtkTimerLog::MarkEndEvent("AMRCache::CheckIfBlockExists");
   return false;
 }
+VTK_ABI_NAMESPACE_END

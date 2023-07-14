@@ -25,6 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
 
 //------------------------------------------------------------------------------
@@ -103,6 +104,10 @@ int vtkBlankStructuredGridWithImage::RequestData(vtkInformation* vtkNotUsed(requ
   ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
   for (vtkIdType ptId = 0; ptId < numberOfValues; ++ptId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     unsigned char value = 0;
     if (visibility->GetValue(ptId) == 0)
     {
@@ -136,3 +141,4 @@ void vtkBlankStructuredGridWithImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

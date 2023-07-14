@@ -19,6 +19,7 @@
 
 #if defined(VTK_USE_FENV)
 #include <csignal>
+#include <cstdio>
 #include <fenv.h>
 #endif
 
@@ -33,9 +34,10 @@
 namespace
 {
 
-void signal_handler(int signal)
+extern "C" void signal_handler(int signal)
 {
-  cerr << "Error: Floating point exception detected. Signal " << signal << endl;
+  // NOLINTNEXTLINE(bugprone-signal-handler)
+  fprintf(stderr, "Error: Floating point exception detected. Signal %d\n", signal);
   // This should possibly throw an exception rather than abort, abort should
   // at least give access to the stack when it fails here.
   abort();
@@ -47,6 +49,7 @@ void signal_handler(int signal)
 //------------------------------------------------------------------------------
 // Description:
 // Enable floating point exceptions.
+VTK_ABI_NAMESPACE_BEGIN
 void vtkFloatingPointExceptions::Enable()
 {
 #ifdef _MSC_VER
@@ -76,3 +79,4 @@ void vtkFloatingPointExceptions::Disable()
   fedisableexcept(FE_DIVBYZERO | FE_INVALID);
 #endif
 }
+VTK_ABI_NAMESPACE_END

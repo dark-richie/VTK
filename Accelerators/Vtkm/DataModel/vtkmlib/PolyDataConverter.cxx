@@ -36,8 +36,10 @@
 
 #include <vtkm/cont/ArrayHandle.h>
 #include <vtkm/cont/DataSetBuilderUniform.h>
+#include <vtkm/cont/ErrorBadType.h>
 #include <vtkm/cont/Field.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 struct build_type_array
@@ -67,8 +69,10 @@ struct build_type_array
   }
 };
 }
+VTK_ABI_NAMESPACE_END
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // convert an polydata type
@@ -80,9 +84,13 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
   // set where possible
   vtkm::cont::DataSet dataset;
 
-  // first step convert the points over to an array handle
-  vtkm::cont::CoordinateSystem coords = Convert(input->GetPoints());
-  dataset.AddCoordinateSystem(coords);
+  // Only set coordinates if they exists in the vtkPolyData
+  if (input->GetPoints())
+  {
+    // first step convert the points over to an array handle
+    vtkm::cont::CoordinateSystem coords = Convert(input->GetPoints());
+    dataset.AddCoordinateSystem(coords);
+  }
 
   // first check if we only have polys/lines/verts
   bool filled = false;
@@ -138,9 +146,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     }
     else
     {
-      vtkErrorWithObjectMacro(input,
-        "VTK-m does not currently support "
-        "PolyLine cells.");
+      throw vtkm::cont::ErrorBadType("VTK-m does not currently support PolyLine cells.");
     }
   }
   else if (onlyVerts)
@@ -156,17 +162,13 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     }
     else
     {
-      vtkErrorWithObjectMacro(input,
-        "VTK-m does not currently support "
-        "PolyVertex cells.");
+      throw vtkm::cont::ErrorBadType("VTK-m does not currently support PolyVertex cells.");
     }
   }
   else
   {
-    vtkErrorWithObjectMacro(input,
-      "VTK-m does not currently support mixed "
-      "cell types or triangle strips in "
-      "vtkPolyData.");
+    throw vtkm::cont::ErrorBadType(
+      "VTK-m does not currently support mixed cell types or triangle strips in vtkPolyData.");
   }
 
   if (!filled)
@@ -179,10 +181,12 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
   return dataset;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace tovtkm
 
 namespace fromvtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input)
@@ -214,4 +218,5 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet
   return arraysConverted;
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace fromvtkm

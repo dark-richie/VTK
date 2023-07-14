@@ -28,10 +28,11 @@ set(classes
 
 set(private_classes
   vtkGLTFDocumentLoaderInternals
-  vtkGLTFWriterUtils  
+  vtkGLTFWriterUtils
   vtkGLTFUtils)
 
 vtk_module_add_module(VTK::IOGeometry
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
   )
+vtk_add_test_mangling(VTK::IOGeometry)

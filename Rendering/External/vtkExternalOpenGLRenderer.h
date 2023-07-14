@@ -37,6 +37,7 @@
 #include "vtkRenderingExternalModule.h" // For export macro
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLightCollection;
 class vtkExternalLight;
 
@@ -50,7 +51,7 @@ public:
   /**
    * Synchronize camera and light parameters
    */
-  void Render(void) override;
+  void Render() override;
 
   /**
    * Create a new Camera sutible for use with this type of Renderer.
@@ -120,4 +121,5 @@ private:
   void operator=(const vtkExternalOpenGLRenderer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkExternalOpenGLRenderer_h

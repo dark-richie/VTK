@@ -28,6 +28,7 @@
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkRectilinearGrid;
 class vtkRenderer;
@@ -55,7 +56,7 @@ public:
   virtual void SetInputData(vtkDataSet*);
   virtual void SetInputData(vtkRectilinearGrid*);
   virtual vtkDataSet* GetInput();
-  virtual vtkDataSet* GetInput(const int port);
+  virtual vtkDataSet* GetInput(int port);
   ///@}
 
   ///@{
@@ -316,4 +317,5 @@ private:
   void operator=(const vtkVolumeMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

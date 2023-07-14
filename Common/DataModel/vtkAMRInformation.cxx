@@ -24,6 +24,7 @@
 #include <cassert>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRInformation);
 
 namespace
@@ -876,7 +877,7 @@ bool vtkAMRInformation::GetOrigin(unsigned int level, unsigned int id, double* o
   return true;
 }
 
-void vtkAMRInformation::UpdateBounds(const int level, const int id)
+void vtkAMRInformation::UpdateBounds(int level, int id)
 {
   double bb[6];
   vtkAMRBox::GetBounds(
@@ -989,3 +990,4 @@ bool vtkAMRInformation::FindGrid(double q[3], int level, unsigned int& gridId)
   }
   return false;
 }
+VTK_ABI_NAMESPACE_END

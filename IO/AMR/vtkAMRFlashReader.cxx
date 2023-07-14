@@ -41,6 +41,7 @@
 
 #include "vtkAMRFlashReaderInternal.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRFlashReader);
 
 //------------------------------------------------------------------------------
@@ -102,7 +103,7 @@ void vtkAMRFlashReader::ReadMetaData()
 }
 
 //------------------------------------------------------------------------------
-int vtkAMRFlashReader::GetBlockLevel(const int blockIdx)
+int vtkAMRFlashReader::GetBlockLevel(int blockIdx)
 {
   assert("pre: Internal Flash Reader is nullptr" && (this->Internal != nullptr));
   if (!this->IsReady)
@@ -153,7 +154,7 @@ void vtkAMRFlashReader::ComputeStats(
 
   for (int i = 0; i < internal->NumberOfBlocks; ++i)
   {
-    Block& theBlock = internal->Blocks[i];
+    FlashReaderBlock& theBlock = internal->Blocks[i];
     double* gridMin = theBlock.MinBounds;
     if (gridMin[0] < min[0])
     {
@@ -193,7 +194,7 @@ int vtkAMRFlashReader::FillMetaData()
 
   for (int i = 0; i < this->Internal->NumberOfBlocks; ++i)
   {
-    Block& theBlock = this->Internal->Blocks[i];
+    FlashReaderBlock& theBlock = this->Internal->Blocks[i];
 
     // Start numbering levels from 0!
     int level = this->Internal->Blocks[i].Level - 1;
@@ -223,7 +224,7 @@ int vtkAMRFlashReader::FillMetaData()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid(const int blockIdx)
+vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid(int blockIdx)
 {
   if (!this->IsReady)
   {
@@ -251,7 +252,7 @@ vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid(const int blockIdx)
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRFlashReader::GetAMRGridData(const int blockIdx, vtkUniformGrid* block, const char* field)
+void vtkAMRFlashReader::GetAMRGridData(int blockIdx, vtkUniformGrid* block, const char* field)
 {
   assert("pre: AMR block is nullptr" && (block != nullptr));
   this->Internal->GetBlockAttribute(field, blockIdx, block);
@@ -269,3 +270,4 @@ void vtkAMRFlashReader::SetUpDataArraySelections()
     this->CellDataArraySelection->AddArray(this->Internal->AttributeNames[i].c_str());
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -27,6 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkTetra.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierTetra);
 //------------------------------------------------------------------------------
 vtkBezierTetra::vtkBezierTetra() = default;
@@ -109,8 +110,7 @@ vtkCell* vtkBezierTetra::GetFace(int faceId)
 
 /**\brief Set the rational weight of the cell, given a vtkDataSet
  */
-void vtkBezierTetra::SetRationalWeightsFromPointData(
-  vtkPointData* point_data, const vtkIdType numPts)
+void vtkBezierTetra::SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts)
 {
   vtkDataArray* v = point_data->GetRationalWeights();
   if (v)
@@ -140,7 +140,7 @@ void vtkBezierTetra::InterpolateFunctions(const double pcoords[3], double* weigh
     vtkIdType lbv[4] = { bv[0], bv[1], bv[2], deg - bv[0] - bv[1] - bv[2] };
     weights[Index(lbv, deg)] = coeffs[i];
   }
-  // If the unit cell has rational weigths: weights_i = weights_i * rationalWeights / sum( weights_i
+  // If the unit cell has rational weights: weights_i = weights_i * rationalWeights / sum( weights_i
   // * rationalWeights )
   const bool has_rational_weights = RationalWeights->GetNumberOfTuples() > 0;
   if (has_rational_weights)
@@ -189,3 +189,4 @@ vtkHigherOrderTriangle* vtkBezierTetra::GetFaceCell()
 {
   return FaceCell;
 }
+VTK_ABI_NAMESPACE_END

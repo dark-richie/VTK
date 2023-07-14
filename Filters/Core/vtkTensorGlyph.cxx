@@ -28,6 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTensorGlyph);
 
 //------------------------------------------------------------------------------
@@ -256,8 +257,14 @@ int vtkTensorGlyph::RequestData(vtkInformation* vtkNotUsed(request),
   //
   trans->PreMultiply();
 
+  int checkAbortInterval = std::min(numPts / 10 + 1, (vtkIdType)1000);
+
   for (inPtId = 0; inPtId < numPts; inPtId++)
   {
+    if (inPtId % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     ptIncr = numDirs * inPtId * numSourcePts;
 
     // Translation is postponed
@@ -561,3 +568,4 @@ void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Symmetric: " << (this->Symmetric ? "On\n" : "Off\n");
   os << indent << "Length: " << this->Length << "\n";
 }
+VTK_ABI_NAMESPACE_END

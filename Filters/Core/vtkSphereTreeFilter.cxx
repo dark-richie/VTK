@@ -26,6 +26,7 @@
 #include "vtkSphereTree.h"
 #include "vtkStructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphereTreeFilter);
 vtkCxxSetObjectMacro(vtkSphereTreeFilter, SphereTree, vtkSphereTree);
 
@@ -215,6 +216,8 @@ int vtkSphereTreeFilter::RequestData(vtkInformation* vtkNotUsed(request),
     levels->Delete();
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -268,3 +271,4 @@ void vtkSphereTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Normal: (" << this->Normal[0] << ", " << this->Normal[1] << ", "
      << this->Normal[2] << ")\n";
 }
+VTK_ABI_NAMESPACE_END

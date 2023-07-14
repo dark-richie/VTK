@@ -43,6 +43,7 @@
 #include <utility>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClipClosedSurface);
 
 vtkCxxSetObjectMacro(vtkClipClosedSurface, ClippingPlanes, vtkPlaneCollection);
@@ -286,10 +287,8 @@ vtkIdType* vtkCCSEdgeLocator::InsertUniqueEdge(vtkIdType i0, vtkIdType i1, vtkId
     return nullptr;
   }
 
-  int i = 1;
   while (node->next != nullptr)
   {
-    i++;
     node = node->next;
 
     if (node->ptId0 == i0 && node->ptId1 == i1)
@@ -528,7 +527,7 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
   for (int planeId = 0; planes && (plane = planes->GetNextPlane(iter)); planeId++)
   {
     this->UpdateProgress((planeId + 1.0) / (numPlanes + 1.0));
-    if (this->GetAbortExecute())
+    if (this->CheckAbort())
     {
       break;
     }
@@ -1295,8 +1294,8 @@ void vtkClipClosedSurface::TriangulateContours(vtkPolyData* data, vtkIdType firs
   }
 
   double nnormal[3] = { -normal[0], -normal[1], -normal[2] };
-  int rval =
-    vtkContourTriangulator::TriangulateContours(data, firstLine, numLines, outputPolys, nnormal);
+  int rval = vtkContourTriangulator::TriangulateContours(
+    data, firstLine, numLines, outputPolys, nnormal, this);
 
   if (rval == 0 && this->TriangulationErrorDisplay)
   {
@@ -1310,3 +1309,4 @@ int vtkClipClosedSurface::TriangulatePolygon(
 {
   return vtkContourTriangulator::TriangulatePolygon(polygon, points, triangles);
 }
+VTK_ABI_NAMESPACE_END

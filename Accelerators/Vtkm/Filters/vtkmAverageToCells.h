@@ -29,12 +29,14 @@
 #define vtkmAverageToCells_h
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
-#include "vtkDataSetAlgorithm.h"
+#include "vtkPointDataToCellData.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
-class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmAverageToCells : public vtkDataSetAlgorithm
+VTK_ABI_NAMESPACE_BEGIN
+class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmAverageToCells : public vtkPointDataToCellData
 {
 public:
-  vtkTypeMacro(vtkmAverageToCells, vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkmAverageToCells, vtkPointDataToCellData);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmAverageToCells* New();
 
@@ -47,6 +49,8 @@ protected:
 private:
   vtkmAverageToCells(const vtkmAverageToCells&) = delete;
   void operator=(const vtkmAverageToCells&) = delete;
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmAverageToCells_h

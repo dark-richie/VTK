@@ -32,6 +32,7 @@
 #include <sstream>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetToDataObjectFilter);
 
 //------------------------------------------------------------------------------
@@ -310,6 +311,9 @@ int vtkDataSetToDataObjectFilter::RequestData(
 
   output->SetFieldData(fd);
   fd->Delete();
+
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -348,3 +352,4 @@ void vtkDataSetToDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point Data: " << (this->PointData ? "On\n" : "Off\n");
   os << indent << "Cell Data: " << (this->CellData ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

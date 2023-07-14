@@ -29,6 +29,7 @@
 
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridCellCenters);
 
 //------------------------------------------------------------------------------
@@ -165,6 +166,10 @@ void vtkHyperTreeGridCellCenters::ProcessTrees()
   vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
   while (it.GetNextTree(index))
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // Initialize new geometric cursor at root of current tree
     this->Input->InitializeNonOrientedGeometryCursor(cursor, index);
     // Generate leaf cell centers recursively
@@ -226,6 +231,10 @@ void vtkHyperTreeGridCellCenters::RecursivelyProcessTree(
     int numChildren = this->Input->GetNumberOfChildren();
     for (int child = 0; child < numChildren; ++child)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(child);
       // Recurse
       this->RecursivelyProcessTree(cursor);
@@ -233,3 +242,4 @@ void vtkHyperTreeGridCellCenters::RecursivelyProcessTree(
     } // child
   }   // else
 }
+VTK_ABI_NAMESPACE_END

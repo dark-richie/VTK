@@ -25,6 +25,7 @@
 #include "vtkFollower.h"
 #include "vtkRenderingVRModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVR_EXPORT vtkVRFollower : public vtkFollower
 {
 public:
@@ -49,6 +50,14 @@ protected:
 private:
   vtkVRFollower(const vtkVRFollower&) = delete;
   void operator=(const vtkVRFollower&) = delete;
+
+  /**
+   * DO NOT USE
+   * This method is declared in order to hide a `-Woverloaded-virtual`
+   * since we cant use the `using` keyword with private methods
+   */
+  void Render(vtkRenderer*, vtkMapper*) override {}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

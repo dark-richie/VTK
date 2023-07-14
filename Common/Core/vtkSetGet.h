@@ -270,7 +270,15 @@
     vtkDebugMacro(<< " setting " #name " to " << (arg ? arg : "(null)"));                          \
     if (arg)                                                                                       \
     {                                                                                              \
+      if (this->name == arg)                                                                       \
+      {                                                                                            \
+        return;                                                                                    \
+      }                                                                                            \
       this->name = arg;                                                                            \
+    }                                                                                              \
+    else if (this->name.empty())                                                                   \
+    {                                                                                              \
+      return;                                                                                      \
     }                                                                                              \
     else                                                                                           \
     {                                                                                              \
@@ -284,7 +292,15 @@
     vtkDebugMacro(<< " setting " #name " to " << (arg ? arg : "(null)"));                          \
     if (arg)                                                                                       \
     {                                                                                              \
+      if (this->name == arg)                                                                       \
+      {                                                                                            \
+        return;                                                                                    \
+      }                                                                                            \
       this->name = arg;                                                                            \
+    }                                                                                              \
+    else if (this->name.empty())                                                                   \
+    {                                                                                              \
+      return;                                                                                      \
     }                                                                                              \
     else                                                                                           \
     {                                                                                              \
@@ -742,6 +758,7 @@
 // This is to avoid vtkObject #include of vtkOutputWindow
 // while vtkOutputWindow #includes vtkObject
 
+VTK_ABI_NAMESPACE_BEGIN
 extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayText(const char*);
 extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayErrorText(const char*);
 extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayWarningText(const char*);
@@ -759,6 +776,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayGenericWarningText(
   const char*, int, const char*);
 extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
   const char*, int, const char*, vtkObject* sourceObj);
+VTK_ABI_NAMESPACE_END
 
 //
 // This macro is used for any output that may not be in an instance method
@@ -769,11 +787,11 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
   {                                                                                                \
     if (vtkObject::GetGlobalWarningDisplay())                                                      \
     {                                                                                              \
-      vtkOStreamWrapper::EndlType endl;                                                            \
+      vtkOStreamWrapper::EndlType const endl;                                                      \
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       vtkmsg << "" x;                                                                              \
-      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      std::string const _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                \
       vtkOutputWindowDisplayGenericWarningText(_filename.c_str(), __LINE__, vtkmsg.str());         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
@@ -809,7 +827,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
   {                                                                                                \
     if (vtkObject::GetGlobalWarningDisplay())                                                      \
     {                                                                                              \
-      vtkOStreamWrapper::EndlType endl;                                                            \
+      vtkOStreamWrapper::EndlType const endl;                                                      \
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       vtkObject* _object = const_cast<vtkObject*>(static_cast<const vtkObject*>(self));            \
@@ -822,7 +840,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      std::string const _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                \
       vtkOutputWindowDisplayErrorText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
       vtkObject::BreakOnError();                                                                   \
@@ -841,7 +859,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
   {                                                                                                \
     if (vtkObject::GetGlobalWarningDisplay())                                                      \
     {                                                                                              \
-      vtkOStreamWrapper::EndlType endl;                                                            \
+      vtkOStreamWrapper::EndlType const endl;                                                      \
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       vtkObject* _object = const_cast<vtkObject*>(static_cast<const vtkObject*>(self));            \
@@ -854,7 +872,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      std::string const _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                \
       vtkOutputWindowDisplayWarningText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);       \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
@@ -879,7 +897,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
     vtkObject* _object = const_cast<vtkObject*>(static_cast<const vtkObject*>(self));              \
     if ((!_object || _object->GetDebug()) && vtkObject::GetGlobalWarningDisplay())                 \
     {                                                                                              \
-      vtkOStreamWrapper::EndlType endl;                                                            \
+      vtkOStreamWrapper::EndlType const endl;                                                      \
       vtkOStreamWrapper::UseEndl(endl);                                                            \
       vtkOStrStreamWrapper vtkmsg;                                                                 \
       if (_object)                                                                                 \
@@ -891,7 +909,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(
         vtkmsg << "(nullptr): ";                                                                   \
       }                                                                                            \
       vtkmsg << "" x;                                                                              \
-      std::string _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                      \
+      std::string const _filename = vtksys::SystemTools::GetFilenameName(__FILE__);                \
       vtkOutputWindowDisplayDebugText(_filename.c_str(), __LINE__, vtkmsg.str(), _object);         \
       vtkmsg.rdbuf()->freeze(0);                                                                   \
     }                                                                                              \
@@ -1232,6 +1250,22 @@ public:
 #ifndef VTK_FALLTHROUGH
 #define VTK_FALLTHROUGH ((void)0)
 #endif
+
+//----------------------------------------------------------------------------
+// To suppress code with undefined behaviour. Ideally, such code should be fixed
+// but sometimes suppression can be useful.
+
+#if defined(__has_attribute)
+#if __has_attribute(no_sanitize)
+#define VTK_NO_UBSAN __attribute__((no_sanitize("undefined")))
+#else
+#define VTK_NO_UBSAN
+#endif
+#else
+#define VTK_NO_UBSAN
+#endif
+
+//----------------------------------------------------------------------------
 
 // XXX(xcode-8)
 // AppleClang first supported thread_local only by Xcode 8, for older Xcodes

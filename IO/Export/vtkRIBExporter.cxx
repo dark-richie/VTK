@@ -44,6 +44,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -274,7 +275,7 @@ void vtkRIBExporter::WriteProperty(vtkProperty* aProperty, vtkTexture* aTexture)
   //
   // if there is a texture map we need to declare it
   //
-  mapName = (char*)nullptr;
+  mapName = nullptr;
   if (aTexture)
   {
     mapName = this->GetTextureName(aTexture);
@@ -1367,3 +1368,4 @@ void vtkRIBExporter::ModifyArrayName(char* newname, const char* name)
   }
   newname[cc] = 0;
 }
+VTK_ABI_NAMESPACE_END

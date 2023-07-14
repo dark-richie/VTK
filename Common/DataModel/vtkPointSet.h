@@ -60,6 +60,7 @@
 #include "vtkGenericCell.h" // For GetCell
 #include "vtkPoints.h"      // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkAbstractCellLocator;
 
@@ -79,6 +80,11 @@ public:
   vtkTypeMacro(vtkPointSet, vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
+
+  /**
+   * Standard vtkDataSet API methods. See vtkDataSet for more information.
+   */
+  int GetDataObjectType() override { return VTK_POINT_SET; }
 
   ///@{
   /**
@@ -132,7 +138,7 @@ public:
    * This method always return a `vtkEmptyCell`, as there is no cell in a
    * `vtkPointSet`.
    */
-  vtkCell* GetCell(vtkIdType) override { return this->EmptyCell; }
+  vtkCell* GetCell(vtkIdType) override;
 
   ///@{
   /**
@@ -295,4 +301,5 @@ inline vtkIdType vtkPointSet::GetNumberOfPoints()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

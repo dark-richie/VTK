@@ -36,6 +36,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGVOLUME_EXPORT vtkDirectionEncoder : public vtkObject
 {
 public:
@@ -60,7 +61,7 @@ public:
   /**
    * Return the number of encoded directions
    */
-  virtual int GetNumberOfEncodedDirections(void) = 0;
+  virtual int GetNumberOfEncodedDirections() = 0;
 
   /**
    * Get the decoded gradient table. There are
@@ -68,7 +69,7 @@ public:
    * containing a normal (direction) vector. This is a flat structure -
    * 3 times the number of directions floats in an array.
    */
-  virtual float* GetDecodedGradientTable(void) = 0;
+  virtual float* GetDecodedGradientTable() = 0;
 
 protected:
   vtkDirectionEncoder() = default;
@@ -79,4 +80,5 @@ private:
   void operator=(const vtkDirectionEncoder&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

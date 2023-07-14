@@ -44,6 +44,7 @@
 #include <cstdlib>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -407,6 +408,10 @@ int vtkDepthSortPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (vtkIdType i = 0; i < nCells; ++i)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // get the cell points using the fast api
     vtkIdType cid = order[i];
     vtkIdType nids;
@@ -584,3 +589,4 @@ void vtkDepthSortPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Sort Scalars: " << (this->SortScalars ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

@@ -31,6 +31,7 @@
 #include "vtkTextActor3D.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLLabeledContourMapper);
 
 //------------------------------------------------------------------------------
@@ -85,6 +86,11 @@ void vtkOpenGLLabeledContourMapper::ReleaseGraphicsResources(vtkWindow* win)
 //------------------------------------------------------------------------------
 bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer* ren, vtkActor* act)
 {
+  if (this->StencilQuadsSize == 0)
+  {
+    return true;
+  }
+
   // Draw stencil quads into stencil buffer:
   // compile and bind it if needed
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
@@ -173,3 +179,4 @@ bool vtkOpenGLLabeledContourMapper::RemoveStencil(vtkRenderer* ren)
   vtkOpenGLCheckErrorMacro("failed after RemoveStencil()");
   return this->Superclass::RemoveStencil(ren);
 }
+VTK_ABI_NAMESPACE_END

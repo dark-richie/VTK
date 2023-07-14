@@ -49,6 +49,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkMatrix4x4;
 
@@ -97,9 +98,9 @@ private:
   vtkProp* ViewProp;    // reference to vtkProp
   vtkMatrix4x4* Matrix; // associated matrix
 
-private:
   void operator=(const vtkAssemblyNode&) = delete;
   vtkAssemblyNode(const vtkAssemblyNode&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

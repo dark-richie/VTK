@@ -18,7 +18,7 @@
 #include "vtkOSPRayAMRVolumeMapperNode.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCameraNode.h"
-#include "vtkOSPRayCompositePolyDataMapper2Node.h"
+#include "vtkOSPRayCompositePolyDataMapperNode.h"
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayMoleculeMapperNode.h"
 #include "vtkOSPRayPointGaussianMapperNode.h"
@@ -28,6 +28,7 @@
 #include "vtkOSPRayVolumeMapperNode.h"
 #include "vtkOSPRayVolumeNode.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkViewNode* ren_maker()
 {
   vtkOSPRayRendererNode* vn = vtkOSPRayRendererNode::New();
@@ -83,7 +84,7 @@ vtkViewNode* vm_maker()
 
 vtkViewNode* cpd_maker()
 {
-  vtkOSPRayCompositePolyDataMapper2Node* vn = vtkOSPRayCompositePolyDataMapper2Node::New();
+  vtkOSPRayCompositePolyDataMapperNode* vn = vtkOSPRayCompositePolyDataMapperNode::New();
   return vn;
 }
 
@@ -121,7 +122,9 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkOSPRayVolumeMapper", vm_maker);
   this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
   this->RegisterOverride("vtkMultiBlockVolumeMapper", vm_maker);
+  // VTK_DEPRECATED_IN_9_3_0: Remove CPDM2 override after vtkCompositePolyDataMapper2 is removed
   this->RegisterOverride("vtkCompositePolyDataMapper2", cpd_maker);
+  this->RegisterOverride("vtkCompositePolyDataMapper", cpd_maker);
   this->RegisterOverride("vtkOpenGLProjectedTetrahedraMapper", tetm_maker);
   this->RegisterOverride("vtkUnstructuredGridVolumeZSweepMapper", tetm_maker);
   this->RegisterOverride("vtkUnstructuredGridVolumeRayCastMapper", tetm_maker);
@@ -138,3 +141,4 @@ void vtkOSPRayViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

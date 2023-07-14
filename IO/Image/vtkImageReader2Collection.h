@@ -28,6 +28,7 @@
 #include "vtkCollection.h"
 #include "vtkIOImageModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageReader2;
 
 class VTKIOIMAGE_EXPORT vtkImageReader2Collection : public vtkCollection
@@ -61,9 +62,9 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkImageReader2Collection(const vtkImageReader2Collection&) = delete;
   void operator=(const vtkImageReader2Collection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

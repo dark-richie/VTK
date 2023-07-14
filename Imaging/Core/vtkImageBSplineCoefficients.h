@@ -49,6 +49,7 @@
 #include "vtkImagingCoreModule.h"        // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIMAGINGCORE_EXPORT vtkImageBSplineCoefficients : public vtkThreadedImageAlgorithm
 {
 public:
@@ -69,7 +70,7 @@ public:
   ///@{
   /**
    * Set the border mode.  The filter that is used to create the
-   * coefficients must repeat the image somehow to make a theoritically
+   * coefficients must repeat the image somehow to make a theoretically
    * infinite input.  The default is to clamp values that are off the
    * edge of the image, to the value at the closest point on the edge.
    * The other ways of virtually extending the image are to produce
@@ -156,4 +157,5 @@ private:
   void operator=(const vtkImageBSplineCoefficients&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

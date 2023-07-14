@@ -44,6 +44,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdList;
 
@@ -92,7 +93,7 @@ public:
    * direction to the provided normal.
    */
   static int TriangulateContours(vtkPolyData* data, vtkIdType firstLine, vtkIdType numLines,
-    vtkCellArray* outputPolys, const double normal[3]);
+    vtkCellArray* outputPolys, const double normal[3], vtkPolyDataAlgorithm* self = nullptr);
 
 protected:
   vtkContourTriangulator();
@@ -109,4 +110,5 @@ private:
   void operator=(const vtkContourTriangulator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

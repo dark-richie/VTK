@@ -26,6 +26,7 @@
 #ifndef vtkHyperTreeGridPreConfiguredSource_h
 #define vtkHyperTreeGridPreConfiguredSource_h
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkDoubleArray;
@@ -171,7 +172,7 @@ protected:
    * Recursive helper for the BALANCED architecture
    */
   void RecurseBalanced(
-    vtkHyperTreeGridNonOrientedCursor* cursor, vtkDoubleArray* levels, const int maxDepth);
+    vtkHyperTreeGridNonOrientedCursor* cursor, vtkDoubleArray* levels, int maxDepth);
   ///@}
 
   ///@{
@@ -192,5 +193,6 @@ protected:
   ///@}
 
 }; // vtkHyperTreeGridPreConfiguredSource
+VTK_ABI_NAMESPACE_END
 
 #endif // vtkHyperTreeGridPreConfiguredSource_h

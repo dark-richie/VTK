@@ -30,9 +30,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include "vtkmFilterPolicy.h"
 #include <vtkm/filter/density_estimate/Histogram.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmHistogram);
 
 //------------------------------------------------------------------------------
@@ -163,3 +163,4 @@ void vtkmHistogram::FillBinExtents(vtkDoubleArray* binExtents)
         (this->CenterBinsAroundMinAndMax ? 0.0 : halfBinDelta));
   }
 }
+VTK_ABI_NAMESPACE_END

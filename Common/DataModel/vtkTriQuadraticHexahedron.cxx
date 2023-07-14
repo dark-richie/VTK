@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriQuadraticHexahedron);
 
 //------------------------------------------------------------------------------
@@ -145,7 +146,7 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
   double params[3];
   double fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  double pt[3];
+  const double* pt;
   double derivs[81];
   double hexweights[8];
 
@@ -156,7 +157,9 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
   // Use a tri-linear hexahederon to get good starting values
   vtkHexahedron* hex = vtkHexahedron::New();
   for (i = 0; i < 8; i++)
+  {
     hex->GetPoints()->SetPoint(i, this->Points->GetPoint(i));
+  }
 
   hex->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, hexweights);
   hex->Delete();
@@ -164,6 +167,15 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
   params[0] = pcoords[0];
   params[1] = pcoords[1];
   params[2] = pcoords[2];
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   //  enter iteration loop
   for (iteration = converged = 0; !converged && (iteration < VTK_HEX_MAX_ITERATION); iteration++)
@@ -179,7 +191,7 @@ int vtkTriQuadraticHexahedron::EvaluatePosition(const double* x, double* closest
     }
     for (i = 0; i < 27; i++)
     {
-      this->Points->GetPoint(i, pt);
+      pt = pts + 3 * i;
       for (j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
@@ -283,14 +295,23 @@ void vtkTriQuadraticHexahedron::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   vtkTriQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
+
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 27; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];
@@ -687,7 +708,7 @@ void vtkTriQuadraticHexahedron::InterpolationDerivs(const double pcoords[3], dou
   derivs[79] = g2r * g2s * g3t_t;
   derivs[80] = g2r * g2s * g2t_t;
 
-  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]
+  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
   for (int i = 0; i < 81; i++)
     derivs[i] *= 2;
 }
@@ -742,3 +763,4 @@ void vtkTriQuadraticHexahedron::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

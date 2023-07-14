@@ -36,6 +36,7 @@
 #include "vtkRenderingUIModule.h" // For export macro
 #include <X11/Xlib.h>             // Needed for X types in the public interface
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 class vtkXRenderWindowInteractorInternals;
 
@@ -59,9 +60,8 @@ public:
   void TerminateApp() override;
 
   /**
-   * Run the event loop and return. This is provided so that you can
-   * implement your own event loop but yet use the vtk event handling as
-   * well.
+   * Process all user-interaction, timer events and return.
+   * If there are no events, this method returns immediately.
    */
   void ProcessEvents() override;
 
@@ -144,6 +144,11 @@ protected:
   void StartEventLoop() override;
 
   /**
+   * Wait for new events
+   */
+  void WaitForEvents();
+
+  /**
    * Deallocate X resource that may have been allocated
    * Also calls finalize on the render window if available
    */
@@ -154,4 +159,5 @@ private:
   void operator=(const vtkXRenderWindowInteractor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

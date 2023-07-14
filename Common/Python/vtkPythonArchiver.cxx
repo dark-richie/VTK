@@ -18,6 +18,7 @@
 #include "vtkSmartPyObject.h"
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPythonArchiver);
 
 //------------------------------------------------------------------------------
@@ -91,12 +92,12 @@ int vtkPythonArchiver::CheckResult(const char* method, const vtkSmartPyObject& r
     }
     return 0;
   }
-  if (!PyInt_Check(res))
+  if (!PyLong_Check(res))
   {
     return 0;
   }
 
-  int code = PyInt_AsLong(res);
+  int code = PyLong_AsLong(res);
 
   return code;
 }
@@ -121,13 +122,12 @@ void vtkPythonArchiver::SetPythonObject(PyObject* obj)
 void vtkPythonArchiver::OpenArchive()
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "OpenArchive";
+  const char* mname = "OpenArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
-  vtkSmartPyObject args(PyTuple_New(1));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
+  vtkSmartPyObject args(PyTuple_Pack(1, vtkself));
+  Py_DECREF(vtkself);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -138,13 +138,12 @@ void vtkPythonArchiver::OpenArchive()
 void vtkPythonArchiver::CloseArchive()
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "CloseArchive";
+  const char* mname = "CloseArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
-  vtkSmartPyObject args(PyTuple_New(1));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
+  vtkSmartPyObject args(PyTuple_Pack(1, vtkself));
+  Py_DECREF(vtkself);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -156,27 +155,18 @@ void vtkPythonArchiver::InsertIntoArchive(
   const std::string& relativePath, const char* data, std::size_t size)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "InsertIntoArchive";
+  const char* mname = "InsertIntoArchive";
   VTK_GET_METHOD(method, this->Object, mname, )
 
-  vtkSmartPyObject args(PyTuple_New(4));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
-
-  PyObject* pypath = PyString_FromString(relativePath.c_str());
-  PyTuple_SET_ITEM(args.GetPointer(), 1, pypath);
-
-#ifndef VTK_PY3K
-  PyObject* pydata = PyString_FromStringAndSize(data, size);
-  PyTuple_SET_ITEM(args.GetPointer(), 2, pydata);
-#else
+  PyObject* pypath = PyUnicode_FromString(relativePath.c_str());
   PyObject* pydata = PyBytes_FromStringAndSize(data, size);
-  PyTuple_SET_ITEM(args.GetPointer(), 2, pydata);
-#endif
-
   PyObject* pysize = PyLong_FromSsize_t(size);
-  PyTuple_SET_ITEM(args.GetPointer(), 3, pysize);
+  vtkSmartPyObject args(PyTuple_Pack(4, vtkself, pypath, pydata, pysize));
+  Py_DECREF(vtkself);
+  Py_DECREF(pypath);
+  Py_DECREF(pydata);
+  Py_DECREF(pysize);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -187,16 +177,14 @@ void vtkPythonArchiver::InsertIntoArchive(
 bool vtkPythonArchiver::Contains(const std::string& relativePath)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
-  char mname[] = "Contains";
+  const char* mname = "Contains";
   VTK_GET_METHOD(method, this->Object, mname, false)
 
-  vtkSmartPyObject args(PyTuple_New(2));
-
   PyObject* vtkself = VTKToPython(this);
-  PyTuple_SET_ITEM(args.GetPointer(), 0, vtkself);
-
-  PyObject* pypath = PyString_FromString(relativePath.c_str());
-  PyTuple_SET_ITEM(args.GetPointer(), 1, pypath);
+  PyObject* pypath = PyUnicode_FromString(relativePath.c_str());
+  vtkSmartPyObject args(PyTuple_Pack(2, vtkself, pypath));
+  Py_DECREF(vtkself);
+  Py_DECREF(pypath);
 
   vtkSmartPyObject result(PyObject_Call(method, args, nullptr));
 
@@ -219,16 +207,13 @@ void vtkPythonArchiver::PrintSelf(ostream& os, vtkIndent indent)
   if (str)
   {
     os << indent << "Object (string): ";
-#ifndef VTK_PY3K
-    os << PyString_AsString(str);
-#else
     PyObject* bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
     if (bytes)
     {
       os << PyBytes_AsString(bytes);
       Py_DECREF(bytes);
     }
-#endif
     os << std::endl;
   }
 }
+VTK_ABI_NAMESPACE_END

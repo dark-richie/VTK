@@ -32,6 +32,7 @@
 
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -95,15 +96,16 @@ struct EndIndex
 void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
   const std::vector<vtkDataArray*>& tcoordsArray, std::vector<EndIndex>* endIndexes)
 {
-  vtkNumberToString convert;
   vtkIdType nbPts = pts->GetNumberOfPoints();
 
   // Positions
+  vtkNumberToString converter;
   for (vtkIdType i = 0; i < nbPts; i++)
   {
     double p[3];
     pts->GetPoint(i, p);
-    f << "v " << convert(p[0]) << " " << convert(p[1]) << " " << convert(p[2]) << "\n";
+    f << "v " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " "
+      << converter.Convert(p[2]) << "\n";
   }
 
   // Normals
@@ -113,7 +115,8 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
     {
       double p[3];
       normals->GetTuple(i, p);
-      f << "vn " << convert(p[0]) << " " << convert(p[1]) << " " << convert(p[2]) << "\n";
+      f << "vn " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " "
+        << converter.Convert(p[2]) << "\n";
     }
   }
 
@@ -134,7 +137,7 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
           tcoords->GetTuple(i, p);
           if (p[0] != -1.0)
           {
-            f << "vt " << convert(p[0]) << " " << convert(p[1]) << "\n";
+            f << "vt " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << "\n";
             ++vtEndIndex;
             pointEndIndex = i + 1;
           }
@@ -335,7 +338,7 @@ void vtkOBJWriter::WriteData()
       {
         f << "usemtl " << matName << "\n";
       }
-      while (materialIds->GetValue(faceIndex) == matIndex && validCell)
+      while (validCell && materialIds->GetValue(faceIndex) == matIndex)
       {
         f << "f";
         for (vtkIdType i = 0; i < cellNpts; i++)
@@ -425,3 +428,4 @@ int vtkOBJWriter::FillInputPortInformation(int port, vtkInformation* info)
   }
   return 0;
 }
+VTK_ABI_NAMESPACE_END

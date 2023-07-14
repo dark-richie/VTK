@@ -92,7 +92,9 @@
 #include "vtkAbstractWidget.h"
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTensorRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkTensorWidget : public vtkAbstractWidget
@@ -193,4 +195,5 @@ private:
   void operator=(const vtkTensorWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

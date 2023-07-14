@@ -28,6 +28,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkSMPToolsAPI::vtkSMPToolsAPI()
@@ -97,13 +98,21 @@ bool vtkSMPToolsAPI::SetBackend(const char* type)
   std::string backend(type);
   std::transform(backend.cbegin(), backend.cend(), backend.begin(), ::toupper);
   if (backend == "SEQUENTIAL" && this->SequentialBackend)
+  {
     this->ActivatedBackend = BackendType::Sequential;
+  }
   else if (backend == "STDTHREAD" && this->STDThreadBackend)
+  {
     this->ActivatedBackend = BackendType::STDThread;
+  }
   else if (backend == "TBB" && this->TBBBackend)
+  {
     this->ActivatedBackend = BackendType::TBB;
+  }
   else if (backend == "OPENMP" && this->OpenMPBackend)
+  {
     this->ActivatedBackend = BackendType::OpenMP;
+  }
   else
   {
     std::cerr << "WARNING: tried to use a non implemented SMPTools backend \"" << type << "\"!\n";
@@ -217,6 +226,28 @@ bool vtkSMPToolsAPI::IsParallelScope()
   return false;
 }
 
+//------------------------------------------------------------------------------
+bool vtkSMPToolsAPI::GetSingleThread()
+{
+  // Currently, this will work as expected for one parallel area and or nested
+  // parallel areas. If there are two or more parallel areas that are not nested,
+  // this function will not work properly.
+  switch (this->ActivatedBackend)
+  {
+    case BackendType::Sequential:
+      return this->SequentialBackend->GetSingleThread();
+    case BackendType::STDThread:
+      return this->STDThreadBackend->GetSingleThread();
+    case BackendType::TBB:
+      return this->TBBBackend->GetSingleThread();
+    case BackendType::OpenMP:
+      return this->OpenMPBackend->GetSingleThread();
+    default:
+      return false;
+  }
+}
+
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

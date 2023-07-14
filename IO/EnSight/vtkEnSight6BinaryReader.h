@@ -41,6 +41,7 @@
 #include "vtkEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class vtkIdTypeArray;
 class vtkPoints;
@@ -133,20 +134,20 @@ protected:
    * vtkUnstructuredGrid output.  Return 0 if EOF reached.
    */
   int CreateUnstructuredGridOutput(
-    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
+    int partId, char line[81], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
    * Read a structured part from the geometry file and create a
    * vtkStructuredGridOutput.  Return 0 if EOF reached.
    */
   int CreateStructuredGridOutput(
-    int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
+    int partId, char line[81], const char* name, vtkMultiBlockDataSet* output) override;
 
   /**
-   * Internal function to read in a line up to 80 characters.
+   * Internal function to read in a line up to 80 characters. Adds NUL char at index 80.
    * Returns zero if there was an error.
    */
-  int ReadLine(char result[80]);
+  int ReadLine(char result[81]);
 
   /**
    * Internal function to read in a single integer.
@@ -176,6 +177,11 @@ protected:
   int SkipUnstructuredGrid(char line[256]);
   ///@}
 
+  /**
+   * Clean up the internal cached data
+   */
+  virtual void CleanUpCache();
+
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;
   vtkPoints* UnstructuredPoints;
@@ -193,4 +199,5 @@ private:
   void operator=(const vtkEnSight6BinaryReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

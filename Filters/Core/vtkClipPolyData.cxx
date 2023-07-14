@@ -32,6 +32,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkClipPolyData);
 vtkCxxSetObjectMacro(vtkClipPolyData, ClipFunction, vtkImplicitFunction);
 
@@ -241,7 +242,7 @@ int vtkClipPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   cellScalars->Allocate(VTK_CELL_SIZE);
 
   // perform clipping on cells
-  int abort = 0;
+  bool abort = false;
   updateTime = numCells / 20 + 1; // update roughly every 5%
   cell = vtkGenericCell::New();
   for (cellId = 0; cellId < numCells && !abort; cellId++)
@@ -289,7 +290,7 @@ int vtkClipPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % updateTime))
     {
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
   } // for each cell
   cell->Delete();
@@ -432,3 +433,4 @@ void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

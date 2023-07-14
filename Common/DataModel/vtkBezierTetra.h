@@ -34,6 +34,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHigherOrderTetra.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTetra;
 class vtkBezierCurve;
 class vtkBezierTriangle;
@@ -50,7 +51,7 @@ public:
   int GetCellType() override { return VTK_BEZIER_TETRAHEDRON; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
-  void SetRationalWeightsFromPointData(vtkPointData* point_data, const vtkIdType numPts);
+  void SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts);
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 
@@ -71,4 +72,5 @@ private:
   void operator=(const vtkBezierTetra&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

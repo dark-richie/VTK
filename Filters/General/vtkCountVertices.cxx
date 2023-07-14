@@ -24,6 +24,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCountVertices);
 
 //------------------------------------------------------------------------------
@@ -73,6 +74,10 @@ int vtkCountVertices::RequestData(
   vtkCellIterator* it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vertCount->InsertNextValue(it->GetNumberOfPoints());
   }
   it->Delete();
@@ -93,3 +98,4 @@ int vtkCountVertices::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

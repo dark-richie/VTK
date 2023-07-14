@@ -32,6 +32,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkUnsignedCharArray;
 
@@ -60,8 +61,8 @@ public:
    * improperly specified a -1 is returned. If the dimensions are unchanged, a
    * value of 100 is returned.
    */
-  static int SetDimensions(int inDim[3], int dim[3]);
-  static int SetExtent(int inExt[6], int ext[6]);
+  static int SetDimensions(VTK_FUTURE_CONST int inDim[3], int dim[3]);
+  static int SetExtent(VTK_FUTURE_CONST int inExt[6], int ext[6]);
   ///@}
 
   ///@{
@@ -118,8 +119,9 @@ public:
   /**
    * Return non-zero value if specified cell is visible.
    */
-  static bool IsCellVisible(vtkIdType cellId, int dimensions[3], int dataDescription,
-    vtkUnsignedCharArray* cellGhostArray, vtkUnsignedCharArray* pointGhostArray = nullptr);
+  static bool IsCellVisible(vtkIdType cellId, VTK_FUTURE_CONST int dimensions[3],
+    int dataDescription, vtkUnsignedCharArray* cellGhostArray,
+    vtkUnsignedCharArray* pointGhostArray = nullptr);
 
   /**
    * Returns the cell dimensions, i.e., the number of cells along the i,j,k
@@ -162,7 +164,7 @@ public:
   /**
    * Get the cells using a point. (See vtkDataSet for more info.)
    */
-  static void GetPointCells(vtkIdType ptId, vtkIdList* cellIds, int dim[3]);
+  static void GetPointCells(vtkIdType ptId, vtkIdList* cellIds, VTK_FUTURE_CONST int dim[3]);
 
   /**
    * Get the cells using the points ptIds, exclusive of the cell cellId.
@@ -213,7 +215,7 @@ public:
    * The dataDescription argument is not used.
    */
   static void ComputeCellStructuredCoordsForExtent(
-    const vtkIdType cellIdx, const int ext[6], int ijk[3], int dataDescription = VTK_EMPTY);
+    vtkIdType cellIdx, const int ext[6], int ijk[3], int dataDescription = VTK_EMPTY);
 
   /**
    * Given a cellId and grid dimensions 'dim', get the structured coordinates
@@ -221,7 +223,7 @@ public:
    * The dataDescription argument is not used.
    */
   static void ComputeCellStructuredCoords(
-    const vtkIdType cellId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
+    vtkIdType cellId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
 
   /**
    * Given a pointId and the grid extent ext, get the structured coordinates
@@ -229,7 +231,7 @@ public:
    * The dataDescription argument is not used.
    */
   static void ComputePointStructuredCoordsForExtent(
-    const vtkIdType ptId, const int ext[6], int ijk[3], int dataDescription = VTK_EMPTY);
+    vtkIdType ptId, const int ext[6], int ijk[3], int dataDescription = VTK_EMPTY);
 
   /**
    * Given a pointId and grid dimensions 'dim', get the structured coordinates
@@ -237,7 +239,7 @@ public:
    * The dataDescription argument is not used.
    */
   static void ComputePointStructuredCoords(
-    const vtkIdType ptId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
+    vtkIdType ptId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
 
 protected:
   vtkStructuredData() = default;
@@ -405,7 +407,7 @@ inline vtkIdType vtkStructuredData::ComputeCellIdForExtent(
 
 //------------------------------------------------------------------------------
 inline void vtkStructuredData::ComputeCellStructuredCoords(
-  const vtkIdType cellId, const int dims[3], int ijk[3], int)
+  vtkIdType cellId, const int dims[3], int ijk[3], int)
 {
   vtkStructuredData::GetStructuredCoordinates(
     cellId, dims[0] - 1, dims[1] - 1, ijk[0], ijk[1], ijk[2]);
@@ -413,7 +415,7 @@ inline void vtkStructuredData::ComputeCellStructuredCoords(
 
 //------------------------------------------------------------------------------
 inline void vtkStructuredData::ComputeCellStructuredCoordsForExtent(
-  const vtkIdType cellIdx, const int ext[6], int ijk[3], int)
+  vtkIdType cellIdx, const int ext[6], int ijk[3], int)
 {
   int nodeDims[3];
   vtkStructuredData::GetDimensionsFromExtent(ext, nodeDims);
@@ -426,14 +428,14 @@ inline void vtkStructuredData::ComputeCellStructuredCoordsForExtent(
 
 //------------------------------------------------------------------------------
 inline void vtkStructuredData::ComputePointStructuredCoords(
-  const vtkIdType ptId, const int dim[3], int ijk[3], int)
+  vtkIdType ptId, const int dim[3], int ijk[3], int)
 {
   vtkStructuredData::GetStructuredCoordinates(ptId, dim[0], dim[1], ijk[0], ijk[1], ijk[2]);
 }
 
 //------------------------------------------------------------------------------
 inline void vtkStructuredData::ComputePointStructuredCoordsForExtent(
-  const vtkIdType ptId, const int ext[6], int ijk[3], int)
+  vtkIdType ptId, const int ext[6], int ijk[3], int)
 {
   int nodeDims[3];
   vtkStructuredData::GetDimensionsFromExtent(ext, nodeDims);
@@ -444,4 +446,5 @@ inline void vtkStructuredData::ComputePointStructuredCoordsForExtent(
   vtkStructuredData::GetGlobalStructuredCoordinates(lijk, ext, ijk);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

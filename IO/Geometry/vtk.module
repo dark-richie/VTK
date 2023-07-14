@@ -14,12 +14,15 @@ DEPENDS
   VTK::IOCore
   VTK::IOLegacy
   VTK::nlohmannjson
+OPTIONAL_DEPENDS
+  VTK::CommonImplicitArrays
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::FiltersGeneral
   VTK::FiltersHybrid
+  VTK::FiltersVerdict
   VTK::ImagingCore
   VTK::IOImage
   VTK::RenderingCore

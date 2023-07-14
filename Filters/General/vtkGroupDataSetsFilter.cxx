@@ -34,6 +34,7 @@
 #include VTK_FMT(fmt/core.h)
 // clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkGroupDataSetsFilter::vtkInternals
 {
 public:
@@ -184,6 +185,10 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
     auto output = vtkPartitionedDataSet::GetData(outputVector, 0);
     for (auto& input : inputs)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       const auto datasets = vtkCompositeDataSet::GetDataSets<vtkDataObject>(input.second);
       for (auto& ds : datasets)
       {
@@ -197,6 +202,10 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
     auto output = vtkMultiBlockDataSet::GetData(outputVector, 0);
     for (auto& input : inputs)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       if (vtkPartitionedDataSetCollection::SafeDownCast(input.second) ||
         vtkPartitionedDataSet::SafeDownCast(input.second))
       {
@@ -216,6 +225,10 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
     auto output = vtkPartitionedDataSetCollection::GetData(outputVector, 0);
     for (auto& input : inputs)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       if (vtkPartitionedDataSetCollection::SafeDownCast(input.second) ||
         vtkMultiBlockDataSet::SafeDownCast(input.second))
       {
@@ -255,3 +268,4 @@ void vtkGroupDataSetsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

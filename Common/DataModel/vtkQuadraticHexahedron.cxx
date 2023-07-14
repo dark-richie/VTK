@@ -25,6 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 //------------------------------------------------------------------------------
@@ -220,14 +221,23 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
   double params[3] = { 0.5, 0.5, 0.5 };
   double derivs[60];
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   // compute a bound on the volume to get a scale for an acceptable determinant
   vtkIdType diagonals[4][2] = { { 0, 6 }, { 1, 7 }, { 2, 4 }, { 3, 5 } };
   double longestDiagonal = 0;
   for (int i = 0; i < 4; i++)
   {
-    double pt0[3], pt1[3];
-    this->Points->GetPoint(diagonals[i][0], pt0);
-    this->Points->GetPoint(diagonals[i][1], pt1);
+    const double *pt0, *pt1;
+    pt0 = pts + 3 * diagonals[i][0];
+    pt1 = pts + 3 * diagonals[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
     if (longestDiagonal < d2)
     {
@@ -235,7 +245,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
     }
   }
   // longestDiagonal value is already squared
-  double volumeBound = pow(longestDiagonal, 1.5);
+  double volumeBound = longestDiagonal * std::sqrt(longestDiagonal);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
   //  set initial position for Newton's method
@@ -255,8 +265,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
            tcol[3] = { 0, 0, 0 };
     for (int i = 0; i < 20; i++)
     {
-      double pt[3];
-      this->Points->GetPoint(i, pt);
+      const double* pt = pts + 3 * i;
       for (int j = 0; j < 3; j++)
       {
         fcol[j] += pt[j] * weights[i];
@@ -360,14 +369,22 @@ void vtkQuadraticHexahedron::EvaluateLocation(
   int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
 {
   int i, j;
-  double pt[3];
+  const double* pt;
 
   vtkQuadraticHexahedron::InterpolationFunctions(pcoords, weights);
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
   x[0] = x[1] = x[2] = 0.0;
   for (i = 0; i < 20; i++)
   {
-    this->Points->GetPoint(i, pt);
+    pt = pts + 3 * i;
     for (j = 0; j < 3; j++)
     {
       x[j] += pt[j] * weights[i];
@@ -941,7 +958,7 @@ void vtkQuadraticHexahedron::InterpolationDerivs(const double pcoords[3], double
   derivs[58] = -0.5 * t * rp * sp;
   derivs[59] = -0.5 * t * rm * sp;
 
-  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]
+  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
   for (int i = 0; i < 60; i++)
     derivs[i] *= 2;
 }
@@ -992,3 +1009,4 @@ void vtkQuadraticHexahedron::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalars:\n";
   this->Scalars->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

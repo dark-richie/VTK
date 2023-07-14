@@ -70,6 +70,7 @@ namespace vtkmetaio
 class MetaImage;
 } // forward declaration
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkMetaImageWriter : public vtkImageWriter
 {
 public:
@@ -99,7 +100,7 @@ public:
   ///@}
 
   virtual void SetCompression(bool compress) { this->Compress = compress; }
-  virtual bool GetCompression(void) { return this->Compress; }
+  virtual bool GetCompression() { return this->Compress; }
 
   // This is called by the superclass.
   // This is the method you should override.
@@ -120,4 +121,5 @@ private:
   vtkmetaio::MetaImage* MetaImagePtr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

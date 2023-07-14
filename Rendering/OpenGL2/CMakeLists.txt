@@ -20,10 +20,12 @@ set(classes
   vtkLightsPass
   vtkOpaquePass
   vtkOpenGLActor
+  vtkOpenGLBatchedPolyDataMapper
   vtkOpenGLBillboardTextActor3D
   vtkOpenGLBufferObject
   vtkOpenGLCamera
   vtkOpenGLCellToVTKCellMap
+  vtkOpenGLCompositePolyDataMapperDelegator
   vtkOpenGLFXAAFilter
   vtkOpenGLFXAAPass
   vtkOpenGLFluidMapper
@@ -105,12 +107,12 @@ set(nowrap_headers
 )
 
 # add opengl support test executable on windows
-if (WIN32 AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
+if (VTK_USE_WIN32_OPENGL AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR))
   vtk_module_add_executable(vtkTestOpenGLVersion vtkTestOpenGLVersion.cxx)
   set_target_properties(vtkTestOpenGLVersion
     PROPERTIES
       WIN32_EXECUTABLE TRUE)
-  target_link_libraries(vtkTestOpenGLVersion PRIVATE opengl32)
+  target_link_libraries(vtkTestOpenGLVersion PRIVATE opengl32 VTK::CommonCore)
   list(APPEND headers vtkTestOpenGLVersion.h)
 endif ()
 
@@ -155,19 +157,33 @@ set(shader_files
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
   glsl/vtkSphereMapperGS.glsl
   glsl/vtkStickMapperGS.glsl
-  glsl/vtkTextureObjectFS.glsl
+  glsl/vtkTextureObjectFS.glsl)
+set(public_shader_files
   glsl/vtkTextureObjectVS.glsl)
 unset(shader_h_files)
 foreach(file IN LISTS shader_files)
   vtk_encode_string(
     INPUT         "${file}"
-    EXPORT_SYMBOL "VTKRENDERINGOPENGL2_EXPORT"
-    EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND sources
     "${source}")
   list(APPEND private_headers
+    "${header}")
+endforeach()
+foreach(file IN LISTS public_shader_files)
+  vtk_encode_string(
+    INPUT         "${file}"
+    EXPORT_SYMBOL "VTKRENDERINGOPENGL2_EXPORT"
+    EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source
+    ABI_MANGLE_HEADER       "vtkABINamespace.h"
+    ABI_MANGLE_SYMBOL_BEGIN "VTK_ABI_NAMESPACE_BEGIN"
+    ABI_MANGLE_SYMBOL_END   "VTK_ABI_NAMESPACE_END")
+  list(APPEND sources
+    "${source}")
+  list(APPEND nowrap_headers
     "${header}")
 endforeach()
 
@@ -182,6 +198,7 @@ list(APPEND private_headers "${BlueNoiseTexture64x64_header}")
 # setup factory overrides
 set(opengl_overrides
   Actor
+  CompositePolyDataMapperDelegator
   BillboardTextActor3D
   Camera
   LabeledContourMapper
@@ -204,6 +221,24 @@ set(opengl_overrides
   TextActor3D
   TextMapper
   Texture)
+
+include(vtkOpenGLOptions)
+if (VTK_OPENGL_USE_GLES)
+  # Add custom overrides
+  set(opengles_overrides
+    PolyDataMapper
+    PolyDataMapper2D)
+  list(APPEND classes 
+    vtkOpenGLES30PolyDataMapper
+    vtkOpenGLES30PolyDataMapper2D)
+  foreach (opengles_override IN LISTS opengles_overrides)
+    vtk_object_factory_declare(
+      BASE "vtk${opengles_override}"
+      OVERRIDE "vtkOpenGLES30${opengles_override}")
+    # remove opengl override
+    list(REMOVE_ITEM opengl_overrides ${opengles_override})
+  endforeach()
+endif ()
 
 # Now to see about the GPU info list.
 list(APPEND classes vtkDummyGPUInfoList)
@@ -240,7 +275,7 @@ if (VTK_USE_X)
     set(has_vtkRenderWindow_override 1)
   endif ()
   list(APPEND classes vtkXOpenGLRenderWindow)
-elseif (WIN32)
+elseif (VTK_USE_WIN32_OPENGL)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
     vtk_object_factory_declare(
@@ -248,7 +283,9 @@ elseif (WIN32)
       OVERRIDE vtkWin32OpenGLRenderWindow)
     set(has_vtkRenderWindow_override 1)
   endif ()
-  list(APPEND classes vtkWin32OpenGLRenderWindow)
+  list(APPEND classes
+    vtkWin32OpenGLRenderWindow
+    vtkWin32OpenGLDXRenderWindow)
 elseif (VTK_USE_COCOA)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
@@ -279,6 +316,12 @@ elseif (ANDROID)
     OVERRIDE vtkEGLRenderWindow)
   set(has_vtkRenderWindow_override 1)
   include_directories("${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
+elseif (EMSCRIPTEN)
+  # Add some custom overrides
+  vtk_object_factory_declare(
+    BASE vtkRenderWindow
+    OVERRIDE vtkSDL2OpenGLRenderWindow)
+  set(has_vtkRenderWindow_override 1)
 elseif (APPLE_IOS)
   # Add some custom overrides
   vtk_object_factory_declare(
@@ -352,7 +395,8 @@ vtk_module_add_module(VTK::RenderingOpenGL2
 if (VTK_USE_SDL2)
   vtk_module_find_package(PACKAGE SDL2)
   vtk_module_link(VTK::RenderingOpenGL2
-    PUBLIC SDL2::SDL2)
+    PUBLIC
+      SDL2::SDL2)
 endif ()
 
 if (VTK_USE_X)
@@ -369,6 +413,10 @@ if (VTK_USE_X)
   )
 elseif (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
+elseif (VTK_USE_WIN32_OPENGL)
+  # vtkWin32OpenGLDXRenderWindow requires D3D.
+  vtk_module_find_package(PACKAGE DirectX)
+  vtk_module_link(VTK::RenderingOpenGL2 PRIVATE DirectX::d3d11 DirectX::dxgi)
 endif ()
 
 if (ANDROID)
@@ -400,3 +448,4 @@ if (NOT ANDROID AND
     TARGETS vtkProbeOpenGLVersion
     MODULES VTK::RenderingOpenGL2)
 endif ()
+vtk_add_test_mangling(VTK::RenderingOpenGL2)

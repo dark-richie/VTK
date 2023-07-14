@@ -29,6 +29,7 @@
 #include "vtkNew.h"               //For init in header
 #include "vtkSmartPointer.h"      //For members
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
 class vtkIdList;
 class vtkIdTypeArray;
@@ -118,6 +119,30 @@ public:
    */
   vtkIdTypeArray* GetValidPoints();
   ///@}
+
+  ///@{
+  /**
+   * Get/Set tolerance used when finding points in the HTG source.
+   * Overridden when ComputeTolerance == true.
+   *
+   * Default is 0.0
+   */
+  vtkSetMacro(Tolerance, double);
+  vtkGetMacro(Tolerance, double);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set whether or not to compute the tolerance automatically for
+   * when finding points in the HTG source. If false use the tolerance
+   * from SetTolerance .
+   *
+   * Default is true
+   */
+  vtkSetMacro(ComputeTolerance, bool);
+  vtkGetMacro(ComputeTolerance, bool);
+  ///@}
+
 protected:
   ///@{
   /**
@@ -156,7 +181,7 @@ protected:
   bool PassAttributeData(vtkDataSet* input, vtkDataSet* output);
 
   /**
-   * Helper method for perfoming the probing
+   * Helper method for performing the probing
    */
   bool DoProbing(
     vtkDataSet* input, vtkHyperTreeGrid* source, vtkDataSet* output, vtkIdList* localPointIds);
@@ -183,6 +208,8 @@ protected:
   bool PassCellArrays = false;
   bool PassPointArrays = false;
   bool PassFieldArrays = true;
+  double Tolerance = 0.0;
+  bool ComputeTolerance = true;
 
   std::string ValidPointMaskArrayName = "vtkValidPointMask";
   vtkNew<vtkIdTypeArray> ValidPoints;
@@ -194,4 +221,5 @@ private:
 
 }; // vtkHyperTreeGridProbeFilter
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridProbeFilter_h

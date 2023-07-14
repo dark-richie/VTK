@@ -26,6 +26,7 @@
 #include <set>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractLevel::vtkSet : public std::set<unsigned int>
 {
 };
@@ -153,6 +154,10 @@ int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
   vtkExtractLevel::vtkSet::iterator iter;
   for (iter = this->Levels->begin(); iter != this->Levels->end(); ++iter)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     unsigned int level = (*iter);
     numBlocksToLoad += input->GetNumberOfDataSets(level);
   } // END for all requested levels
@@ -165,6 +170,10 @@ int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
     unsigned int blockIdx = 0;
     for (; iter != this->Levels->end(); ++iter)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       unsigned int level = (*iter);
       unsigned int dataIdx = 0;
       for (; dataIdx < input->GetNumberOfDataSets(level); ++dataIdx)
@@ -190,3 +199,4 @@ void vtkExtractLevel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

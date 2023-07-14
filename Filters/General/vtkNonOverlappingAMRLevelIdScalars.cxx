@@ -25,6 +25,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNonOverlappingAMRLevelIdScalars);
 //------------------------------------------------------------------------------
 vtkNonOverlappingAMRLevelIdScalars::vtkNonOverlappingAMRLevelIdScalars() {}
@@ -44,6 +45,10 @@ void vtkNonOverlappingAMRLevelIdScalars::AddColorLevels(
 
   for (unsigned int levelIdx = 0; levelIdx < numLevels; levelIdx++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     unsigned int numDS = input->GetNumberOfDataSets(levelIdx);
     output->SetNumberOfDataSets(levelIdx, numDS);
 
@@ -123,3 +128,4 @@ void vtkNonOverlappingAMRLevelIdScalars::PrintSelf(ostream& os, vtkIndent indent
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

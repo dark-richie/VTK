@@ -25,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlaneSource);
 
 constexpr double EPSILON = 1.0E-6;
@@ -60,7 +61,7 @@ vtkPlaneSource::vtkPlaneSource()
 
 //------------------------------------------------------------------------------
 // Set the number of x-y subdivisions in the plane.
-void vtkPlaneSource::SetResolution(const int xR, const int yR)
+void vtkPlaneSource::SetResolution(int xR, int yR)
 {
   if (xR != this->XResolution || yR != this->YResolution)
   {
@@ -471,3 +472,4 @@ void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

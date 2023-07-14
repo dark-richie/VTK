@@ -29,6 +29,7 @@
 #include "vtkObject.h"
 #include <map> // For STL map used as the data-structure for the cache.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformGrid;
 class vtkDataArray;
 
@@ -91,7 +92,7 @@ public:
   /**
    * Checks if the AMR block associated with the given composite is cached.
    */
-  bool HasAMRBlock(const int compositeIdx);
+  bool HasAMRBlock(int compositeIdx);
 
 protected:
   vtkAMRDataSetCache();
@@ -105,4 +106,5 @@ private:
   void operator=(const vtkAMRDataSetCache&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* vtkAMRDataSetCache_h */

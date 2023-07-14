@@ -29,8 +29,10 @@
 #include "vtkAbstractWidget.h"
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkNew.h"                      // for vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCameraPathRepresentation;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkCameraPathWidget : public vtkAbstractWidget
@@ -89,4 +91,5 @@ private:
   void operator=(const vtkCameraPathWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

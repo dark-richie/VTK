@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.
@@ -116,7 +117,7 @@ int vtkEdgePoints::RequestData(vtkInformation* vtkNotUsed(request),
   // neighbors. If cell id < all edge neighbors ids, then this edge has not
   // yet been visited and is processed.
   //
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = numCells / 20 + 1;
   vtkGenericCell* cell = vtkGenericCell::New();
   for (cellId = 0; cellId < numCells && !abort; cellId++)
@@ -125,7 +126,7 @@ int vtkEdgePoints::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "Processing #" << cellId);
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     input->GetCell(cellId, cell);
@@ -235,3 +236,4 @@ void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Contour Value: " << this->Value << "\n";
 }
+VTK_ABI_NAMESPACE_END

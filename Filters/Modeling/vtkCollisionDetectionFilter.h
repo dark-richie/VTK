@@ -95,6 +95,7 @@
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOBBTree;
 class vtkPolyData;
 class vtkPoints;
@@ -133,7 +134,7 @@ public:
   void SetCollisionModeToAllContacts() { this->SetCollisionMode(VTK_ALL_CONTACTS); }
   void SetCollisionModeToFirstContact() { this->SetCollisionMode(VTK_FIRST_CONTACT); }
   void SetCollisionModeToHalfContacts() { this->SetCollisionMode(VTK_HALF_CONTACTS); }
-  const char* GetCollisionModeAsString(void)
+  const char* GetCollisionModeAsString()
   {
     if (this->CollisionMode == VTK_ALL_CONTACTS)
     {
@@ -159,7 +160,7 @@ public:
    * one contact point is found.
    */
   int IntersectPolygonWithPolygon(int npts, double* pts, double bounds[6], int npts2, double* pts2,
-    double bounds2[6], double tol2, double x1[2], double x2[3], int CollisionMode);
+    double bounds2[6], double tol2, double x1[3], double x2[3], int CollisionMode);
   ///@}
 
   ///@{
@@ -298,4 +299,5 @@ private:
   void operator=(const vtkCollisionDetectionFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

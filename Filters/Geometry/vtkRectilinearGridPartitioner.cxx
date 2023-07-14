@@ -29,6 +29,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridPartitioner);
 
 //------------------------------------------------------------------------------
@@ -155,6 +156,10 @@ int vtkRectilinearGridPartitioner::RequestData(vtkInformation* vtkNotUsed(reques
   unsigned int blockIdx = 0;
   for (; blockIdx < multiblock->GetNumberOfBlocks(); ++blockIdx)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     extentPartitioner->GetPartitionExtent(blockIdx, subext);
     vtkRectilinearGrid* subgrid = vtkRectilinearGrid::New();
     subgrid->SetExtent(subext);
@@ -183,3 +188,4 @@ int vtkRectilinearGridPartitioner::RequestData(vtkInformation* vtkNotUsed(reques
   extentPartitioner->Delete();
   return 1;
 }
+VTK_ABI_NAMESPACE_END

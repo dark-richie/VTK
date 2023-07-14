@@ -36,6 +36,7 @@
 #include "vtkNew.h"              // Needed to hold SP ivars
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkPlotFuntionalBagInternal;
 class vtkPlotLine;
@@ -141,7 +142,7 @@ protected:
   /**
    * Test if the internal cache requires an update.
    */
-  virtual bool CacheRequiresUpdate() override;
+  bool CacheRequiresUpdate() override;
 
   /**
    * Lookup Table for coloring points by scalar value
@@ -165,4 +166,5 @@ private:
   void operator=(const vtkPlotFunctionalBag&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlotFunctionalBag_h

@@ -49,7 +49,9 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // for export macro
 #include "vtkTriangleMeshPointNormals.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmTriangleMeshPointNormals
   : public vtkTriangleMeshPointNormals
 {
@@ -81,6 +83,8 @@ protected:
 private:
   vtkmTriangleMeshPointNormals(const vtkmTriangleMeshPointNormals&) = delete;
   void operator=(const vtkmTriangleMeshPointNormals&) = delete;
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmTriangleMeshPointNormals_h

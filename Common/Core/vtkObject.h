@@ -47,6 +47,7 @@
 #include "vtkTimeStamp.h"
 #include "vtkWeakPointerBase.h" // needed for vtkWeakPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSubjectHelper;
 class vtkCommand;
 
@@ -161,7 +162,7 @@ public:
    * functions as callbacks for events.  The callback function can
    * be one of these two types:
    * \code
-   * void foo(void);\n
+   * void foo();\n
    * void foo(vtkObject*, unsigned long, void*);
    * \endcode
    * If the callback is a member of a vtkObjectBase-derived object,
@@ -420,5 +421,6 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkObject.h

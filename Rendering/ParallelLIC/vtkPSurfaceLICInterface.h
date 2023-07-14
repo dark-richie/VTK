@@ -28,6 +28,7 @@
 #include "vtkSurfaceLICInterface.h"
 #include <string> // for string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPainterCommunicator;
 
 class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICInterface : public vtkSurfaceLICInterface
@@ -84,9 +85,9 @@ protected:
 private:
   std::string LogFileName;
 
-private:
   vtkPSurfaceLICInterface(const vtkPSurfaceLICInterface&) = delete;
   void operator=(const vtkPSurfaceLICInterface&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

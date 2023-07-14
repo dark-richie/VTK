@@ -31,6 +31,7 @@
 
 #include "vtkPolyData.h" // Needed for static cast
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
@@ -65,9 +66,9 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkPolyDataCollection(const vtkPolyDataCollection&) = delete;
   void operator=(const vtkPolyDataCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

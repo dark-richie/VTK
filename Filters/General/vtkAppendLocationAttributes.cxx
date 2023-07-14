@@ -27,6 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendLocationAttributes);
 
 //------------------------------------------------------------------------------
@@ -81,6 +82,10 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
       pointArray->SetNumberOfTuples(numPoints);
       for (vtkIdType id = 0; id < numPoints; ++id)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         double x[3];
         input->GetPoint(id, x);
         pointArray->SetTypedTuple(id, x);
@@ -90,6 +95,7 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
   }
 
   this->UpdateProgress(1.0);
+  this->CheckAbort();
   return 1;
 }
 
@@ -107,3 +113,4 @@ void vtkAppendLocationAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AppendPointLocations: " << (this->AppendPointLocations ? "On\n" : "Off\n");
   os << indent << "AppendCellCenters: " << (this->AppendCellCenters ? "On" : "Off") << endl;
 }
+VTK_ABI_NAMESPACE_END

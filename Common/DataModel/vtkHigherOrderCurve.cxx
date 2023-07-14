@@ -27,6 +27,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkHigherOrderCurve::vtkHigherOrderCurve()
 {
   this->Approx = nullptr;
@@ -131,12 +132,21 @@ void vtkHigherOrderCurve::EvaluateLocation(
   subId = 0; // TODO: Should this be -1?
   this->InterpolateFunctions(pcoords, weights);
 
-  double p[3];
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
+  const double* p;
   x[0] = x[1] = x[2] = 0.;
   vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   for (vtkIdType idx = 0; idx < nPoints; ++idx)
   {
-    this->Points->GetPoint(idx, p);
+    p = pts + 3 * idx;
     for (vtkIdType jdx = 0; jdx < 3; ++jdx)
     {
       x[jdx] += p[jdx] * weights[idx];
@@ -305,6 +315,11 @@ const int* vtkHigherOrderCurve::GetOrder()
   return this->Order;
 }
 
+bool vtkHigherOrderCurve::PointCountSupportsUniformOrder(vtkIdType pointsPerCell)
+{
+  return pointsPerCell >= 2;
+}
+
 /// Return a linear segment used to approximate a region of the nonlinear curve.
 vtkLine* vtkHigherOrderCurve::GetApprox()
 {
@@ -416,3 +431,4 @@ bool vtkHigherOrderCurve::TransformApproxToCellParams(int subCell, double* pcoor
   }
   return true;
 }
+VTK_ABI_NAMESPACE_END

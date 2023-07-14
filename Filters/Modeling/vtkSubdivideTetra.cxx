@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSubdivideTetra);
 
 //------------------------------------------------------------------------------
@@ -91,6 +92,10 @@ int vtkSubdivideTetra::RequestData(vtkInformation* vtkNotUsed(request),
   // done by introducing mid-edge nodes and a single mid-tetra node.
   for (cellId = 0; cellId < numCells; cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     input->GetCell(cellId, cell);
 
     // get tetra points
@@ -240,3 +245,4 @@ void vtkSubdivideTetra::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

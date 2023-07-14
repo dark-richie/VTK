@@ -8,6 +8,7 @@
 
 namespace RTW
 {
+VTK_ABI_NAMESPACE_BEGIN
     class Geometry : public Object
     {
         friend class World;
@@ -72,7 +73,7 @@ namespace RTW
                         assert(normal->GetElementDataType() == RTW_VEC3F);
                     }
 
-                        
+
                     tri->SetTriangles(numTriangles, triangles, numVertices, vertices, normals);
 
 
@@ -110,7 +111,7 @@ namespace RTW
                         triangleMaterials.resize(numTriangles);
 
                         Material** materials = reinterpret_cast<Material**>(materialList->GetData());
-                        
+
                         for (uint32_t i = 0; i < numTriangles; ++i)
                         {
                             Material* materialHandle = materials[i];
@@ -159,14 +160,14 @@ namespace RTW
                     if (radii)
                     {
                         uint32_t numSpheres = spheres->GetNumElements();
-                        sphere->SetSpheres(numSpheres, 
+                        sphere->SetSpheres(numSpheres,
                                            reinterpret_cast<VisRTX::Vec3f *>(spheres->GetData()),
                                            reinterpret_cast<float *>(radii->GetData()));
                     }
                     else
                     {
                         uint32_t numSpheres = spheres->GetNumElements();
-                        sphere->SetSpheres(numSpheres, 
+                        sphere->SetSpheres(numSpheres,
                                            reinterpret_cast<VisRTX::Vec3f *>(spheres->GetData()),
                                            nullptr);
                     }
@@ -194,7 +195,7 @@ namespace RTW
                         sphereMaterials.resize(numSpheres);
 
                         Material** materials = reinterpret_cast<Material**>(materialList->GetData());
-                        
+
                         for (uint32_t i = 0; i < numSpheres; ++i)
                         {
                             Material* materialHandle = materials[i];
@@ -268,7 +269,7 @@ namespace RTW
                         cylinderMaterials.resize(numCylinders);
 
                         Material** materials = reinterpret_cast<Material**>(materialList->GetData());
-                        
+
                         for (uint32_t i = 0; i < numCylinders; ++i)
                         {
                             Material* materialHandle = materials[i];
@@ -324,7 +325,7 @@ namespace RTW
                         cylinderMaterials.resize(numCylinders);
 
                         Material** materials = reinterpret_cast<Material**>(materialList->GetData());
-                        
+
                         for (uint32_t i = 0; i < numCylinders; ++i)
                         {
                             Material* materialHandle = materials[i];
@@ -389,4 +390,5 @@ namespace RTW
         VisRTX::Geometry* geometry = nullptr;
         Material* material = nullptr;
     };
+VTK_ABI_NAMESPACE_END
 }

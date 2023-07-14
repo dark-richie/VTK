@@ -34,6 +34,7 @@
 #include "vtkIOParallelNetCDFModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class vtkCallbackCommand;
 class vtkMPIController;
@@ -88,7 +89,7 @@ protected:
   ~vtkPNetCDFPOPReader() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  virtual int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   // Helper function for RequestData:  Reads part of the netCDF
@@ -124,4 +125,5 @@ private:
 
   vtkPNetCDFPOPReaderInternal* Internals;
 };
+VTK_ABI_NAMESPACE_END
 #endif

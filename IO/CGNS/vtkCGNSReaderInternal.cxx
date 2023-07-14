@@ -18,14 +18,16 @@
 
 #include "cgio_helpers.h"
 #include "vtkCellType.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMultiProcessStream.h"
 
 #include <algorithm>
 
 namespace CGNSRead
 {
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-int setUpRind(const int cgioNum, const double rindId, int* rind)
+int setUpRind(int cgioNum, double rindId, int* rind)
 {
   CGNSRead::char_33 dataType;
   if (cgio_get_data_type(cgioNum, rindId, dataType) != CG_OK)
@@ -56,8 +58,7 @@ int setUpRind(const int cgioNum, const double rindId, int* rind)
 }
 
 //------------------------------------------------------------------------------
-int getFirstNodeId(
-  const int cgioNum, const double parentId, const char* label, double* id, const char* name)
+int getFirstNodeId(int cgioNum, double parentId, const char* label, double* id, const char* name)
 {
   int nId, n, nChildren, len;
   int ier = 0;
@@ -128,10 +129,10 @@ int getFirstNodeId(
 }
 
 //------------------------------------------------------------------------------
-int get_section_connectivity(const int cgioNum, const double cgioSectionId, const int dim,
-  const cgsize_t* srcStart, const cgsize_t* srcEnd, const cgsize_t* srcStride,
-  const cgsize_t* memStart, const cgsize_t* memEnd, const cgsize_t* memStride,
-  const cgsize_t* memDim, vtkIdType* localElements)
+int get_section_connectivity(int cgioNum, double cgioSectionId, int dim, const cgsize_t* srcStart,
+  const cgsize_t* srcEnd, const cgsize_t* srcStride, const cgsize_t* memStart,
+  const cgsize_t* memEnd, const cgsize_t* memStride, const cgsize_t* memDim,
+  vtkIdType* localElements)
 {
   const char* connectivityPath = "ElementConnectivity";
   double cgioElemConnectId;
@@ -225,10 +226,10 @@ int get_section_connectivity(const int cgioNum, const double cgioSectionId, cons
 }
 
 //------------------------------------------------------------------------------
-int get_section_start_offset(const int cgioNum, const double cgioSectionId, const int dim,
-  const cgsize_t* srcStart, const cgsize_t* srcEnd, const cgsize_t* srcStride,
-  const cgsize_t* memStart, const cgsize_t* memEnd, const cgsize_t* memStride,
-  const cgsize_t* memDim, vtkIdType* localElementsIdx)
+int get_section_start_offset(int cgioNum, double cgioSectionId, int dim, const cgsize_t* srcStart,
+  const cgsize_t* srcEnd, const cgsize_t* srcStride, const cgsize_t* memStart,
+  const cgsize_t* memEnd, const cgsize_t* memStride, const cgsize_t* memDim,
+  vtkIdType* localElementsIdx)
 {
   const char* offsetPath = "ElementStartOffset";
   double cgioElemOffsetId;
@@ -603,7 +604,7 @@ static const int PYRA_30_ToVTK[30] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 9, 12, 11,
 static const int QUAD_16_ToVTK[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 9, 8, 11, 10, 12, 13, 15, 14 };
 
 //------------------------------------------------------------------------------
-inline const int* getTranslator(const int cellType)
+inline const int* getTranslator(int cellType)
 {
   switch (cellType)
   {
@@ -648,7 +649,7 @@ inline const int* getTranslator(const int cellType)
 }
 
 //------------------------------------------------------------------------------
-void CGNS2VTKorder(const vtkIdType size, const int* cells_types, vtkIdType* elements)
+void CGNS2VTKorder(vtkIdType size, const int* cells_types, vtkIdType* elements)
 {
   const int maxPointsPerCells = 64;
   int tmp[maxPointsPerCells];
@@ -675,11 +676,12 @@ void CGNS2VTKorder(const vtkIdType size, const int* cells_types, vtkIdType* elem
 }
 
 //------------------------------------------------------------------------------
-void CGNS2VTKorderMonoElem(const vtkIdType size, const int cell_type, vtkIdType* elements)
+void ReorderMonoCellPointsCGNS2VTK(
+  vtkIdType size, int cell_type, vtkIdType numPointsPerCell, vtkIdType* elements)
 {
-  const int maxPointsPerCells = 64;
+  vtkNew<vtkIdTypeArray> tempArray;
+  tempArray->SetNumberOfTuples(numPointsPerCell);
 
-  int tmp[maxPointsPerCells];
   const int* translator;
   translator = getTranslator(cell_type);
   if (translator == nullptr)
@@ -690,15 +692,13 @@ void CGNS2VTKorderMonoElem(const vtkIdType size, const int cell_type, vtkIdType*
   vtkIdType pos = 0;
   for (vtkIdType icell = 0; icell < size; ++icell)
   {
-    vtkIdType numPointsPerCell = elements[pos];
-    pos++;
     for (vtkIdType ip = 0; ip < numPointsPerCell; ++ip)
     {
-      tmp[ip] = elements[translator[ip] + pos];
+      tempArray->SetValue(ip, elements[translator[ip] + pos]);
     }
     for (vtkIdType ip = 0; ip < numPointsPerCell; ++ip)
     {
-      elements[pos + ip] = tmp[ip];
+      elements[pos + ip] = tempArray->GetValue(ip);
     }
     pos += numPointsPerCell;
   }
@@ -713,7 +713,7 @@ bool testValidVector(const CGNSVector& item)
 
 //------------------------------------------------------------------------------
 void fillVectorsFromVars(std::vector<CGNSRead::CGNSVariable>& vars,
-  std::vector<CGNSRead::CGNSVector>& vectors, const int physicalDim)
+  std::vector<CGNSRead::CGNSVector>& vectors, int physicalDim)
 {
   // get number of scalars and vectors
   const std::size_t nvar = vars.size();
@@ -1373,4 +1373,5 @@ bool ReadPatch(vtkCGNSReader* reader, const BaseInformation&, const ZoneInformat
   return true;
 }
 
+VTK_ABI_NAMESPACE_END
 } // end of namespace

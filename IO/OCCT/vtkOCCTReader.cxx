@@ -26,13 +26,24 @@ All rights reserved.
 
 #include "vtkOCCTReader.h"
 
+#include <Standard_Version.hxx>
+#define VTK_OCCT_VERSION(major, minor, maint) ((major) << 16 | (minor) << 8 | (maint))
+
+#if VTK_OCCT_VERSION(7, 4, 1) <= OCC_VERSION_HEX
+#define VTK_OCCT_USE_PROGRESS 1
+#else
+#define VTK_OCCT_USE_PROGRESS 0
+#endif
+
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>
 #include <IGESCAFControl_Reader.hxx>
 #include <Message.hxx>
 #include <Message_PrinterOStream.hxx>
+#if VTK_OCCT_USE_PROGRESS
 #include <Message_ProgressIndicator.hxx>
+#endif
 #include <Poly.hxx>
 #include <Poly_Triangulation.hxx>
 #include <Quantity_Color.hxx>
@@ -75,6 +86,8 @@ All rights reserved.
 #include <numeric>
 #include <unordered_map>
 #include <vector>
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkOCCTReader::vtkInternals
 {
@@ -414,6 +427,7 @@ vtkOCCTReader::~vtkOCCTReader()
   this->SetFileName(nullptr);
 }
 
+#if VTK_OCCT_USE_PROGRESS
 //----------------------------------------------------------------------------
 class ProgressIndicator : public Message_ProgressIndicator
 {
@@ -436,6 +450,7 @@ private:
   double LastPosition = 0.0;
   vtkOCCTReader* Reader = nullptr;
 };
+#endif
 
 //----------------------------------------------------------------------------
 template <typename T>
@@ -447,8 +462,12 @@ bool TransferToDocument(vtkOCCTReader* that, T& reader, Handle(TDocStd_Document)
 
   if (reader.ReadFile(that->GetFileName()) == IFSelect_RetDone)
   {
+#if VTK_OCCT_USE_PROGRESS
     ProgressIndicator pi(that);
     return reader.Transfer(doc, pi.Start());
+#else
+    return reader.Transfer(doc);
+#endif
   }
   else
   {
@@ -524,3 +543,4 @@ void vtkOCCTReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReadWire: " << (this->ReadWire ? "true" : "false") << "\n";
   os << indent << "FileFormat: " << (this->FileFormat == Format::STEP ? "STEP" : "IGES") << "\n";
 }
+VTK_ABI_NAMESPACE_END

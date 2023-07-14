@@ -99,6 +99,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include <memory> // For std::unique_ptr<>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSmoothPoints;
 
 class VTKFILTERSCORE_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataAlgorithm
@@ -226,7 +227,7 @@ public:
 
 protected:
   vtkSmoothPolyDataFilter();
-  ~vtkSmoothPolyDataFilter() override = default;
+  ~vtkSmoothPolyDataFilter() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
@@ -249,4 +250,5 @@ private:
   void operator=(const vtkSmoothPolyDataFilter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -72,6 +72,7 @@
 // in the VTK code base, this is one way to do it. Feel free to change it
 // if you have a better solution. But make sure it works on Borland 5.5...
 //
+VTK_ABI_NAMESPACE_BEGIN
 vtkLabelHierarchy* vtkLabelHierarchy::Implementation::Current;
 
 //------------------------------------------------------------------------------
@@ -605,7 +606,9 @@ void vtkLabelHierarchyFullSortIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPla
   s.push_back(root);
   int numNodes = 0;
   int numLeaf = 0;
+#ifndef NDEBUG
   int totalLeafDepth = 0;
+#endif
   size_t numLabels = 0;
   int maxLabels = 10000;
   while (!s.empty())
@@ -677,12 +680,16 @@ void vtkLabelHierarchyFullSortIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPla
     else
     {
       ++numLeaf;
+#ifndef NDEBUG
       totalLeafDepth += level;
+#endif
     }
   }
   vtkDebugMacro("max level is " << maxLevel);
   vtkDebugMacro("num nodes " << numNodes);
+  (void)numNodes;
   vtkDebugMacro("avg leaf depth " << static_cast<double>(totalLeafDepth) / numLeaf);
+  (void)numLeaf;
 
   this->NodesTraversed = 0;
   this->NodeIterator = this->NodeSet.begin();
@@ -2608,3 +2615,4 @@ void vtkLabelHierarchy::GetAnchorFrustumPlanes(
   frustumPlanes[22] = 1.0;
   frustumPlanes[23] = VTK_DOUBLE_MAX;
 }
+VTK_ABI_NAMESPACE_END

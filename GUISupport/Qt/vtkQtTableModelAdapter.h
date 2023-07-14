@@ -36,11 +36,12 @@
 #include "vtkQtAbstractModelAdapter.h"
 #include <QImage> // Needed for icon support
 
+class QMimeData;
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 class vtkTable;
 class vtkVariant;
-
-class QMimeData;
 
 class VTKGUISUPPORTQT_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelAdapter
 {
@@ -63,7 +64,7 @@ public:
   /**
    * Selection conversion from VTK land to Qt land
    */
-  vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const override;
+  vtkSelection* QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const override;
   QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const override;
   ///@}
 
@@ -152,5 +153,6 @@ private:
   void operator=(const vtkQtTableModelAdapter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtTableModelAdapter.h

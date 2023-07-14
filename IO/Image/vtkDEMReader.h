@@ -32,6 +32,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKIOIMAGE_EXPORT vtkDEMReader : public vtkImageAlgorithm
 {
 public:
@@ -208,7 +209,7 @@ protected:
   int ProfileSeekOffset;
   int ElevationReference;
 
-  void ComputeExtentOriginAndSpacing(int extent[6], double origin[6], double spacing[6]);
+  void ComputeExtentOriginAndSpacing(int extent[6], double origin[3], double spacing[3]);
   int ReadTypeARecord();
   int ReadProfiles(vtkImageData* data);
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
@@ -219,4 +220,5 @@ private:
   void operator=(const vtkDEMReader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

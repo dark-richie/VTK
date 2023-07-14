@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h" //for parallel sort
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIdList);
 
 //------------------------------------------------------------------------------
@@ -46,7 +47,7 @@ vtkIdType* vtkIdList::Release()
 }
 
 //------------------------------------------------------------------------------
-void vtkIdList::Initialize()
+void vtkIdList::InitializeMemory()
 {
   if (this->ManageMemory)
   {
@@ -54,31 +55,45 @@ void vtkIdList::Initialize()
   }
   this->ManageMemory = true;
   this->Ids = nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkIdList::Initialize()
+{
+  this->InitializeMemory();
   this->NumberOfIds = 0;
   this->Size = 0;
 }
 
 //------------------------------------------------------------------------------
-int vtkIdList::Allocate(const vtkIdType sz, const int vtkNotUsed(strategy))
+bool vtkIdList::AllocateInternal(vtkIdType sz, vtkIdType numberOfIds)
 {
   if (sz > this->Size)
   {
-    this->Initialize();
+    this->InitializeMemory();
     this->Size = (sz > 0 ? sz : 1);
-    if ((this->Ids = new vtkIdType[this->Size]) == nullptr)
+    this->Ids = new vtkIdType[this->Size];
+    if (this->Ids == nullptr)
     {
-      return 0;
+      vtkErrorMacro("Could not allocate memory for " << this->Size << " ids.");
+      this->NumberOfIds = 0;
+      return false;
     }
   }
-  this->NumberOfIds = 0;
-  return 1;
+  this->NumberOfIds = numberOfIds;
+  return true;
+}
+
+//------------------------------------------------------------------------------
+int vtkIdList::Allocate(const vtkIdType sz, const int vtkNotUsed(strategy))
+{
+  return this->AllocateInternal(sz, 0) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
 void vtkIdList::SetNumberOfIds(const vtkIdType number)
 {
-  this->Allocate(number, 0);
-  this->NumberOfIds = number;
+  this->AllocateInternal(number, number);
 }
 
 //------------------------------------------------------------------------------
@@ -301,3 +316,4 @@ void vtkIdList::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Ids: " << this->NumberOfIds << "\n";
 }
+VTK_ABI_NAMESPACE_END

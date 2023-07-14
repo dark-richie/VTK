@@ -39,11 +39,13 @@
 #include <QImage>            // Needed for the icon methods
 #include <QPointer>          // Needed for the internal list view
 
-class vtkApplyColors;
-class vtkDataObjectToTable;
 class QItemSelection;
 class QSortFilterProxyModel;
 class QListView;
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAttributeDataToTableFilter;
+class vtkApplyColors;
 class vtkQtTableModelAdapter;
 
 class VTKVIEWSQT_EXPORT vtkQtListView : public vtkQtView
@@ -158,7 +160,7 @@ protected:
 private Q_SLOTS:
   void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
   void SetVTKSelection();
 
   vtkMTimeType LastSelectionMTime;
@@ -181,11 +183,12 @@ private:
   int FieldType;
   int VisibleColumn;
 
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkAttributeDataToTableFilter> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
   vtkQtListView(const vtkQtListView&) = delete;
   void operator=(const vtkQtListView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

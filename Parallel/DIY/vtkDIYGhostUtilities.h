@@ -91,6 +91,7 @@
 #include VTK_DIY2(diy/partners/all-reduce.hpp)
 // clang-format on
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkAlgorithm;
 class vtkCellArray;
@@ -972,7 +973,8 @@ protected:
    * This method exchanges ghosts between connected blocks.
    */
   template <class DataSetT>
-  static void ExchangeGhosts(diy::Master& master, std::vector<DataSetT*>& inputs);
+  static bool ExchangeGhosts(diy::Master& master, diy::Assigner& assigner,
+    diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs);
 
   /**
    * This methods allocate a point and cell ghost array and fills it with 0.
@@ -1022,6 +1024,7 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkDIYGhostUtilities.txx" // for template implementations
 
 #endif

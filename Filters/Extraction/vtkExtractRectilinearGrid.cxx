@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
@@ -81,7 +82,7 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
     int oUExt[6];
     outputVector->GetInformationObject(0)->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), oUExt);
-    int oWExt[6]; // For parallel parititon this will be different.
+    int oWExt[6]; // For parallel partition this will be different.
     this->Internal->GetOutputWholeExtent(oWExt);
     for (i = 0; i < 3; i++)
     {
@@ -126,7 +127,7 @@ int vtkExtractRectilinearGrid::RequestInformation(
 
   if (!this->Internal->IsValid())
   {
-    vtkWarningMacro("Error while initializing filter.");
+    vtkDebugMacro("Error while initializing filter.");
     return 0;
   }
 
@@ -206,14 +207,24 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
 
   vtkDataArray* out_coords[3];
 
-  for (int dim = 0; dim < 3; ++dim)
+  bool abort = false;
+  int checkAbortInterval = 0;
+
+  for (int dim = 0; dim < 3 && !abort; ++dim)
   {
     // Allocate coordinates array for this dimension
     out_coords[dim] = vtkDataArray::CreateDataArray(in_coords[dim]->GetDataType());
     out_coords[dim]->SetNumberOfTuples(outDims[dim]);
 
+    checkAbortInterval = std::min((outExt[2 * dim + 1] - outExt[2 * dim]) / 10 + 1, 1000);
+
     for (int oExtVal = outExt[2 * dim]; oExtVal <= outExt[2 * dim + 1]; ++oExtVal)
     {
+      if (oExtVal % checkAbortInterval == 0 && this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       int outExtIdx = oExtVal - outExt[2 * dim];
       int inExtIdx = this->Internal->GetMappedIndex(dim, outExtIdx);
       out_coords[dim]->SetTuple(outExtIdx, inExtIdx, in_coords[dim]);
@@ -227,6 +238,7 @@ bool vtkExtractRectilinearGrid::RequestDataImpl(
   out_coords[1]->Delete();
   out_coords[2]->Delete();
 
+  this->CheckAbort();
   return true;
 }
 
@@ -245,3 +257,4 @@ void vtkExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Include Boundary: " << (this->IncludeBoundary ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

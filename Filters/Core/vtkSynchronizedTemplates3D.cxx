@@ -41,6 +41,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //------------------------------------------------------------------------------
@@ -297,6 +298,7 @@ void ContourImage(vtkSynchronizedTemplates3D* self, int* exExt, vtkImageData* da
   ptr += self->GetArrayComponent();
   vtkPolygonBuilder polyBuilder;
   vtkSmartPointer<vtkIdListCollection> polys = vtkSmartPointer<vtkIdListCollection>::New();
+  bool abort = false;
 
   if (ComputeScalars)
   {
@@ -360,8 +362,10 @@ void ContourImage(vtkSynchronizedTemplates3D* self, int* exExt, vtkImageData* da
     isect1[((ydim - 1) * xdim + i) * 3 * 2 + 1] = -1;
   }
 
+  int checkAbortInterval = std::min((zMax - zMin) / 10 + 1, 1000);
+
   // for each contour
-  for (vidx = 0; vidx < numContours; vidx++)
+  for (vidx = 0; vidx < numContours && !abort; vidx++)
   {
     value = values[vidx];
     inPtrZ = ptr;
@@ -371,6 +375,11 @@ void ContourImage(vtkSynchronizedTemplates3D* self, int* exExt, vtkImageData* da
     {
       self->UpdateProgress(
         (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
+      if (k % checkAbortInterval == 0 && self->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       z = origin[2] + spacing[2] * k;
       x[2] = z;
 
@@ -1852,3 +1861,4 @@ int VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2[] = {
   3, 2, 1, 4, 2, 3, -1, 0, 3, 4, -1, 0,      //
   2, 1, -1                                   //
 };
+VTK_ABI_NAMESPACE_END

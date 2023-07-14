@@ -30,6 +30,7 @@
 #include "vtkCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
 
 class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
@@ -64,9 +65,9 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkLightCollection(const vtkLightCollection&) = delete;
   void operator=(const vtkLightCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

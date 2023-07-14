@@ -24,11 +24,15 @@
 #define vtkOpenGLRenderer_h
 
 #include "vtkRenderer.h"
+
+#include "vtkOpenGLQuadHelper.h"       // for ivar
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
+#include <memory>                      // for unique_ptr
 #include <string>                      // Ivars
 #include <vector>                      // STL Header
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
@@ -54,7 +58,7 @@ public:
   /**
    * Concrete open gl render method.
    */
-  void DeviceRender(void) override;
+  void DeviceRender() override;
 
   /**
    * Overridden to support hidden line removal.
@@ -69,12 +73,12 @@ public:
    */
   void DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
-  void Clear(void) override;
+  void Clear() override;
 
   /**
    * Ask lights to load themselves into graphics pipeline.
    */
-  int UpdateLights(void) override;
+  int UpdateLights() override;
 
   /**
    * Is rendering at translucent geometry stage using depth peeling and
@@ -241,6 +245,7 @@ protected:
   vtkPBRIrradianceTexture* EnvMapIrradiance;
   vtkPBRPrefilterTexture* EnvMapPrefiltered;
   vtkSmartPointer<vtkFloatArray> SphericalHarmonics;
+  std::unique_ptr<vtkOpenGLQuadHelper> BackgroundRenderer;
   bool UseSphericalHarmonics;
 
 private:
@@ -248,4 +253,5 @@ private:
   void operator=(const vtkOpenGLRenderer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

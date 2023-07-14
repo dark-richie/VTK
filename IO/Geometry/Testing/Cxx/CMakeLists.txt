@@ -8,6 +8,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOBJReaderComments.cxx,NO_VALID
   TestOBJReaderGroups.cxx,NO_VALID
   TestOBJReaderMaterials.cxx,NO_VALID
+  TestOBJReaderMultiline.cxx,NO_VALID
   TestOBJReaderMultiTexture.cxx,NO_VALID
   TestOBJWriterMultiTexture.cxx,NO_VALID
   TestOBJReaderNormalsTCoords.cxx,NO_VALID
@@ -21,6 +22,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOpenFOAMReaderPrecision.cxx
   TestOpenFOAMReaderRegEx.cxx,NO_VALID
   TestOpenFOAMReaderValuePointPatch.cxx
+  TestOpenFOAMReaderWeighByCellSize.cxx
   TestProStarReader.cxx
   TestTecplotReader.cxx
   TestAMRReadWrite.cxx,NO_VALID
@@ -96,6 +98,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderGeometryNoBin,TestGLTFReaderGeometryNoBin.cxx DATA{../Data/glTF/Triangle/IncorrectDataNoBinFile.gltf} NO_VALID NO_OUTPUT
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFReaderEmbeddedGeometry,TestGLTFReaderGeometry.cxx DATA{../Data/glTF/Triangle/EmbeddedTriangle.gltf}
 )
 
@@ -105,6 +111,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFReaderAnimation,TestGLTFReaderAnimation.cxx 200 DATA{../Data/glTF/BoxAnimated/BoxAnimated.gltf,BoxAnimated0.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderAnimationRange,TestGLTFReaderAnimationRange.cxx 1.807 DATA{../Data/glTF/BoxAnimated/BoxAnimated.gltf,BoxAnimated0.bin}
 )
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
@@ -173,6 +183,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFWriterObj,TestGLTFWriter.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/jacksonville_15.obj}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFWriterCityGMLBinary,TestGLTFWriter.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/CityGML/Part-4-Buildings-V4-one.gml} binary
 )
 
 

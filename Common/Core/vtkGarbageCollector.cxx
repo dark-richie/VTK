@@ -36,6 +36,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGarbageCollector);
 
 #if VTK_GARBAGE_COLLECTOR_HASH
@@ -645,7 +646,7 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr)
   }
 
   // Save this reference.
-  v->References.push_back(EntryEdge(w, ptr));
+  v->References.emplace_back(w, ptr);
 }
 
 //------------------------------------------------------------------------------
@@ -1065,3 +1066,4 @@ void vtkGarbageCollectorReport(
 {
   ptr.Report(collector, desc);
 }
+VTK_ABI_NAMESPACE_END

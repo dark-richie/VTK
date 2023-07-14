@@ -40,6 +40,7 @@
 
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkWork
 {
@@ -111,7 +112,7 @@ class vtkWorkQueue
       writer->SetQuality(work.Quality);
       writer->Write();
 
-      vtkNew<vtkUnsignedCharArray> result;
+      auto result = vtkSmartPointer<vtkUnsignedCharArray>::New();
       if (work.Encoding)
       {
         vtkUnsignedCharArray* data = writer->GetResult();
@@ -135,7 +136,7 @@ class vtkWorkQueue
         auto& pair = self->Results[work.Key];
         if (pair.first < work.TimeStamp)
         {
-          pair = std::make_pair(work.TimeStamp, vtk::MakeSmartPointer(result.GetPointer()));
+          pair = std::make_pair(work.TimeStamp, result);
           lock.unlock();
           self->ResultsCondition.notify_all();
         }
@@ -152,7 +153,7 @@ public:
     assert(numThreads >= 0);
     for (int cc = 0; cc < numThreads; ++cc)
     {
-      this->ThreadPool.emplace_back(std::thread(&vtkWorkQueue::DoWork, cc, this));
+      this->ThreadPool.emplace_back(&vtkWorkQueue::DoWork, cc, this);
     }
   }
   ~vtkWorkQueue()
@@ -221,8 +222,10 @@ public:
     });
   }
 };
+VTK_ABI_NAMESPACE_END
 } // namespace detail
 
+VTK_ABI_NAMESPACE_BEGIN
 //****************************************************************************
 class vtkDataEncoder::vtkInternals
 {
@@ -338,3 +341,4 @@ void vtkDataEncoder::Finalize()
 {
   this->Internals.reset(new vtkDataEncoder::vtkInternals(0));
 }
+VTK_ABI_NAMESPACE_END

@@ -25,6 +25,7 @@
 #include "vtkNew.h"          // For member variable.
 #include "vtkSmartPointer.h" // For member variable.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkDoubleArray;
 class vtkIdList;
@@ -49,7 +50,7 @@ public:
   void InterpolateFunctions(const double pcoords[3], double* weights) override;
   void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 
-  void SetRationalWeightsFromPointData(vtkPointData* point_data, const vtkIdType numPts);
+  void SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts);
   vtkDoubleArray* GetRationalWeights();
   vtkHigherOrderCurve* GetEdgeCell() override;
 
@@ -70,4 +71,5 @@ private:
   void operator=(const vtkBezierQuadrilateral&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkBezierQuadrilateral_h

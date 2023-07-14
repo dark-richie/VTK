@@ -37,6 +37,7 @@
 #include <vector>
 #include <vtk_netcdf.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // determine if this is a cell that wraps from 360 to 0 (i.e. if it's
@@ -581,7 +582,7 @@ int vtkNetCDFCAMReader::RequestData(
   // read in the points first
   size_t numLevels = 1; // value for single level
   const char* levName = nullptr;
-  int levelsid;
+  int levelsid = 0;
   if (this->VerticalDimension == VERTICAL_DIMENSION_MIDPOINT_LAYERS ||
     this->VerticalDimension == VERTICAL_DIMENSION_INTERFACE_LAYERS)
   {
@@ -1097,7 +1098,7 @@ int vtkNetCDFCAMReader::RequestData(
     size_t start[] = { static_cast<size_t>(beginLevel) };
     size_t count[] = { static_cast<size_t>(numLocalLevels) };
     if (this->Internals->nc_err(
-          nc_get_vara_float(this->Internals->nc_points, lonid, start, count, levelData.data())))
+          nc_get_vara_float(this->Internals->nc_points, levelsid, start, count, levelData.data())))
     {
       return 0;
     }
@@ -1277,3 +1278,4 @@ void vtkNetCDFCAMReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointsFile: " << this->Internals->nc_points << endl;
   os << indent << "ConnectivityFile: " << this->Internals->nc_connectivity << endl;
 }
+VTK_ABI_NAMESPACE_END

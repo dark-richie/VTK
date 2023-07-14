@@ -44,6 +44,7 @@ using std::string;
 // Here are some default shape functions weights which
 // we will use to create dictionaries in a gvien data set.
 // Unused weights are commented out to avoid compiler warnings.
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // double W_T_11_A[]={
@@ -208,6 +209,10 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut
   int i = 0;
   while (data != nullptr)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     interpolatedName << basename << i;
     data = usgOut->GetCellData()->GetArray(interpolatedName.str().c_str());
     finalname = interpolatedName.str();
@@ -220,6 +225,10 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut
 
   for (int typeId = 0; typeId < nCellTypes; ++typeId)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     int cellType = cellTypes->GetValue(typeId);
     // Initiaze a definition for this particular cell type.
     vtkSmartPointer<vtkQuadratureSchemeDefinition> def =
@@ -264,6 +273,10 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut
   vtkIdType offset = 0;
   for (vtkIdType cellid = 0; cellid < usgOut->GetNumberOfCells(); cellid++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     offsets->SetValue(cellid, offset);
     vtkCell* cell = usgOut->GetCell(cellid);
     int cellType = cell->GetCellType();
@@ -282,3 +295,4 @@ void vtkQuadratureSchemeDictionaryGenerator::PrintSelf(ostream& os, vtkIndent in
 
   os << indent << "No state." << endl;
 }
+VTK_ABI_NAMESPACE_END

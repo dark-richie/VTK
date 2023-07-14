@@ -24,6 +24,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCountFaces);
 
 //------------------------------------------------------------------------------
@@ -73,6 +74,10 @@ int vtkCountFaces::RequestData(
   vtkCellIterator* it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     faceCount->InsertNextValue(it->GetNumberOfFaces());
   }
   it->Delete();
@@ -93,3 +98,4 @@ int vtkCountFaces::FillInputPortInformation(int, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

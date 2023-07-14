@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include <cctype>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;
@@ -83,6 +84,10 @@ int vtkRearrangeFields::RequestData(vtkInformation* vtkNotUsed(request),
     Operation* before;
     do
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       before = cur;
       cur = cur->Next;
       this->ApplyOperation(before, input, output);
@@ -719,3 +724,4 @@ void vtkRearrangeFields::PrintOperation(Operation* op, ostream& os, vtkIndent in
   os << indent << "Next operation: " << op->Next << endl;
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

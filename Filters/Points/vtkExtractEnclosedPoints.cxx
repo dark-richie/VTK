@@ -41,6 +41,7 @@
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractEnclosedPoints);
 
 //------------------------------------------------------------------------------
@@ -192,7 +193,7 @@ int vtkExtractEnclosedPoints::RequestData(
 // the enclosing surface.
 int vtkExtractEnclosedPoints::FilterPoints(vtkPointSet* input)
 {
-  // Initiailize search structures
+  // Initialize search structures
   vtkStaticCellLocator* locator = vtkStaticCellLocator::New();
 
   vtkPolyData* surface = this->Surface;
@@ -277,3 +278,4 @@ void vtkExtractEnclosedPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
+VTK_ABI_NAMESPACE_END

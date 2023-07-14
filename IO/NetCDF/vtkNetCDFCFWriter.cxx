@@ -1,3 +1,17 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkNetCDFCFWriter.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #include "vtkNetCDFCFWriter.h"
 
 #include "vtkArrayDispatch.h"
@@ -34,6 +48,7 @@
 #include "vtk_libproj.h"
 #include "vtk_netcdf.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 std::array<std::string, 3> COORD_NAME = { { "x", "y", "z" } };
@@ -770,3 +785,4 @@ void vtkNetCDFCFWriter::AddGridMappingAttribute(const char* name, double value)
   }
   this->Impl->DoubleAttributes[name] = value;
 }
+VTK_ABI_NAMESPACE_END

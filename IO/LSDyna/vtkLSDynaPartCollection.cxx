@@ -34,6 +34,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 class vtkLSDynaPartCollection::LSDynaPartStorage
 {
 protected:
@@ -877,8 +878,8 @@ bool sortPartsOnGlobalIds(const vtkLSDynaPart* p1, const vtkLSDynaPart* p2)
 
 //------------------------------------------------------------------------------
 template <typename T>
-void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
-  const vtkIdType& numComps, vtkLSDynaPart** parts, const vtkIdType numParts)
+void vtkLSDynaPartCollection::FillPointProperty(
+  const vtkIdType& numTuples, const vtkIdType& numComps, vtkLSDynaPart** parts, vtkIdType numParts)
 {
   LSDynaMetaData* p = this->MetaData;
 
@@ -943,3 +944,4 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
   }
   p->Fam.SkipWords(numPointsToSkipEnd * numComps);
 }
+VTK_ABI_NAMESPACE_END

@@ -37,9 +37,12 @@
 #include "vtkRenderingUIModule.h" // For export macro
 #include "vtkTDxConfigure.h"      // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX
+VTK_ABI_NAMESPACE_BEGIN
 class vtkTDxMacDevice;
+VTK_ABI_NAMESPACE_END
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGUI_EXPORT vtkCocoaRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -78,9 +81,8 @@ public:
   void TerminateApp() override;
 
   /**
-   * Run the event loop and return. This is provided so that you can
-   * implement your own event loop but yet use the vtk event handling as
-   * well.
+   * Process all user-interaction, timer events and return.
+   * If there are no events, this method returns immediately.
    */
   void ProcessEvents() override;
 
@@ -168,4 +170,5 @@ private:
   void* CocoaManager; // Really an NSMutableDictionary*
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

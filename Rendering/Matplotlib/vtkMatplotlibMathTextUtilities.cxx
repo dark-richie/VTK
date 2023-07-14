@@ -24,7 +24,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
 #include "vtkPoints.h"
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
 #include "vtkPythonInterpreter.h"
+#endif
 #include "vtkSmartPyObject.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
@@ -49,6 +51,7 @@ typedef Py_intptr_t Py_ssize_t;
 #endif
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::MPLMathTextAvailable =
   vtkMatplotlibMathTextUtilities::NOT_TESTED;
 
@@ -79,10 +82,19 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::Che
   // VTK_MATPLOTLIB_DEBUG is defined in the process environment.
   bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != nullptr);
 
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   // Initialize the python interpreter if needed
   vtkMplStartUpDebugMacro("Initializing Python, if not already.");
   vtkPythonInterpreter::Initialize();
   vtkMplStartUpDebugMacro("Attempting to import matplotlib.");
+#endif
+  if (!Py_IsInitialized())
+  {
+    // Don't store the result; it might be available if Python is initialized
+    // elsewhere later.
+    return UNAVAILABLE;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   if (PyErr_Occurred() || !PyImport_ImportModule("matplotlib") || PyErr_Occurred())
   {
@@ -100,10 +112,10 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::Che
     vtkSmartPyObject tracebackStr(PyObject_Str(traceback));
     vtkMplStartUpDebugMacro("Error during matplotlib import:\n"
       << "\nStack:\n"
-      << (tracebackStr ? const_cast<char*>(PyString_AsString(tracebackStr)) : "(none)")
+      << (tracebackStr ? const_cast<char*>(PyUnicode_AsUTF8(tracebackStr)) : "(none)")
       << "\nValue:\n"
-      << (valueStr ? const_cast<char*>(PyString_AsString(valueStr)) : "(none)") << "\nType:\n"
-      << (typeStr ? const_cast<char*>(PyString_AsString(typeStr)) : "(none)"));
+      << (valueStr ? const_cast<char*>(PyUnicode_AsUTF8(valueStr)) : "(none)") << "\nType:\n"
+      << (typeStr ? const_cast<char*>(PyUnicode_AsUTF8(typeStr)) : "(none)"));
     PyErr_Clear();
     vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
   }
@@ -129,16 +141,25 @@ vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
   , FontPropertiesClass(nullptr)
   , ScaleToPowerOfTwo(true)
 {
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   this->Interpreter = vtkPythonInterpreter::New();
   this->Interpreter->AddObserver(
     vtkCommand::ExitEvent, this, &vtkMatplotlibMathTextUtilities::CleanupPythonObjects);
+#else
+  this->Interpreter = nullptr;
+#endif
 }
 
 //------------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
 {
   this->CleanupPythonObjects();
-  this->Interpreter->Delete();
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
+  if (this->Interpreter)
+  {
+    this->Interpreter->Delete();
+  }
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -160,8 +181,15 @@ void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 {
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
+#endif
+  if (!Py_IsInitialized())
+  {
+    return false;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplMathTextLib(PyImport_ImportModule("matplotlib.mathtext"));
   if (this->CheckForError(mplMathTextLib))
@@ -175,7 +203,7 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
     return false;
   }
 
-  this->MaskParser = PyObject_CallFunction(mathTextParserClass, const_cast<char*>("s"), "bitmap");
+  this->MaskParser = PyObject_CallFunction(mathTextParserClass, const_cast<char*>("s"), "agg");
   if (this->CheckForError(this->MaskParser))
   {
     Py_CLEAR(this->MaskParser);
@@ -188,8 +216,15 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 {
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
+#endif
+  if (!Py_IsInitialized())
+  {
+    return false;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplTextPathLib(PyImport_ImportModule("matplotlib.textpath"));
   if (this->CheckForError(mplTextPathLib))
@@ -216,8 +251,15 @@ bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 {
+#if VTK_MODULE_ENABLE_VTK_PythonInterpreter
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
+#endif
+  if (!Py_IsInitialized())
+  {
+    return false;
+  }
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplFontManagerLib(PyImport_ImportModule("matplotlib.font_manager"));
   if (this->CheckForError(mplFontManagerLib))
@@ -255,12 +297,12 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
       vtkSmartPyObject tracebackStr(PyObject_Str(traceback));
       vtkWarningMacro(<< "Python exception raised:\n"
                       << "\nStack:\n"
-                      << (tracebackStr ? const_cast<char*>(PyString_AsString(tracebackStr))
+                      << (tracebackStr ? const_cast<char*>(PyUnicode_AsUTF8(tracebackStr))
                                        : "(none)")
                       << "\nValue:\n"
-                      << (valueStr ? const_cast<char*>(PyString_AsString(valueStr)) : "(none)")
+                      << (valueStr ? const_cast<char*>(PyUnicode_AsUTF8(valueStr)) : "(none)")
                       << "\nType:\n"
-                      << (typeStr ? const_cast<char*>(PyString_AsString(typeStr)) : "(none)"));
+                      << (typeStr ? const_cast<char*>(PyUnicode_AsUTF8(typeStr)) : "(none)"));
     }
     PyErr_Clear();
     return true;
@@ -673,9 +715,9 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyO
 
   // Call the parse method
   // ftimage, depth = parse(str, dpi, fontProp)
-  vtkSmartPyObject parse(PyString_FromString("parse"));
-  vtkSmartPyObject pyStr(PyString_FromString(str));
-  vtkSmartPyObject pyDpi(PyInt_FromLong(dpi));
+  vtkSmartPyObject parse(PyUnicode_FromString("parse"));
+  vtkSmartPyObject pyStr(PyUnicode_FromString(str));
+  vtkSmartPyObject pyDpi(PyLong_FromLong(dpi));
   vtkSmartPyObject resTupleParse(PyObject_CallMethodObjArgs(this->MaskParser, parse.GetPointer(),
     pyStr.GetPointer(), pyDpi.GetPointer(), pyFontProp, nullptr));
   if (this->CheckForError(resTupleParse))
@@ -684,7 +726,7 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyO
   }
 
   // Get ftimage
-  PyObject* ftImage = PyTuple_GetItem(resTupleParse, 0);
+  PyObject* ftImage = PyTuple_GetItem(resTupleParse, 5);
   if (this->CheckForError(ftImage))
   {
     return false;
@@ -697,7 +739,7 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyO
     return false;
   }
 
-  vtkSmartPyObject asarray(PyString_FromString("asarray"));
+  vtkSmartPyObject asarray(PyUnicode_FromString("asarray"));
   vtkSmartPyObject numpyArray(
     PyObject_CallMethodObjArgs(numpy.GetPointer(), asarray.GetPointer(), ftImage, nullptr));
   if (this->CheckForError(numpyArray))
@@ -705,7 +747,7 @@ bool vtkMatplotlibMathTextUtilities::ComputeCellRowsAndCols(const char* str, PyO
     return false;
   }
 
-  vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray, const_cast<char*>("shape")));
+  vtkSmartPyObject dimTuple(PyObject_GetAttrString(numpyArray, "shape"));
   if (this->CheckForError(dimTuple))
   {
     return false;
@@ -790,6 +832,7 @@ void vtkMatplotlibMathTextUtilities::ComputeTextColors(vtkTextProperty* tprop, T
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::SetMathTextFont(vtkTextProperty* tprop)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplBase(PyImport_ImportModule("matplotlib"));
   if (this->CheckForError(mplBase))
   {
@@ -803,10 +846,10 @@ bool vtkMatplotlibMathTextUtilities::SetMathTextFont(vtkTextProperty* tprop)
   {
     case VTK_TIMES:
       // stix is designed to work well with Times New Roman
-      PyDict_SetItemString(rcParams, "mathtext.fontset", PyString_FromString("stix"));
+      PyDict_SetItemString(rcParams, "mathtext.fontset", PyUnicode_FromString("stix"));
       break;
     default:
-      PyDict_SetItemString(rcParams, "mathtext.fontset", PyString_FromString("dejavusans"));
+      PyDict_SetItemString(rcParams, "mathtext.fontset", PyUnicode_FromString("dejavusans"));
       break;
   }
 
@@ -821,9 +864,9 @@ bool vtkMatplotlibMathTextUtilities::SetMathTextFont(vtkTextProperty* tprop)
 
 //------------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox[4],
-  const std::int64_t rowStart, const std::int64_t colStart, vtkSmartPyObject& pythonData,
-  const std::uint64_t pythonRows, const std::uint64_t pythonCols, const std::uint64_t cellRows,
-  const std::uint64_t cellCols, vtkTextProperty* tprop, const TextColors& tcolors)
+  std::int64_t rowStart, std::int64_t colStart, vtkSmartPyObject& pythonData,
+  std::uint64_t pythonRows, std::uint64_t pythonCols, std::uint64_t cellRows,
+  std::uint64_t cellCols, vtkTextProperty* tprop, const TextColors& tcolors)
 {
   vtkDebugMacro("RenderOneCell start = ("
     << rowStart << "," << colStart << "). Drawing python data of size (" << pythonRows << ","
@@ -914,7 +957,7 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
         {
           return false;
         }
-        const unsigned char val = static_cast<unsigned char>(PyInt_AsLong(item));
+        const unsigned char val = static_cast<unsigned char>(PyLong_AsLong(item));
         if (this->CheckForError())
         {
           return false;
@@ -1492,7 +1535,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(
       cbox[3] = vert[1];
     }
 
-    code = PyInt_AsLong(pyCode);
+    code = PyLong_AsLong(pyCode);
     if (this->CheckForError())
     {
       return false;
@@ -1616,3 +1659,4 @@ void vtkMatplotlibMathTextUtilities::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PathParser: " << this->PathParser << endl;
   os << indent << "FontPropertiesClass: " << this->FontPropertiesClass << endl;
 }
+VTK_ABI_NAMESPACE_END

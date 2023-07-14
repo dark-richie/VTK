@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTriangularTCoords);
 
 int vtkTriangularTCoords::RequestData(vtkInformation* vtkNotUsed(request),
@@ -42,7 +43,7 @@ int vtkTriangularTCoords::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPoints* inPts;
   vtkPointData* pd;
   vtkCellArray *inPolys, *inStrips;
-  vtkIdType numNewPts, numNewPolys, polyAllocSize;
+  vtkIdType numNewPts, polyAllocSize;
   vtkFloatArray* newTCoords;
   vtkIdType newId, numCells, cellId;
   const vtkIdType* pts = nullptr;
@@ -70,13 +71,11 @@ int vtkTriangularTCoords::RequestData(vtkInformation* vtkNotUsed(request),
   //
   numNewPts = input->GetNumberOfVerts();
 
-  numNewPolys = 0;
   polyAllocSize = 0;
 
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts, pts);)
   {
     numNewPts += npts;
-    numNewPolys++;
     polyAllocSize += npts + 1;
   }
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts, pts);)
@@ -197,3 +196,4 @@ void vtkTriangularTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

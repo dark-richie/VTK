@@ -37,6 +37,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -518,8 +519,17 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(
   // Tell observers the algorithm is about to execute.
   this->Algorithm->InvokeEvent(vtkCommand::StartEvent, nullptr);
 
+  // If there is an aborted input, set AbortOutput. Otherwise, run as normal
+  this->Algorithm->SetAbortOutput(this->CheckAbortedInput(inInfo));
+
+  // Clear ABORTED from outputs.
+  for (i = 0; i < outputs->GetNumberOfInformationObjects(); ++i)
+  {
+    vtkInformation* outInfo = outputs->GetInformationObject(i);
+    outInfo->Set(vtkAlgorithm::ABORTED(), 0);
+  }
+
   // The algorithm has not yet made any progress.
-  this->Algorithm->SetAbortExecute(0);
   this->Algorithm->UpdateProgress(0.0);
 }
 
@@ -529,6 +539,23 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(
 {
   this->Algorithm->UpdateProgress(1.0);
 
+  int i, j;
+  // The algorithm has either finished or aborted.
+  if (this->Algorithm->GetAbortOutput())
+  {
+    // Algorithm aborted. Initialize data and set ABORTED
+    for (i = 0; i < outputs->GetNumberOfInformationObjects(); ++i)
+    {
+      vtkInformation* outInfo = outputs->GetInformationObject(i);
+      vtkDataObject* data = vtkDataObject::GetData(outInfo);
+      if (data)
+      {
+        data->Initialize();
+      }
+      outInfo->Set(vtkAlgorithm::ABORTED(), 1);
+    }
+  }
+
   // Tell observers the algorithm is done executing.
   this->Algorithm->InvokeEvent(vtkCommand::EndEvent, nullptr);
 
@@ -536,7 +563,6 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(
   this->MarkOutputsGenerated(request, inInfoVec, outputs);
 
   // Remove any not-generated mark.
-  int i, j;
   for (i = 0; i < outputs->GetNumberOfInformationObjects(); ++i)
   {
     vtkInformation* outInfo = outputs->GetInformationObject(i);
@@ -989,9 +1015,16 @@ int vtkDemandDrivenPipeline ::NeedToExecuteData(
 
   if (outputPort >= 0)
   {
+    vtkInformation* info = outInfoVec->GetInformationObject(outputPort);
+
+    // If the filter was ABORTED last time, the filter will need to run.
+    if (info->Get(vtkAlgorithm::ABORTED()))
+    {
+      return 1;
+    }
+
     // If the output on the port making the request is out-of-date
     // then we must execute.
-    vtkInformation* info = outInfoVec->GetInformationObject(outputPort);
     vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
     if (!data || this->PipelineMTime > data->GetUpdateTime())
     {
@@ -1044,3 +1077,4 @@ int vtkDemandDrivenPipeline::GetReleaseDataFlag(int port)
   }
   return info->Get(RELEASE_DATA());
 }
+VTK_ABI_NAMESPACE_END

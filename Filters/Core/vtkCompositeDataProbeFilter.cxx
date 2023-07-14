@@ -33,6 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeDataProbeFilter);
 //------------------------------------------------------------------------------
 vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
@@ -104,12 +105,15 @@ int vtkCompositeDataProbeFilter::RequestData(
   if (sourceHTG)
   {
     vtkNew<vtkHyperTreeGridProbeFilter> htgProbe;
+    htgProbe->SetContainerAlgorithm(this);
     htgProbe->SetPassCellArrays(this->GetPassCellArrays());
     htgProbe->SetPassPointArrays(this->GetPassPointArrays());
     htgProbe->SetPassFieldArrays(this->GetPassFieldArrays());
     htgProbe->SetValidPointMaskArrayName(this->GetValidPointMaskArrayName());
     htgProbe->SetInputData(input);
     htgProbe->SetSourceData(sourceHTG);
+    htgProbe->SetTolerance(this->Tolerance);
+    htgProbe->SetComputeTolerance(this->ComputeTolerance);
     htgProbe->Update();
     output->ShallowCopy(htgProbe->GetOutput());
     return 1;
@@ -129,6 +133,10 @@ int vtkCompositeDataProbeFilter::RequestData(
     int idx = 0;
     for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       sourceHTG = vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject());
       if (!sourceDS && !sourceHTG)
@@ -141,11 +149,14 @@ int vtkCompositeDataProbeFilter::RequestData(
       if (sourceHTG)
       {
         vtkNew<vtkHyperTreeGridProbeFilter> htgProbe;
+        htgProbe->SetContainerAlgorithm(this);
         htgProbe->SetPassCellArrays(this->GetPassCellArrays());
         htgProbe->SetPassPointArrays(this->GetPassPointArrays());
         htgProbe->SetPassFieldArrays(this->GetPassFieldArrays());
         htgProbe->SetValidPointMaskArrayName(this->GetValidPointMaskArrayName());
         htgProbe->SetInputData(input);
+        htgProbe->SetTolerance(this->Tolerance);
+        htgProbe->SetComputeTolerance(this->ComputeTolerance);
         htgProbe->SetSourceData(sourceHTG);
         htgProbe->Update();
         // merge the output for this block with the total output
@@ -204,6 +215,7 @@ int vtkCompositeDataProbeFilter::RequestData(
         this->SetFindCellStrategy(nullptr);
       }
 
+      this->InitializeSourceArrays(sourceDS);
       this->DoProbing(input, idx, sourceDS, output);
       idx++;
     }
@@ -348,3 +360,4 @@ void vtkCompositeDataProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << "PassPartialArrays: " << this->PassPartialArrays << endl;
 }
+VTK_ABI_NAMESPACE_END

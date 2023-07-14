@@ -27,6 +27,7 @@
 #include "vtkCollection.h"
 #include "vtkCommonSystemModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkSocket;
 class VTKCOMMONSYSTEM_EXPORT vtkSocketCollection : public vtkCollection
 {
@@ -72,9 +73,9 @@ private:
   // Hide the standard AddItem.
   void AddItem(vtkObject* o) { this->Superclass::AddItem(o); }
 
-private:
   vtkSocketCollection(const vtkSocketCollection&) = delete;
   void operator=(const vtkSocketCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -22,6 +22,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlankStructuredGrid);
 
 // Construct object to extract all of the input data.
@@ -41,14 +42,18 @@ vtkBlankStructuredGrid::~vtkBlankStructuredGrid()
 }
 
 template <class T>
-void vtkBlankStructuredGridExecute(vtkBlankStructuredGrid* vtkNotUsed(self), T* dptr, int numPts,
-  int numComp, int comp, double min, double max, vtkUnsignedCharArray* ghosts)
+void vtkBlankStructuredGridExecute(vtkBlankStructuredGrid* self, T* dptr, int numPts, int numComp,
+  int comp, double min, double max, vtkUnsignedCharArray* ghosts)
 {
   T compValue;
   dptr += comp;
 
   for (int ptId = 0; ptId < numPts; ptId++, dptr += numComp)
   {
+    if (self->CheckAbort())
+    {
+      break;
+    }
     compValue = *dptr;
     unsigned char value = 0;
     if (compValue >= min && compValue <= max)
@@ -122,6 +127,8 @@ int vtkBlankStructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetPointData()->AddArray(ghosts);
   ghosts->Delete();
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -143,3 +150,4 @@ void vtkBlankStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Array ID: " << this->ArrayId << "\n";
   os << indent << "Component: " << this->Component << "\n";
 }
+VTK_ABI_NAMESPACE_END

@@ -36,6 +36,7 @@
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 vtkIdType First8Integers[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -307,6 +308,10 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataOb
     vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
     while (it.GetNextTree(index))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Initialize new geometric cursor at root of current input tree
       input->InitializeNonOrientedGeometryCursor(cursor, index);
       // Pre-process tree recursively
@@ -318,6 +323,10 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataOb
     vtkNew<vtkHyperTreeGridNonOrientedMooreSuperCursor> supercursor;
     while (it.GetNextTree(index))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Initialize new Moore cursor at root of current tree
       input->InitializeNonOrientedMooreSuperCursor(supercursor, index);
       // Generate leaf cell centers recursively
@@ -341,6 +350,10 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees(vtkHyperTreeGrid* input, vtkDataOb
     vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
     while (it.GetNextTree(index))
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Initialize new geometric cursor at root of current tree
       input->InitializeNonOrientedGeometryCursor(cursor, index);
       // Generate leaf cell centers recursively
@@ -494,6 +507,10 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal(
       int numChildren = cursor->GetNumberOfChildren();
       for (int ichild = 0; ichild < numChildren; ++ichild)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         cursor->ToChild(ichild);
         // Recurse
         this->RecursivelyProcessTreePrimal(cursor);
@@ -544,6 +561,10 @@ bool vtkHyperTreeGridPlaneCutter::RecursivelyPreProcessTree(
       int numChildren = cursor->GetNumberOfChildren();
       for (int ichild = 0; ichild < numChildren; ++ichild)
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         cursor->ToChild(ichild);
         // Recurse and keep track of whether this branch is selected
         selected |= this->RecursivelyPreProcessTree(cursor);
@@ -608,6 +629,10 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual(
     int numChildren = cursor->GetNumberOfChildren();
     for (int ichild = 0; ichild < numChildren; ++ichild)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       cursor->ToChild(ichild);
       // Recurse
       this->RecursivelyProcessTreeDual(cursor);
@@ -619,6 +644,10 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual(
     // Cursor is at leaf, iterate over its corners
     for (unsigned int cornerIdx = 0; cornerIdx < 8; ++cornerIdx)
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // Cell is not selected until proven otherwise
       bool owner = true;
 
@@ -863,3 +892,4 @@ void vtkHyperTreeGridPlaneCutter::ReorderCutPoints(int n, double points[][3])
     }
   }
 }
+VTK_ABI_NAMESPACE_END

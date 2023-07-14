@@ -35,6 +35,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // for export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
 class VTKRENDERINGCORE_EXPORT vtkBackgroundColorMonitor : public vtkObject
@@ -69,9 +70,9 @@ private:
   double Color1[3];
   double Color2[3];
 
-private:
   vtkBackgroundColorMonitor(const vtkBackgroundColorMonitor&) = delete;
   void operator=(const vtkBackgroundColorMonitor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

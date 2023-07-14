@@ -22,6 +22,7 @@
 
 #include "vtkAcceleratorsVTKmDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
 
 #include <memory> // for std::shared_ptr
 
@@ -34,6 +35,8 @@ class DataSet;
 
 }
 } // vtkm::cont
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkPoints;
 class vtkCell;
@@ -191,6 +194,8 @@ private:
 
   struct DataMembers;
   std::shared_ptr<DataMembers> Internals;
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmDataSet_h

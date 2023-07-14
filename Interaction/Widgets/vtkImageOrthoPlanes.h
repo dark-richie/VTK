@@ -31,6 +31,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImagePlaneWidget;
 class vtkTransform;
 class vtkMatrix4x4;
@@ -77,7 +78,7 @@ protected:
   void SetTransformMatrix(
     vtkMatrix4x4* matrix, vtkImagePlaneWidget* currentImagePlane, int indexOfModifiedPlane);
 
-  void GetBounds(double bounds[3]);
+  void GetBounds(double bounds[6]);
 
   // The plane definitions prior to any rotations or scales
   double Origin[3][3];
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkImageOrthoPlanes&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

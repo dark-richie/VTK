@@ -26,6 +26,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPath);
 
 //------------------------------------------------------------------------------
@@ -93,7 +94,7 @@ void vtkPath::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkPath::InsertNextPoint(float pts[], int code)
+void vtkPath::InsertNextPoint(float pts[3], int code)
 {
   this->Points->InsertNextPoint(pts);
 
@@ -103,7 +104,7 @@ void vtkPath::InsertNextPoint(float pts[], int code)
 }
 
 //------------------------------------------------------------------------------
-void vtkPath::InsertNextPoint(double pts[], int code)
+void vtkPath::InsertNextPoint(double pts[3], int code)
 {
   this->InsertNextPoint(pts[0], pts[1], pts[2], code);
 }
@@ -129,3 +130,4 @@ vtkIntArray* vtkPath::GetCodes()
 {
   return vtkArrayDownCast<vtkIntArray>(this->PointData->GetScalars());
 }
+VTK_ABI_NAMESPACE_END

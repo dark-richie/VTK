@@ -37,6 +37,7 @@
 #include <QPixmap>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(QObject* p)
   : vtkQtAbstractModelAdapter(p)
 {
@@ -153,7 +154,7 @@ bool vtkQtAnnotationLayersModelAdapter::noAnnotationsCheck() const
 // Description:
 // Selection conversion from VTK land to Qt land
 vtkAnnotationLayers* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKAnnotationLayers(
-  const QModelIndexList qmil) const
+  QModelIndexList qmil) const
 {
   // Create vtk index selection
   vtkAnnotationLayers* annotations = vtkAnnotationLayers::New(); // Caller needs to delete
@@ -198,7 +199,7 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKAnnotationLayersToQItemSele
 // Description:
 // Selection conversion from VTK land to Qt land
 vtkSelection* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKIndexSelection(
-  const QModelIndexList vtkNotUsed(qmil)) const
+  QModelIndexList vtkNotUsed(qmil)) const
 {
   /*
     // Create vtk index selection
@@ -472,3 +473,4 @@ QMimeData *vtkQtAnnotationLayersModelAdapter::mimeData(const QModelIndexList &in
   return mimeData;
 }
 */
+VTK_ABI_NAMESPACE_END

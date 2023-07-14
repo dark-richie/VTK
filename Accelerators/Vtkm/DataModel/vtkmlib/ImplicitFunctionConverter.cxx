@@ -15,17 +15,18 @@
 //=============================================================================
 #include "ImplicitFunctionConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include "vtkBox.h"
 #include "vtkCylinder.h"
 #include "vtkPlane.h"
 #include "vtkSphere.h"
 
+#include <vtkm/cont/ErrorBadType.h>
+
 #include <vtkm/ImplicitFunction.h>
 
 namespace tovtkm
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 inline vtkm::Vec<vtkm::FloatDefault, 3> MakeFVec3(const double x[3])
 {
@@ -45,6 +46,12 @@ void ImplicitFunctionConverter::Set(vtkImplicitFunction* function)
   vtkCylinder* cylinder = nullptr;
   vtkPlane* plane = nullptr;
   vtkSphere* sphere = nullptr;
+
+  if (function->GetTransform())
+  {
+    throw vtkm::cont::ErrorBadType(
+      "Vtk-m's implicit functions currently do not support transformations.");
+  }
 
   if ((box = vtkBox::SafeDownCast(function)))
   {
@@ -82,9 +89,9 @@ void ImplicitFunctionConverter::Set(vtkImplicitFunction* function)
   }
   else
   {
-    vtkGenericWarningMacro(<< "The implicit functions " << function->GetClassName()
-                           << " is not supported by vtk-m.");
-    return;
+    std::string message = std::string("The implicit functions ") + function->GetClassName() +
+      std::string(" is not supported by vtk-m.");
+    throw vtkm::cont::ErrorBadType(message);
   }
 
   this->MTime = function->GetMTime();
@@ -141,4 +148,5 @@ const vtkm::ImplicitFunctionGeneral& ImplicitFunctionConverter::Get()
   return this->OutFunction;
 }
 
+VTK_ABI_NAMESPACE_END
 } // tovtkm

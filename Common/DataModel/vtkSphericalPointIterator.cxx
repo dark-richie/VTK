@@ -25,6 +25,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSphericalPointIterator);
 
 //=============================================================================
@@ -161,7 +162,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
     {
       this->DataSet->GetPoint(ptId, x);
       d2 = vtkMath::Distance2BetweenPoints(x, this->Center);
-      radialSort.emplace_back(RadialTuple(ptId, d2));
+      radialSort.emplace_back(ptId, d2);
     }
     if (dir == vtkSphericalPointIterator::SORT_DESCENDING)
     {
@@ -616,3 +617,4 @@ void vtkSphericalPointIterator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Axes: " << this->Axes << "\n";
   os << indent << "Sorting: " << this->Sorting << "\n";
 }
+VTK_ABI_NAMESPACE_END

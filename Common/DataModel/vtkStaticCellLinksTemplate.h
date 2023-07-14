@@ -45,14 +45,19 @@
 #ifndef vtkStaticCellLinksTemplate_h
 #define vtkStaticCellLinksTemplate_h
 
+#include "vtkABINamespace.h"
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkExplicitStructuredGrid;
 class vtkCellArray;
+VTK_ABI_NAMESPACE_END
 
 #include "vtkAbstractCellLinks.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename TIds>
 class vtkStaticCellLinksTemplate
 {
@@ -94,9 +99,8 @@ public:
   /**
    * Specialized methods for building links from cell array.
    */
-  void SerialBuildLinks(const vtkIdType numPts, const vtkIdType numCells, vtkCellArray* cellArray);
-  void ThreadedBuildLinks(
-    const vtkIdType numPts, const vtkIdType numCells, vtkCellArray* cellArray);
+  void SerialBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray);
+  void ThreadedBuildLinks(vtkIdType numPts, vtkIdType numCells, vtkCellArray* cellArray);
 
   ///@{
   /**
@@ -172,6 +176,7 @@ private:
   void operator=(const vtkStaticCellLinksTemplate&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #include "vtkStaticCellLinksTemplate.txx"
 
 #endif

@@ -3,6 +3,10 @@ if (NOT DEFINED "ENV{PYTHON_PREFIX}")
     "The `PYTHON_PREFIX` environment variable is required.")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
+  include("${CMAKE_CURRENT_LIST_DIR}/configure_wheel_osmesa.cmake")
+endif ()
+
 set(python_subdir "bin/")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   set(python_subdir "")
@@ -59,6 +63,7 @@ set(VTK_MODULE_ENABLE_VTK_RenderingFreeTypeFontConfig NO CACHE STRING "") # font
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenVR NO CACHE STRING "") # OpenVR
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # OpenXR
 set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "") # OSPRay
+set(VTK_MODULE_ENABLE_VTK_RenderingZSpace NO CACHE STRING "") # zSpace
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # ADIOS2
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # Boost
 set(VTK_MODULE_ENABLE_VTK_IOOCCT NO CACHE STRING "") # occt

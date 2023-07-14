@@ -1,12 +1,7 @@
-# FIXME: ioss never exports symbols properly
-unset(CMAKE_CXX_VISIBILITY_PRESET)
-unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkioss/COPYRIGHT"
-    VERSION       "2022-03-04"
+    VERSION       "2022-10-14"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE SEACASIoss
@@ -16,7 +11,7 @@ vtk_module_third_party(
 
 if (VTK_MODULE_USE_EXTERNAL_vtkioss)
   # The usage requirements for Ioss' exported targets is not useful for us.
-  # https://github.com/gsjaardema/seacas/issues/239
+  # https://github.com/sandialabs/seacas/issues/239
   vtk_module_include(VTK::ioss
     INTERFACE
       "${SEACASIoss_INCLUDE_DIRS}")

@@ -31,6 +31,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTreeMapToPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeMapView);
 //------------------------------------------------------------------------------
 vtkTreeMapView::vtkTreeMapView()
@@ -105,7 +106,7 @@ void vtkTreeMapView::SetLayoutStrategy(const char* name)
 }
 
 //------------------------------------------------------------------------------
-void vtkTreeMapView::SetFontSizeRange(const int maxSize, const int minSize, const int delta)
+void vtkTreeMapView::SetFontSizeRange(int maxSize, int minSize, int delta)
 {
   vtkLabeledTreeMapDataMapper* mapper =
     vtkLabeledTreeMapDataMapper::SafeDownCast(this->GetAreaLabelMapper());
@@ -131,3 +132,4 @@ void vtkTreeMapView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -24,6 +24,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGridClip);
 
 //------------------------------------------------------------------------------
@@ -201,5 +202,8 @@ int vtkRectilinearGridClip::RequestData(vtkInformation* vtkNotUsed(request),
     outData->Crop(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
   }
 
+  this->CheckAbort();
+
   return 1;
 }
+VTK_ABI_NAMESPACE_END

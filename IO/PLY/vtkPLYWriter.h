@@ -44,6 +44,7 @@
 
 #include <string> // For string parameter
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkPolyData;
 class vtkScalarsToColors;
@@ -93,6 +94,16 @@ public:
   vtkGetMacro(WriteToOutputString, bool);
   vtkBooleanMacro(WriteToOutputString, bool);
   const std::string& GetOutputString() const { return this->OutputString; }
+  ///@}
+
+  ///@{
+  /**
+   * Enable writing the 'obj_info' in the header. Default is on.
+   * Note that some software is unable to read ply files with the 'obj_info' included.
+   */
+  vtkSetMacro(WriteObjectInformation, bool);
+  vtkGetMacro(WriteObjectInformation, bool);
+  vtkBooleanMacro(WriteObjectInformation, bool);
   ///@}
 
   ///@{
@@ -257,6 +268,8 @@ protected:
   // Default is 0: write to file.
   bool WriteToOutputString;
 
+  bool WriteObjectInformation;
+
   // The output string.
   std::string OutputString;
 
@@ -267,4 +280,5 @@ private:
   void operator=(const vtkPLYWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

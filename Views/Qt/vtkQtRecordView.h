@@ -40,7 +40,9 @@
 #include <QPointer>           // Needed for the text widget member
 
 class QTextEdit;
-class vtkDataObjectToTable;
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAttributeDataToTableFilter;
 
 class VTKVIEWSQT_EXPORT vtkQtRecordView : public vtkQtView
 {
@@ -93,7 +95,7 @@ protected:
   void AddRepresentationInternal(vtkDataRepresentation* rep) override;
   void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkAttributeDataToTableFilter> DataObjectToTable;
 
   QPointer<QTextEdit> TextWidget;
 
@@ -110,4 +112,5 @@ private:
   vtkMTimeType LastMTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

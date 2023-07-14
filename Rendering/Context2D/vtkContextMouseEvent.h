@@ -29,6 +29,7 @@
 #include "vtkVector.h"                   // Needed for vtkVector2f and vtkVector2i
 #include "vtkWin32Header.h"              // For export macros.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindowInteractor;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextMouseEvent
@@ -154,9 +155,9 @@ protected:
    */
   int Button;
 
-protected:
   vtkRenderWindowInteractor* Interactor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkContextMouseEvent_h
 // VTK-HeaderTest-Exclude: vtkContextMouseEvent.h

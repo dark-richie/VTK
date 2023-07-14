@@ -39,6 +39,7 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotRangeHandlesItem.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunction;
 
 class VTKCHARTSCORE_EXPORT vtkRangeHandlesItem : public vtkPlotRangeHandlesItem
@@ -104,7 +105,7 @@ protected:
   ~vtkRangeHandlesItem() override;
 
   /**
-   * Overridden to clamp the handle position in the color tranfer function
+   * Overridden to clamp the handle position in the color transfer function
    * range.
    */
   void SetActiveHandlePosition(double position) override;
@@ -116,4 +117,5 @@ private:
   vtkColorTransferFunction* ColorTransferFunction = nullptr;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkRangeHandlesItem_h

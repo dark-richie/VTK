@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMCubesReader);
 
 // Construct object with FlipNormals turned off and Normals set to true.
@@ -277,7 +278,7 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Read: " << newPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles\n"
                 << "(Removed " << numDegenerate << " degenerate triangles)");
-
+  (void)numDegenerate;
   fclose(fp);
   //
   // Update ourselves
@@ -442,3 +443,4 @@ vtkMTimeType vtkMCubesReader::GetMTime()
   }
   return mTime;
 }
+VTK_ABI_NAMESPACE_END

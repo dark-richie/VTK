@@ -42,6 +42,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkArrayRange
 {
 public:
@@ -83,7 +84,7 @@ public:
   /**
    * Returns true iff the given coordinate falls within this range.
    */
-  bool Contains(const CoordinateT coordinate) const;
+  bool Contains(CoordinateT coordinate) const;
 
   ///@{
   /**
@@ -112,5 +113,6 @@ private:
   ///@}
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkArrayRange.h

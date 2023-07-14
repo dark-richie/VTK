@@ -25,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMergeFields);
 
 char vtkMergeFields::FieldLocationNames[3][12] = { "DATA_OBJECT", "POINT_DATA", "CELL_DATA" };
@@ -252,10 +253,18 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
   outputArray->SetNumberOfTuples(numTuples);
   outputArray->SetName(this->FieldName);
 
+  int checkAbortInterval = std::min(this->NumberOfComponents / 10 + 1, 1000);
+  int progressCount = 0;
+
   // Merge
   cur = this->GetFirst();
   do
   {
+    if (progressCount % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
+    progressCount++;
     before = cur;
     cur = cur->Next;
     inputArray = fd->GetArray(before->FieldName);
@@ -422,3 +431,4 @@ void vtkMergeFields::PrintAllComponents(ostream& os, vtkIndent indent)
     this->PrintComponent(before, os, indent);
   } while (cur);
 }
+VTK_ABI_NAMESPACE_END

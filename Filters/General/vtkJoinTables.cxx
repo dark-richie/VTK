@@ -33,6 +33,7 @@
 #include <string>
 #include <utility>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkJoinTables);
 
 //------------------------------------------------------------------------------
@@ -138,6 +139,8 @@ int vtkJoinTables::RequestData(
     vtkErrorMacro("Unsupported types for the key columns.");
     return 0;
   }
+
+  this->CheckAbort();
   return 1;
 }
 
@@ -176,3 +179,4 @@ void vtkJoinTables::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << endl;
 }
+VTK_ABI_NAMESPACE_END

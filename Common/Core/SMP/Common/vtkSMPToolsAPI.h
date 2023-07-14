@@ -43,6 +43,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 using vtkSMPToolsDefaultImpl = vtkSMPToolsImpl<DefaultBackend>;
 
@@ -75,6 +76,9 @@ public:
 
   //--------------------------------------------------------------------------------
   bool IsParallelScope();
+
+  //--------------------------------------------------------------------------------
+  bool GetSingleThread();
 
   //--------------------------------------------------------------------------------
   int GetInternalDesiredNumberOfThread() { return this->DesiredNumberOfThread; }
@@ -294,8 +298,10 @@ private:
 #endif
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkSMPToolsAPI.h */

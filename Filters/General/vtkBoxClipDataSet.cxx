@@ -38,6 +38,7 @@
 #include <cmath>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoxClipDataSet);
 vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkIncrementalPointLocator);
 //------------------------------------------------------------------------------
@@ -196,21 +197,6 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   int j;
   int cellType = 0;
   int numOutputs = 1;
-  int inputObjectType = input->GetDataObjectType();
-
-  // if we have volumes
-  if (inputObjectType == VTK_STRUCTURED_POINTS || inputObjectType == VTK_IMAGE_DATA)
-  {
-    int dimension;
-    int* dims = vtkImageData::SafeDownCast(input)->GetDimensions();
-    for (dimension = 3, i = 0; i < 3; i++)
-    {
-      if (dims[i] <= 1)
-      {
-        dimension--;
-      }
-    }
-  }
 
   // Initialize self; create output objects
   //
@@ -294,7 +280,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkGenericCell* cell = vtkGenericCell::New();
   vtkIdType cellId;
 
-  int abort = 0;
+  bool abort = false;
   int num[2];
   int numNew[2];
 
@@ -309,7 +295,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % updateTime))
     {
       this->UpdateProgress(static_cast<float>(cellId) / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     input->GetCell(cellId, cell);
@@ -6657,3 +6643,4 @@ void vtkBoxClipDataSet::ClipHexahedronInOut0D(vtkGenericCell* cell,
   }
   arrayvert->Delete();
 }
+VTK_ABI_NAMESPACE_END

@@ -46,6 +46,7 @@
 #include <string> // For std::string
 #include <vector> // For std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkFloatArray;
@@ -525,8 +526,8 @@ public:
   };
 
   /**
-   * Apply the specified animation, at the specified time, to the internal Model. Changes node
-   * transforms and morphing weights.
+   * Apply the specified animation, at the specified time value t, to the internal Model. Changes
+   * node transforms and morphing weights.
    */
   bool ApplyAnimation(float t, int animationId, bool forceStep = false);
 
@@ -652,4 +653,5 @@ private:
   std::vector<std::string> UsedExtensions;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -41,6 +41,7 @@
 #include "vtkDataSet.h"
 #include "vtkStructuredData.h" // For inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVertex;
 class vtkLine;
 class vtkPixel;
@@ -193,7 +194,7 @@ public:
    * xyz-coordinates. The xyz coordinates are stored in the user-supplied
    * array p.
    */
-  void GetPoint(const int i, const int j, const int k, double p[3]);
+  void GetPoint(int i, int j, int k, double p[3]);
 
   ///@{
   /**
@@ -315,7 +316,6 @@ protected:
 private:
   void Cleanup();
 
-private:
   vtkRectilinearGrid(const vtkRectilinearGrid&) = delete;
   void operator=(const vtkRectilinearGrid&) = delete;
 };
@@ -365,4 +365,5 @@ inline vtkIdType vtkRectilinearGrid::ComputeCellId(int ijk[3])
   return vtkStructuredData::ComputeCellId(this->Dimensions, ijk);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

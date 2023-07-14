@@ -23,6 +23,7 @@
 
 #include "vtkMinimalStandardRandomSequence.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 /**
@@ -57,7 +58,6 @@ private:
   void operator=(const vtkLICRandomNumberGeneratorInterface&) = delete;
   vtkLICRandomNumberGeneratorInterface(const vtkLICRandomNumberGeneratorInterface&) = delete;
 
-private:
   vtkMinimalStandardRandomSequence* RNG;
 };
 
@@ -141,10 +141,10 @@ private:
    */
   void GetValidDimensionAndGrainSize(int type, int& dim, int& grainSize);
 
-private:
   vtkLICRandomNumberGeneratorInterface ValueGen;
   vtkLICRandomNumberGeneratorInterface ProbGen;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkLICNoiseHelper.h

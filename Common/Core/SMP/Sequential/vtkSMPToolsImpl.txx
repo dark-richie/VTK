@@ -27,6 +27,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //--------------------------------------------------------------------------------
 template <>
@@ -112,6 +113,11 @@ void vtkSMPToolsImpl<BackendType::Sequential>::Initialize(int);
 template <>
 int vtkSMPToolsImpl<BackendType::Sequential>::GetEstimatedNumberOfThreads();
 
+//--------------------------------------------------------------------------------
+template <>
+bool vtkSMPToolsImpl<BackendType::Sequential>::GetSingleThread();
+
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

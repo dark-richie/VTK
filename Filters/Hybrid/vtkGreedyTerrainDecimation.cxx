@@ -29,6 +29,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -142,7 +143,7 @@ inline void vtkGreedyTerrainDecimation::GetPoint(vtkIdType id, double x[3])
 
 //------------------------------------------------------------------------------
 void vtkGreedyTerrainDecimation::EstimateOutputSize(
-  const vtkIdType numInputPts, vtkIdType& numPts, vtkIdType& numTris)
+  vtkIdType numInputPts, vtkIdType& numPts, vtkIdType& numTris)
 {
   switch (this->ErrorMeasure)
   {
@@ -884,7 +885,7 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   // Note that this algorithm can terminate "prematurely" (e.g. compared to
   // the number of triangles) if the maximum error in the queue becomes zero.
   //
-  int abortExecute = 0;
+  bool abortExecute = false;
   vtkIdType numInsertedPoints = 0;
   int tenth = numPts / 10 + 1;
 
@@ -901,7 +902,7 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->UpdateProgress(
           (double)(numInsertedPoints > numPts ? numPts : numInsertedPoints) / numPts);
-        abortExecute = this->GetAbortExecute();
+        abortExecute = this->CheckAbort();
       }
     }
   }
@@ -1312,3 +1313,4 @@ void vtkGreedyTerrainDecimation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BoundaryVertexDeletion: " << (this->BoundaryVertexDeletion ? "On\n" : "Off\n");
   os << indent << "ComputeNormals: " << (this->ComputeNormals ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

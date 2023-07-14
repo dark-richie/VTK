@@ -59,6 +59,7 @@
 #include "vtkStdString.h"    // For vtkStdString ivars
 #include "vtkVector.h"       // For position variables
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkFloatArray;
 class vtkDoubleArray;
@@ -497,7 +498,7 @@ public:
   ///@{
   /**
    * Get/set the tick label algorithm that is used to calculate the min, max
-   * and tick spacing. There are currently two algoriths, vtkAxis::TICK_SIMPLE
+   * and tick spacing. There are currently two algorithms, vtkAxis::TICK_SIMPLE
    * is the default and uses a simple algorithm. The second option is
    * vtkAxis::TICK_WILKINSON which uses an extended Wilkinson algorithm to find
    * the optimal range, spacing and font parameters.
@@ -794,4 +795,5 @@ private:
   bool InRange(double value);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkAxis_h

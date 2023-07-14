@@ -25,6 +25,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAdaptiveSubdivisionFilter);
 vtkCxxSetObjectMacro(vtkAdaptiveSubdivisionFilter, Locator, vtkIncrementalPointLocator);
 
@@ -231,14 +232,20 @@ int vtkAdaptiveSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request
   vtkIdType passNum;
   vtkIdType totalTriangles = 0;
   bool changesMade;
+  bool abort = false;
 
   for (passNum = 0, changesMade = true; passNum < this->MaximumNumberOfPasses &&
-       totalTriangles < this->MaximumNumberOfTriangles && changesMade;
+       totalTriangles < this->MaximumNumberOfTriangles && changesMade && !abort;
        ++passNum)
   {
     changesMade = false;
     for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       triId = cellIter->GetCurrentCellId();
       {
         vtkIdType unused;
@@ -395,3 +402,4 @@ void vtkAdaptiveSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

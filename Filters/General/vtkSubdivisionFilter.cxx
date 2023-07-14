@@ -32,6 +32,7 @@
 
 // Construct object with number of subdivisions set to 1, check for
 // triangles set to 1
+VTK_ABI_NAMESPACE_BEGIN
 vtkSubdivisionFilter::vtkSubdivisionFilter()
 {
   this->NumberOfSubdivisions = 1;
@@ -68,6 +69,10 @@ int vtkSubdivisionFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkCellIterator* it = input->NewCellIterator();
     for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
     {
+      if (this->CheckAbort())
+      {
+        break;
+      }
       if (it->GetCellType() != VTK_TRIANGLE)
       {
         hasOnlyTris = false;
@@ -101,3 +106,4 @@ void vtkSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of subdivisions: " << this->GetNumberOfSubdivisions() << endl;
   os << indent << "Check for triangles: " << this->GetCheckForTriangles() << endl;
 }
+VTK_ABI_NAMESPACE_END

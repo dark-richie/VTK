@@ -34,6 +34,7 @@
 
 // VTK_21_POINT_WEDGE is defined (or not) in vtkHigherOrderInterpolation.h
 #ifdef VTK_21_POINT_WEDGE
+VTK_ABI_NAMESPACE_BEGIN
 static double vtkHigherOrderWedge21ParametricCoords[21 * 3] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
   1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.5,
   0.0, 0.5, 0.0, 1.0, 0.5, 0.5, 1.0, 0.0, 0.5, 1.0, 0.0, 0.0, 0.5, 1.0, 0.0, 0.5, 0.0, 1.0, 0.5,
@@ -68,6 +69,7 @@ static constexpr vtkIdType vtkHigherOrderWedge21QuadFace[3][9] = {
 };
 static constexpr vtkIdType vtkHigherOrderWedge21Edge[9][3] = { { 0, 1, 6 }, { 1, 2, 7 },
   { 2, 0, 8 }, { 3, 4, 9 }, { 4, 5, 10 }, { 5, 3, 11 }, { 0, 3, 12 }, { 1, 4, 13 }, { 2, 5, 14 } };
+VTK_ABI_NAMESPACE_END
 #endif
 
 // Return the offset into the array of face-DOFs of triangle barycentric integer coordinates (i,j)
@@ -103,6 +105,7 @@ static constexpr vtkIdType vtkHigherOrderWedge21Edge[9][3] = { { 0, 1, 6 }, { 1,
 // return offset = 2 since the face-DOF for this triangle
 // are ordered { +, @, o }.
 //
+VTK_ABI_NAMESPACE_BEGIN
 static int triangleDOFOffset(int order, int i, int j)
 {
   int off = i + order * (j - 1) - (j * (j + 1)) / 2;
@@ -412,12 +415,21 @@ void vtkHigherOrderWedge::EvaluateLocation(
   subId = 0; // TODO: Should this be -1?
   this->InterpolateFunctions(pcoords, weights);
 
-  double p[3];
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
+  const double* p;
   x[0] = x[1] = x[2] = 0.;
   vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   for (vtkIdType idx = 0; idx < nPoints; ++idx)
   {
-    this->Points->GetPoint(idx, p);
+    p = pts + 3 * idx;
     for (vtkIdType jdx = 0; jdx < 3; ++jdx)
     {
       x[jdx] += p[jdx] * weights[idx];
@@ -1194,7 +1206,7 @@ void vtkHigherOrderWedge::GetQuadrilateralFace(vtkHigherOrderQuadrilateral* resu
 /**\brief Set the degree  of the cell, given a vtkDataSet and cellId
  */
 void vtkHigherOrderWedge::SetOrderFromCellData(
-  vtkCellData* cell_data, const vtkIdType numPts, const vtkIdType cell_id)
+  vtkCellData* cell_data, vtkIdType numPts, vtkIdType cell_id)
 {
   vtkDataArray* v = cell_data->GetHigherOrderDegrees();
   if (v)
@@ -1209,7 +1221,7 @@ void vtkHigherOrderWedge::SetOrderFromCellData(
   }
 }
 
-void vtkHigherOrderWedge::SetUniformOrderFromNumPoints(const vtkIdType numPts)
+void vtkHigherOrderWedge::SetUniformOrderFromNumPoints(vtkIdType numPts)
 {
   const double n = static_cast<double>(numPts);
   static const double third(1. / 3.);
@@ -1229,7 +1241,7 @@ void vtkHigherOrderWedge::SetUniformOrderFromNumPoints(const vtkIdType numPts)
   this->SetOrder(deg, deg, deg, numPts);
 }
 
-void vtkHigherOrderWedge::SetOrder(const int s, const int t, const int u, const vtkIdType numPts)
+void vtkHigherOrderWedge::SetOrder(int s, int t, int u, vtkIdType numPts)
 {
   if (s != t)
     vtkErrorMacro("For wedges, the first two degrees should be equals.");
@@ -1277,3 +1289,17 @@ const int* vtkHigherOrderWedge::GetOrder()
   }
   return this->Order;
 }
+
+bool vtkHigherOrderWedge::PointCountSupportsUniformOrder(vtkIdType pointsPerCell)
+{
+  const double n = static_cast<double>(pointsPerCell);
+  static const double third(1. / 3.);
+  static const double ninth(1. / 9.);
+  static const double twentyseventh(1. / 27.);
+  const double term =
+    std::cbrt(third * sqrt(third) * sqrt((27.0 * n - 2.0) * n) + n - twentyseventh);
+  int deg = static_cast<int>(round(term + ninth / term - 4 * third));
+  int numPointsFromDeg = (deg + 1) * (deg + 2) / 2 * (deg + 1);
+  return (numPointsFromDeg == static_cast<int>(pointsPerCell));
+}
+VTK_ABI_NAMESPACE_END

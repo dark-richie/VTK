@@ -20,10 +20,26 @@
 #include "vtkHardwareWindow.h"
 #include "vtkRenderWindow.h"
 #include "vtkSDL2RenderWindowInteractor.h"
-#include <SDL.h>
+// Ignore reserved-identifier warnings from
+// 1. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_mul_overflow_builtin'
+// 2. SDL2/SDL_stdinc.h: warning: identifier '_SDL_size_add_overflow_builtin'
+// 3. SDL2/SDL_audio.h: warning: identifier '_SDL_AudioStream'
+// 4. SDL2/SDL_joystick.h: warning: identifier '_SDL_Joystick'
+// 5. SDL2/SDL_sensor.h: warning: identifier '_SDL_Sensor'
+// 6. SDL2/SDL_gamecontroller.h: warning: identifier '_SDL_GameController'
+// 7. SDL2/SDL_haptic.h: warning: identifier '_SDL_Haptic'
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
+#include "SDL.h"
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
+#include "emscripten/html5.h"
 #endif
 
 #include "vtkStringArray.h"
@@ -31,6 +47,20 @@
 #include "vtkActor.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
+
+VTK_ABI_NAMESPACE_BEGIN
+
+#ifdef __EMSCRIPTEN__
+namespace
+{
+EM_BOOL ResizeCallback(int vtkNotUsed(eventType), const EmscriptenUiEvent* e, void* userData)
+{
+  auto interactor = reinterpret_cast<vtkRenderWindowInteractor*>(userData);
+  interactor->UpdateSize(e->windowInnerWidth, e->windowInnerHeight);
+  return 0;
+}
+}
+#endif
 
 vtkStandardNewMacro(vtkSDL2RenderWindowInteractor);
 
@@ -95,7 +125,6 @@ bool vtkSDL2RenderWindowInteractor::ProcessEvent(void* arg)
     {
       return true;
     }
-    break;
 
     case SDL_USEREVENT:
     {
@@ -118,29 +147,26 @@ bool vtkSDL2RenderWindowInteractor::ProcessEvent(void* arg)
     break;
 
     case SDL_KEYDOWN:
+    case SDL_KEYUP:
     {
-      // simplified, not fully implemented
       std::string keyname = SDL_GetKeyName(event->key.keysym.sym);
-      if (keyname.size())
       {
-        this->SetKeyEventInformation(ctrl, shift, keyname[0], event->key.repeat, keyname.c_str());
+        this->SetKeyEventInformation(
+          ctrl, shift, event->key.keysym.sym, event->key.repeat, keyname.c_str());
         this->SetAltKey(alt);
-        this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
+        this->InvokeEvent(
+          (event->type == SDL_KEYDOWN) ? vtkCommand::KeyPressEvent : vtkCommand::KeyReleaseEvent,
+          nullptr);
       }
     }
     break;
 
-    case SDL_KEYUP:
+    case SDL_TEXTINPUT:
     {
-      // simplified, not fully implemented
-      std::string keyname = SDL_GetKeyName(event->key.keysym.sym);
-      if (keyname.size())
-      {
-        this->SetKeyEventInformation(ctrl, shift, keyname[0], event->key.repeat, keyname.c_str());
-        this->SetAltKey(alt);
-        this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
-        this->InvokeEvent(vtkCommand::CharEvent, nullptr);
-      }
+      this->SetKeyEventInformation(
+        ctrl, shift, event->text.text[0], event->key.repeat, event->text.text);
+      this->SetAltKey(alt);
+      this->InvokeEvent(vtkCommand::CharEvent);
     }
     break;
 
@@ -187,8 +213,16 @@ bool vtkSDL2RenderWindowInteractor::ProcessEvent(void* arg)
       this->SetControlKey(ctrl);
       this->SetShiftKey(shift);
       this->SetAltKey(alt);
+      // The precise y value is more robust because browsers set a value b/w 0 and 1.
+      // Otherwise, the value is often rounded to an integer =zero which causes a stutter
+      // in dolly motion.
+#ifdef __EMSCRIPTEN__
+      int ev = event->wheel.preciseY > 0 ? vtkCommand::MouseWheelForwardEvent
+                                         : vtkCommand::MouseWheelBackwardEvent;
+#else
       int ev = event->wheel.y > 0 ? vtkCommand::MouseWheelForwardEvent
                                   : vtkCommand::MouseWheelBackwardEvent;
+#endif
       this->InvokeEvent(ev, nullptr);
     }
     break;
@@ -236,6 +270,8 @@ void vtkSDL2RenderWindowInteractor::StartEventLoop()
 
   this->StartedMessageLoop = 1;
 #ifdef __EMSCRIPTEN__
+  emscripten_set_resize_callback(
+    EMSCRIPTEN_EVENT_TARGET_WINDOW, reinterpret_cast<void*>(this), 1, ::ResizeCallback);
   emscripten_set_main_loop_arg(&mainLoopCallback, (void*)this, 0, 1);
 #else
   while (!this->Done)
@@ -257,6 +293,8 @@ void vtkSDL2RenderWindowInteractor::AddEventHandler()
   this->StartedMessageLoop = 1;
   this->Done = false;
 #ifdef __EMSCRIPTEN__
+  emscripten_set_resize_callback(
+    EMSCRIPTEN_EVENT_TARGET_WINDOW, reinterpret_cast<void*>(this), 1, ::ResizeCallback);
   emscripten_set_main_loop_arg(&mainLoopCallback, (void*)this, 0, 0);
 #endif
 }
@@ -360,3 +398,4 @@ void vtkSDL2RenderWindowInteractor::ExitCallback()
 
   this->TerminateApp();
 }
+VTK_ABI_NAMESPACE_END

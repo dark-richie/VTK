@@ -30,6 +30,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageToPolyDataFilter);
 
 vtkCxxSetObjectMacro(vtkImageToPolyDataFilter, LookupTable, vtkScalarsToColors);
@@ -139,7 +140,7 @@ int vtkImageToPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
       vtkDebugMacro(<< "Processing #" << pieceNum);
       this->UpdateProgress((double)pieceNum / totalPieces);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         abortExecute = 1;
         break;
@@ -1353,3 +1354,4 @@ void vtkImageToPolyDataFilter::DecimateEdges(
     } // if manifold
   }   // for all points
 }
+VTK_ABI_NAMESPACE_END

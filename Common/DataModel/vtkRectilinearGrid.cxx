@@ -33,6 +33,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRectilinearGrid);
 vtkStandardExtendedNewMacro(vtkRectilinearGrid);
 
@@ -811,7 +812,7 @@ void vtkRectilinearGrid::GetPoint(vtkIdType ptId, double x[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkRectilinearGrid::GetPoint(const int i, const int j, const int k, double p[3])
+void vtkRectilinearGrid::GetPoint(int i, int j, int k, double p[3])
 {
   int ijk[3];
   ijk[0] = i;
@@ -1565,12 +1566,13 @@ int vtkRectilinearGrid::GetNumberOfScalarComponents()
 //------------------------------------------------------------------------------
 bool vtkRectilinearGrid::HasAnyBlankPoints()
 {
-  return this->IsAnyBitSet(this->GetPointGhostArray(), vtkDataSetAttributes::HIDDENPOINT);
+  return this->PointData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENPOINT);
 }
 
 //------------------------------------------------------------------------------
 bool vtkRectilinearGrid::HasAnyBlankCells()
 {
-  int cellBlanking = this->IsAnyBitSet(this->GetCellGhostArray(), vtkDataSetAttributes::HIDDENCELL);
+  int cellBlanking = this->CellData->HasAnyGhostBitSet(vtkDataSetAttributes::HIDDENCELL);
   return cellBlanking || this->HasAnyBlankPoints();
 }
+VTK_ABI_NAMESPACE_END

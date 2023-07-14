@@ -22,10 +22,12 @@ set(classes
   vtkCameraActor
   vtkCameraInterpolator
   vtkCellCenterDepthSort
+  vtkCellGridMapper
   vtkColorTransferFunction
   vtkCompositeDataDisplayAttributes
   vtkCompositeDataDisplayAttributesLegacy
   vtkCompositePolyDataMapper
+  vtkCompositePolyDataMapperDelegator
   vtkCoordinate
   vtkCuller
   vtkCullerCollection
@@ -193,3 +195,4 @@ if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
     PRIVATE
       VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 endif()
+vtk_add_test_mangling(VTK::RenderingCore)

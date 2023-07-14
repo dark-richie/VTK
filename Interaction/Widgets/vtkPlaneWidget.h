@@ -78,6 +78,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataSourceWidget.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCellPicker;
 class vtkConeSource;
@@ -248,7 +249,7 @@ public:
    * Satisfies superclass API.  This will change the state of the widget to
    * match changes that have been made to the underlying PolyDataSource
    */
-  void UpdatePlacement(void) override;
+  void UpdatePlacement() override;
 
   ///@{
   /**
@@ -392,4 +393,5 @@ private:
   void operator=(const vtkPlaneWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

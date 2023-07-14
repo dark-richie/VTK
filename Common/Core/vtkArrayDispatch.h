@@ -22,7 +22,7 @@
  * for a restricted or unrestricted set of vtkDataArray subclasses.
  *
  * A more detailed description of this class and related tools can be found
- * \ref VTK-7-1-ArrayDispatch "here".
+ * [here](https://docs.vtk.org/en/latest/design_documents/array_dispatch.html).
  *
  * The primary goals of this class are to simplify multi-array dispatch
  * implementations, and provide tools to lower compilation time and binary
@@ -201,6 +201,7 @@
 
 namespace vtkArrayDispatch
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * A TypeList containing all real ValueTypes.
@@ -415,6 +416,7 @@ struct Dispatch3BySameValueType;
 template <typename ArrayList, typename ValueList>
 struct FilterArraysByValueType;
 
+VTK_ABI_NAMESPACE_END
 } // end namespace vtkArrayDispatch
 
 #include "vtkArrayDispatch.txx"

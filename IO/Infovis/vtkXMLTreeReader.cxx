@@ -34,6 +34,7 @@
 #include VTKLIBXML2_HEADER(parser.h)
 #include VTKLIBXML2_HEADER(tree.h)
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLTreeReader);
 
 const char* vtkXMLTreeReader::TagNameField = ".tagname";
@@ -217,6 +218,12 @@ int vtkXMLTreeReader::RequestData(
 
   // Get the root element node
   xmlNode* rootElement = xmlDocGetRootElement(doc);
+  if (!rootElement)
+  {
+    vtkErrorMacro(<< "Could not get root element of document.");
+    return 0;
+  }
+
   vtkXMLTreeReaderProcessElement(builder, -1, rootElement, this->ReadCharData, this->MaskArrays);
 
   xmlFreeDoc(doc);
@@ -299,3 +306,4 @@ int vtkXMLTreeReader::RequestData(
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -48,6 +48,7 @@
 
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResliceCursorLineRepresentation);
 
 //------------------------------------------------------------------------------
@@ -327,7 +328,7 @@ double vtkResliceCursorLineRepresentation ::RotateAxis(double e[2], int axis)
   vtkMath::Normalize(lastVector);
   vtkMath::Normalize(currVector);
 
-  // compute the angle betweem both vectors. This is the amount to
+  // compute the angle between both vectors. This is the amount to
   // rotate by.
   double angle = acos(vtkMath::Dot(lastVector, currVector));
   double crossVector[3];
@@ -605,3 +606,4 @@ void vtkResliceCursorLineRepresentation::PrintSelf(ostream& os, vtkIndent indent
   // this->StartPickPosition;
   // this->StartCenterPosition;
 }
+VTK_ABI_NAMESPACE_END

@@ -35,6 +35,7 @@
 #include "vtkSmartPointer.h"   // Needed to hold SP ivars
 #include "vtkStdString.h"      // Needed to hold TooltipLabelFormat ivar
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkVariant;
 class vtkTable;
 class vtkIdTypeArray;
@@ -433,6 +434,13 @@ public:
    */
   virtual bool UpdateCache() { return true; }
 
+  /**
+   * Utility function that fills up `selectedPoints` with tuples from `points`. Indices
+   * from `selectedIds` are used to index into `points`.
+   */
+  static void FilterSelectedPoints(
+    vtkDataArray* points, vtkDataArray* selectedPoints, vtkIdTypeArray* selectedIds);
+
 protected:
   vtkPlot();
   ~vtkPlot() override;
@@ -449,10 +457,8 @@ protected:
    */
   virtual void TransformScreenToData(const vtkVector2f& in, vtkVector2f& out);
   virtual void TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out);
-  virtual void TransformScreenToData(
-    const double inX, const double inY, double& outX, double& outY);
-  virtual void TransformDataToScreen(
-    const double inX, const double inY, double& outX, double& outY);
+  virtual void TransformScreenToData(double inX, double inY, double& outX, double& outY);
+  virtual void TransformDataToScreen(double inX, double inY, double& outX, double& outY);
   ///@}
 
   /**
@@ -561,4 +567,5 @@ private:
   void operator=(const vtkPlot&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkPlot_h

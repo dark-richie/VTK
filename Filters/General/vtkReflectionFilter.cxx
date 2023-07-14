@@ -34,6 +34,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 /**
@@ -315,6 +316,10 @@ int vtkReflectionFilter::RequestData(vtkInformation* vtkNotUsed(request),
       iter.TakeReference(inputCD->NewIterator());
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
+        if (this->CheckAbort())
+        {
+          break;
+        }
         vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
         vtkSmartPointer<vtkUnstructuredGrid> ug = vtkSmartPointer<vtkUnstructuredGrid>::New();
         if (!this->RequestDataInternal(ds, ug, bounds))
@@ -497,6 +502,10 @@ int vtkReflectionFilter::RequestDataInternal(
   // Copy reflected points.
   for (vtkIdType i = 0; i < numPts; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     input->GetPoint(i, point);
     vtkIdType ptId = outPoints->InsertNextPoint(mirrorDir[0] * point[0] + constant[0],
       mirrorDir[1] * point[1] + constant[1], mirrorDir[2] * point[2] + constant[2]);
@@ -576,6 +585,10 @@ int vtkReflectionFilter::RequestDataInternal(
   // Generate reflected cells.
   for (vtkIdType i = 0; i < numCells; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkIdType outputCellId = -1;
     int cellType = input->GetCellType(i);
     switch (cellType)
@@ -1143,3 +1156,4 @@ void vtkReflectionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: " << this->Center << endl;
   os << indent << "CopyInput: " << this->CopyInput << endl;
 }
+VTK_ABI_NAMESPACE_END

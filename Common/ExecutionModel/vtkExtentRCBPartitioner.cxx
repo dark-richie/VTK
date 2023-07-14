@@ -23,6 +23,7 @@
 #include <cassert>
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtentRCBPartitioner);
 
 //------------------------------------------------------------------------------
@@ -130,7 +131,7 @@ void vtkExtentRCBPartitioner::Partition()
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentRCBPartitioner::GetExtent(const int idx, int ext[6])
+void vtkExtentRCBPartitioner::GetExtent(int idx, int ext[6])
 {
   // Sanity check
   assert("pre: idx is out-of-bounds" && ((idx >= 0) && (idx < this->NumExtents)));
@@ -152,7 +153,7 @@ void vtkExtentRCBPartitioner::AddExtent(int ext[6])
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentRCBPartitioner::ReplaceExtent(const int idx, int ext[6])
+void vtkExtentRCBPartitioner::ReplaceExtent(int idx, int ext[6])
 {
   // Sanity check
   assert("pre: idx is out-of-bounds" && ((idx >= 0) && (idx < this->NumExtents)));
@@ -164,7 +165,7 @@ void vtkExtentRCBPartitioner::ReplaceExtent(const int idx, int ext[6])
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentRCBPartitioner::GetPartitionExtent(const int idx, int ext[6])
+void vtkExtentRCBPartitioner::GetPartitionExtent(int idx, int ext[6])
 {
   // Sanity check
   assert("pre: idx is out-of-bounds" && ((idx >= 0) && (idx < this->NumExtents)));
@@ -422,3 +423,4 @@ void vtkExtentRCBPartitioner::PrintExtent(const std::string& name, int ext[6])
   cout << "]\n";
   cout.flush();
 }
+VTK_ABI_NAMESPACE_END

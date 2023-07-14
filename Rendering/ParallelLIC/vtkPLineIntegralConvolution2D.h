@@ -31,6 +31,7 @@
 #include "vtkRenderingParallelLICModule.h" // for export macro
 #include <string>                          // for string
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPainterCommunicator;
 class vtkPPainterCommunicator;
 
@@ -87,9 +88,9 @@ protected:
 private:
   std::string LogFileName;
 
-private:
   vtkPLineIntegralConvolution2D(const vtkPLineIntegralConvolution2D&) = delete;
   void operator=(const vtkPLineIntegralConvolution2D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridSource);
 vtkCxxSetObjectMacro(vtkHyperTreeGridSource, DescriptorBits, vtkBitArray);
 vtkCxxSetObjectMacro(vtkHyperTreeGridSource, MaskBits, vtkBitArray);
@@ -850,7 +851,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
     nNextLevel = nRefined * this->BlockSize;
     if (nRefined > 0)
     {
-      this->LevelDescriptors.emplace_back(std::string(nNextLevel, '.'));
+      this->LevelDescriptors.emplace_back(nNextLevel, '.');
     }
   }
 
@@ -1535,3 +1536,4 @@ vtkBitArray* vtkHyperTreeGridSource::ConvertMaskStringToBitArray(const std::stri
 {
   return ConvertDescriptorStringToBitArray(str);
 }
+VTK_ABI_NAMESPACE_END

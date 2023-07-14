@@ -33,6 +33,7 @@
 
 #define CALL_MEMBER_FN(object, ptrToMember) ((object).*(ptrToMember))
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlot3DMetaReader);
 
 typedef void (vtkPlot3DMetaReader::*Plot3DFunction)(Json::Value* val);
@@ -466,8 +467,8 @@ int vtkPlot3DMetaReader::RequestData(
     this->Reader->UpdatePiece(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    vtkDataObject* ioutput = this->Reader->GetOutput();
-    output->ShallowCopy(ioutput);
+    vtkMultiBlockDataSet* ioutput = this->Reader->GetOutput();
+    output->CompositeShallowCopy(ioutput);
     output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(),
       ioutput->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS()));
   }
@@ -485,3 +486,4 @@ void vtkPlot3DMetaReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -32,6 +32,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlotRangeHandlesItem);
 
 //------------------------------------------------------------------------------
@@ -354,7 +355,7 @@ void vtkPlotRangeHandlesItem::GetAxesUnscaledRange(double* abcissaRange, double*
 
 //------------------------------------------------------------------------------
 void vtkPlotRangeHandlesItem::TransformScreenToData(
-  const double inX, const double inY, double& outX, double& outY)
+  double inX, double inY, double& outX, double& outY)
 {
   if (this->HandleOrientation == vtkPlotRangeHandlesItem::VERTICAL)
   {
@@ -368,7 +369,7 @@ void vtkPlotRangeHandlesItem::TransformScreenToData(
 
 //------------------------------------------------------------------------------
 void vtkPlotRangeHandlesItem::TransformDataToScreen(
-  const double inX, const double inY, double& outX, double& outY)
+  double inX, double inY, double& outX, double& outY)
 {
   if (this->HandleOrientation == vtkPlotRangeHandlesItem::VERTICAL)
   {
@@ -634,3 +635,4 @@ void vtkPlotRangeHandlesItem::SetCursor(int cursor)
     }
   }
 }
+VTK_ABI_NAMESPACE_END

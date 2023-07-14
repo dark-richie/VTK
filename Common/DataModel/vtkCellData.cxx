@@ -17,13 +17,14 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellData);
 vtkStandardExtendedNewMacro(vtkCellData);
 
 //------------------------------------------------------------------------------
 vtkCellData::vtkCellData()
 {
-  this->GhostsToSkip = vtkDataSetAttributes::HIDDENCELL;
+  this->GhostsToSkip = vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
 }
 
 //------------------------------------------------------------------------------
@@ -31,3 +32,4 @@ void vtkCellData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

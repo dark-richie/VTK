@@ -29,57 +29,45 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOpenXR.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenXRUtilities : public vtkObject
 {
 public:
   static vtkOpenXRUtilities* New();
   vtkTypeMacro(vtkOpenXRUtilities, vtkObject);
 
-  ///@{
   /**
    * Given a field of view (left, right, up, down angles) and near/far
    * clipping builds, return a projection matrix in result.
    */
-  static void CreateProjectionFov(
-    vtkMatrix4x4* result, const XrFovf fov, const float nearZ, const float farZ);
-  ///@}
+  static void CreateProjectionFov(vtkMatrix4x4* result, XrFovf fov, float nearZ, float farZ);
 
-  ///@{
   /**
    * Given an XR pose (orientation quaternion + position vector), set the provided
    * matrix from it.
    */
   static void SetMatrixFromXrPose(vtkMatrix4x4* result, const XrPosef& xrPose);
-  ///@}
 
-  ///@{
   /**
    * Given a quaternion, return elements of equivalent matrix as an array.
    */
   static void CreateFromQuaternion(double result[16], const XrQuaternionf& quat);
-  ///@}
 
-  ///@{
   /**
    * Return string representation of given XrActionType.
    */
   static const char* GetActionTypeAsString(const XrActionType& actionType);
-  ///@}
 
-  ///@{
   /**
    * Return string representation of given XrViewConfigurationType.
    */
   static const char* GetViewConfigurationTypeAsString(
     const XrViewConfigurationType& viewConfigType);
-  ///@}
 
-  ///@{
   /**
    * Return string representation of given XrStructureType.
    */
   static const char* GetStructureTypeAsString(const XrStructureType& structureType);
-  ///@}
 
   static const XrPosef& GetIdentityPose();
 
@@ -525,5 +513,6 @@ inline const char* vtkOpenXRUtilities::GetStructureTypeAsString(
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkOpenXRUtilities.h

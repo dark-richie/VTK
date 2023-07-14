@@ -41,6 +41,7 @@
 #include <stack>
 #include <string>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkXdmf3Writer);
 
 //=============================================================================
@@ -71,7 +72,7 @@ public:
   {
     shared_ptr<XdmfGridCollection> dest = XdmfGridCollection::New();
     dest->setType(XdmfGridCollectionType::Temporal());
-    this->DestinationGroups.push(dest);
+    this->DestinationGroups.emplace(dest);
     this->Destination = this->DestinationGroups.top();
     this->Domain->insert(dest);
   }
@@ -88,7 +89,7 @@ public:
       {
         shared_ptr<XdmfGridCollection> group = XdmfGridCollection::New();
         this->Destination->insert(group);
-        this->DestinationGroups.push(group);
+        this->DestinationGroups.emplace(group);
         this->Destination = this->DestinationGroups.top();
         vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(dataSet);
         for (unsigned int i = 0; i < mbds->GetNumberOfBlocks(); i++)
@@ -507,3 +508,4 @@ int vtkXdmf3Writer::CheckParameters()
 {
   return this->CheckParametersInternal(1, 0);
 }
+VTK_ABI_NAMESPACE_END

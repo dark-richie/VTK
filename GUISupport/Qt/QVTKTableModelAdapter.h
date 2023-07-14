@@ -41,6 +41,7 @@
 #include "vtkNew.h"   // For vtkNew
 #include "vtkTable.h" // For vtkTable
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKGUISUPPORTQT_EXPORT QVTKTableModelAdapter : public QObject
 {
   Q_OBJECT
@@ -73,7 +74,7 @@ Q_SIGNALS:
 
 protected:
   /**
-   * The default method for retrieving data for a tabel entry from the item model.
+   * The default method for retrieving data for a table entry from the item model.
    */
   virtual QVariant modelData(int row, int col);
 
@@ -103,7 +104,7 @@ protected:
   QPointer<QAbstractItemModel> ItemModel;
   vtkNew<vtkTable> Table;
 
-protected Q_SLOTS:
+protected Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
   virtual void onModified();
   virtual void onModelReset();
   virtual void onDataChanged(
@@ -121,4 +122,5 @@ protected Q_SLOTS:
     const QModelIndex& parent, int start, int end, const QModelIndex& destination, int column);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

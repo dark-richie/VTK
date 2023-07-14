@@ -33,6 +33,7 @@
 
 #include "vtkCompositeDataPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -777,3 +778,22 @@ int vtkExecutive::CheckAlgorithm(const char* method, vtkInformation* request)
   }
   return 1;
 }
+
+//------------------------------------------------------------------------------
+// Look at all inputs and check ABORTED flag. If it is set, return true.
+// Otherwise return false.
+bool vtkExecutive::CheckAbortedInput(vtkInformationVector** inInfoVec)
+{
+  for (int i = 0; i < this->GetNumberOfInputPorts(); i++)
+  {
+    for (int j = 0; j < inInfoVec[i]->GetNumberOfInformationObjects(); j++)
+    {
+      if (inInfoVec[i]->GetInformationObject(j)->Get(vtkAlgorithm::ABORTED()))
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+VTK_ABI_NAMESPACE_END

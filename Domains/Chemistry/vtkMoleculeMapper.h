@@ -28,6 +28,7 @@
 #include "vtkMapper.h"
 #include "vtkNew.h" // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkGlyph3DMapper;
 class vtkIdTypeArray;
@@ -278,7 +279,7 @@ public:
   void Render(vtkRenderer*, vtkActor*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   double* GetBounds() override;
-  void GetBounds(double bounds[6]) override { vtkAbstractMapper3D::GetBounds(bounds); }
+  void GetBounds(double bounds[6]) override { Superclass::GetBounds(bounds); }
   int FillInputPortInformation(int port, vtkInformation* info) override;
   bool GetSupportsSelection() override { return true; }
   ///@}
@@ -374,4 +375,5 @@ private:
   void operator=(const vtkMoleculeMapper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

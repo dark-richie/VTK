@@ -24,6 +24,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //------------------------------------------------------------------------------
@@ -236,7 +237,7 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(
     z *= zscale;
     zContrib = z * z;
     const float zfactor = static_cast<float>(this->ZMag * cos(this->ZFreq * z));
-    for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
+    for (idxY = 0; !this->CheckAbort() && idxY <= maxY; idxY++)
     {
       if ((this->SubsampleRate > 1) && (idxY % this->SubsampleRate))
       {
@@ -295,3 +296,4 @@ void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "SubsampleRate: " << this->SubsampleRate << endl;
 }
+VTK_ABI_NAMESPACE_END

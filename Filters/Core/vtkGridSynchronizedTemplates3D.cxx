@@ -41,6 +41,7 @@
 #include "vtkUnsignedShortArray.h"
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //------------------------------------------------------------------------------
@@ -465,6 +466,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
   vtkFloatArray* newGradients = nullptr;
   vtkPolygonBuilder polyBuilder;
   vtkSmartPointer<vtkIdListCollection> polys = vtkSmartPointer<vtkIdListCollection>::New();
+  bool abort = false;
 
   if (ComputeScalars)
   {
@@ -529,8 +531,9 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
   // fprintf(stderr, "%d: -------- Extent %d, %d, %d, %d, %d, %d\n", threadId,
   //      exExt[0], exExt[1], exExt[2], exExt[3], exExt[4], exExt[5]);
 
+  int checkAbortInterval = std::min((XMax - XMin) / 10 + 1, 1000);
   // for each contour
-  for (vidx = 0; vidx < numContours; vidx++)
+  for (vidx = 0; vidx < numContours && !abort; vidx++)
   {
     value = values[vidx];
     //  skip any slices which are overlap for computing gradients.
@@ -540,7 +543,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
     s2 = inPtrZ;
 
     //==================================================================
-    for (k = ZMin; k <= ZMax; k++)
+    for (k = ZMin; k <= ZMax && !abort; k++)
     {
       // swap the buffers
       if (k % 2)
@@ -564,7 +567,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
 
       inPtPtrY = inPtPtrZ;
       inPtrY = inPtrZ;
-      for (j = YMin; j <= YMax; j++)
+      for (j = YMin; j <= YMax && !abort; j++)
       {
         // Should not impact performance here/
         edgePtId = (j - inExt[2]) * incY + (k - inExt[4]) * incZ;
@@ -582,6 +585,11 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
         // inCellId is ised to keep track of ids for copying cell attributes.
         for (i = XMin; i <= XMax; i++, inCellId++)
         {
+          if (i % checkAbortInterval == 0 && self->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
           p0 = p1;
           s0 = s1;
           v0 = v1;
@@ -994,3 +1002,4 @@ int vtkGridSynchronizedTemplates3D::RequestData(vtkInformation* vtkNotUsed(reque
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -32,11 +32,17 @@ set(classes
   vtkCell3D
   vtkCellArray
   vtkCellArrayIterator
+  vtkCellAttribute
   vtkCellData
+  vtkCellGrid
+  vtkCellGridBoundsQuery
+  vtkCellGridResponders
+  vtkCellGridSidesQuery
   vtkCellIterator
   vtkCellLinks
   vtkCellLocator
   vtkCellLocatorStrategy
+  vtkCellMetadata
   vtkCellTreeLocator
   vtkCellTypes
   vtkClosestNPointsStrategy
@@ -103,10 +109,13 @@ set(classes
   vtkHyperTreeGridGeometricLocator
   vtkHyperTreeGridNonOrientedCursor
   vtkHyperTreeGridNonOrientedGeometryCursor
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight
+  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor
   vtkHyperTreeGridNonOrientedSuperCursor
   vtkHyperTreeGridNonOrientedSuperCursorLight
+  vtkHyperTreeGridNonOrientedUnlimitedSuperCursor
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight
   vtkHyperTreeGridOrientedCursor
@@ -182,6 +191,7 @@ set(classes
   vtkPolyVertex
   vtkPolygon
   vtkPolyhedron
+  vtkPolyhedronUtilities
   vtkPyramid
   vtkQuad
   vtkQuadraticEdge
@@ -255,15 +265,21 @@ set(template_classes
   vtkMappedUnstructuredGridCellIterator
   vtkPeriodicDataArray
   vtkStaticCellLinksTemplate
-  vtkStaticEdgeLocatorTemplate)
+  vtkStaticEdgeLocatorTemplate
+  vtkStaticFaceHashLinksTemplate)
 
 set(nowrap_classes
   vtkHyperTreeGridEntry
   vtkHyperTreeGridGeometryEntry
+  vtkHyperTreeGridGeometryUnlimitedEntry
   vtkHyperTreeGridGeometryLevelEntry
+  vtkHyperTreeGridGeometryUnlimitedLevelEntry
   vtkHyperTreeGridLevelEntry)
 
 set(headers
+  vtkCellGridQuery.h
+  vtkCellGridResponder.h
+  vtkCellGridResponderBase.h
   vtkCellType.h
   vtkColor.h
   vtkDataAssemblyVisitor.h
@@ -296,3 +312,4 @@ vtk_module_add_module(VTK::CommonDataModel
   HEADERS           ${headers}
   NOWRAP_HEADERS    ${nowrap_headers}
   PRIVATE_TEMPLATES ${private_templates})
+vtk_add_test_mangling(VTK::CommonDataModel)

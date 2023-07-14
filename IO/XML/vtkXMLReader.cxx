@@ -53,12 +53,14 @@
 #include <algorithm>
 #include <cassert>
 #include <cctype>
+#include <cmath>
 #include <functional>
 #include <locale> // C++ locale
 #include <numeric>
 #include <sstream>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkXMLReader, ReaderErrorObserver, vtkCommand);
 vtkCxxSetObjectMacro(vtkXMLReader, ParserErrorObserver, vtkCommand);
 
@@ -944,6 +946,17 @@ int vtkXMLReader::ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex,
   array->Modified();
   this->InReadData = 0;
   return result;
+}
+
+//------------------------------------------------------------------------------
+int vtkXMLReader::ReadArrayTuples(vtkXMLDataElement* da, vtkIdType arrayTupleIndex,
+  vtkAbstractArray* array, vtkIdType startTupleIndex, vtkIdType numTuples, FieldType fieldType)
+{
+  assert(array != nullptr);
+
+  int noc = array->GetNumberOfComponents();
+  return this->ReadArrayValues(
+    da, noc * arrayTupleIndex, array, noc * startTupleIndex, noc * numTuples, fieldType);
 }
 
 //------------------------------------------------------------------------------
@@ -1957,7 +1970,7 @@ void vtkXMLReader::UpdateProgressDiscrete(float progress)
   if (!this->AbortExecute)
   {
     // Round progress to nearest 100th.
-    float rounded = static_cast<float>(int((progress * 100) + 0.5f)) / 100.f;
+    float rounded = std::round(progress * 100) / 100.f;
     if (this->GetProgress() != rounded)
     {
       this->UpdateProgress(rounded);
@@ -2051,3 +2064,4 @@ vtkInformation* vtkXMLReader::GetCurrentOutputInformation()
 {
   return this->CurrentOutputInformation;
 }
+VTK_ABI_NAMESPACE_END

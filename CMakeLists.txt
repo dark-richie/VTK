@@ -44,6 +44,12 @@ if (VTK_WHEEL_BUILD)
   include(vtkWheelPreparation)
 endif ()
 
+option(VTK_ENABLE_WEBGPU "Enable the WebGPU experimental rendering backend." OFF)
+mark_as_advanced(VTK_ENABLE_WEBGPU)
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(VTK_ENABLE_WEBGPU ON)
+endif ()
+
 include(GNUInstallDirs)
 
 add_library(vtkbuild INTERFACE)
@@ -155,14 +161,58 @@ if(VTK_USE_CUDA)
 endif()
 
 #-----------------------------------------------------------------------------
+# Add an option to enable/disable HIP support.
+cmake_dependent_option(VTK_USE_HIP "Support HIP backend accelerator" OFF
+  "CMAKE_VERSION VERSION_GREATER_EQUAL 3.21;NOT VTK_USE_CUDA" OFF)
+mark_as_advanced(VTK_USE_HIP)
+
+if(VTK_USE_HIP)
+  if(VTK_USE_CUDA)
+    message(FATAL_ERROR "VTK_USE_HIP and VTK_USE_CUDA are mutually exclusive, enable only one.")
+  endif()
+  # This needs to be a top level flag as enable_language needs
+  # to be called from CMake entry point for variables to have
+  # the correct scope.
+  enable_language(HIP)
+endif()
+
+#-----------------------------------------------------------------------------
 # Add an option to enable/disable logging support.
 option(VTK_ENABLE_LOGGING "Enable logging support." ON)
 mark_as_advanced(VTK_ENABLE_LOGGING)
+
+set(VTK_LOGGING_TIME_PRECISION "3"
+  CACHE STRING "Precision of loguru scope timers. 3=ms, 6=us, 9=ns")
+mark_as_advanced(VTK_LOGGING_TIME_PRECISION)
+set(known_logging_precisions 3 6 9)
+set_property(CACHE VTK_LOGGING_TIME_PRECISION
+  PROPERTY
+    STRINGS ${known_logging_precisions})
+# Emulate `cmake_dependent_option` for non-bool values.
+if (VTK_ENABLE_LOGGING)
+  set_property(CACHE VTK_LOGGING_TIME_PRECISION PROPERTY TYPE STRING)
+else ()
+  set_property(CACHE VTK_LOGGING_TIME_PRECISION PROPERTY TYPE INTERNAL)
+  # Use a default value.
+  set(VTK_LOGGING_TIME_PRECISION 3)
+endif ()
+if (NOT VTK_LOGGING_TIME_PRECISION IN_LIST known_logging_precisions)
+  string(REPLACE ";" ", " known_logging_precisions_list "${known_logging_precisions}")
+  message(FATAL_ERROR
+    "`VTK_LOGGING_TIME_PRECISION` must be one of "
+    "${known_logging_precisions_list}; given '${VTK_LOGGING_TIME_PRECISION}'")
+endif ()
 
 #-----------------------------------------------------------------------------
 # Add an option to enable/disable catalyst2 support.
 option(VTK_ENABLE_CATALYST "Build IOCatalystConduit module and VTK catalyst implementation." OFF)
 mark_as_advanced(VTK_ENABLE_CATALYST)
+
+#-----------------------------------------------------------------------------
+# Add an option to enable/disable SPDX generation
+# Remove the "Experimental" once https://gitlab.kitware.com/vtk/vtk/-/issues/18999 is adressed
+option(VTK_GENERATE_SPDX "Generate SPDX file for each module (Experimental)." OFF)
+mark_as_advanced(VTK_GENERATE_SPDX)
 
 include(vtkEncodeString)
 
@@ -175,12 +225,15 @@ set(vtk_requested_modules)
 set(vtk_rejected_modules)
 if (VTK_WRAP_PYTHON)
   list(APPEND vtk_requested_modules
-    VTK::WrappingPythonCore
-    VTK::PythonInterpreter)
+    VTK::WrappingPythonCore)
   set("_vtk_module_reason_VTK::WrappingPythonCore"
     "via `VTK_WRAP_PYTHON`")
-  set("_vtk_module_reason_VTK::PythonInterpreter"
-    "via `VTK_WRAP_PYTHON`")
+  if (NOT VTK_WHEEL_BUILD)
+    list(APPEND vtk_requested_modules
+      VTK::PythonInterpreter)
+    set("_vtk_module_reason_VTK::PythonInterpreter"
+      "via `VTK_WRAP_PYTHON AND NOT VTK_WHEEL_BUILD`")
+  endif ()
 else ()
   list(APPEND vtk_rejected_modules
     VTK::Python)
@@ -250,7 +303,8 @@ endif ()
 list(APPEND vtk_requested_modules
   # Required for just about everything.
   VTK::CommonCore
-  VTK::CommonDataModel)
+  VTK::CommonDataModel
+)
 set("_vtk_module_reason_VTK::CommonCore"
   "because all VTK builds require VTK::CommonCore")
 set("_vtk_module_reason_VTK::CommonDataModel"
@@ -287,10 +341,10 @@ mark_as_advanced(VTK_TARGET_SPECIFIC_COMPONENTS)
 set(_vtk_module_group_default_StandAlone "WANT")
 set(_vtk_module_group_default_Rendering "WANT")
 
-set(vtk_enable_tests "${VTK_BUILD_TESTING}")
-if (VTK_FORBID_DOWNLOADS)
-  message(STATUS "Module testing disabled due to `VTK_FORBID_DOWNLOADS` being set.")
-  set(vtk_enable_tests "OFF")
+if (VTK_FORBID_DOWNLOADS AND VTK_BUILD_TESTING)
+  message(STATUS
+    "Module testing will fail due to `VTK_FORBID_DOWNLOADS` without a local "
+    "copy of the testing data.")
 endif ()
 
 include(vtkModule)
@@ -356,7 +410,7 @@ vtk_module_scan(
   REQUIRES_MODULES    vtk_required_modules
   UNRECOGNIZED_MODULES vtk_unrecognized_modules
   WANT_BY_DEFAULT     "${VTK_BUILD_ALL_MODULES}"
-  ENABLE_TESTS        "${vtk_enable_tests}")
+  ENABLE_TESTS        "${VTK_BUILD_TESTING}")
 
 if (vtk_required_modules OR vtk_unrecognized_modules)
   message(FATAL_ERROR
@@ -425,7 +479,7 @@ if (VTK_CUSTOM_LIBRARY_SUFFIX STREQUAL "<DEFAULT>")
 endif ()
 
 set(vtk_library_version_info
-  VERSION             "${VTK_VERSION}"
+  VERSION             "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
   SOVERSION           "1")
 if (VTK_WHEEL_BUILD)
   set(vtk_library_version_info)
@@ -450,7 +504,10 @@ vtk_module_build(
   UTILITY_TARGET      "VTK::vtkbuild"
   TARGET_SPECIFIC_COMPONENTS  "${VTK_TARGET_SPECIFIC_COMPONENTS}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
-  TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
+  TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing"
+  GENERATE_SPDX           ${VTK_GENERATE_SPDX}
+  SPDX_DOCUMENT_NAMESPACE "https://vtk.org/spdx"
+  SPDX_DOWNLOAD_LOCATION  "https://gitlab.kitware.com/vtk/vtk/-/tree/master")
 
 include(vtkModuleJson)
 vtk_module_json(
@@ -472,11 +529,22 @@ if (VTK_WRAP_PYTHON)
   string(REPLACE ";" "\n" vtk_required_python_modules "${vtk_required_python_modules}")
   file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
     "${vtk_required_python_modules}\n")
+  get_property(vtk_web_python_modules GLOBAL
+    PROPERTY  vtk_web_python_modules)
+  if (vtk_web_python_modules)
+    list(REMOVE_DUPLICATES vtk_web_python_modules)
+  endif ()
+  string(REPLACE ";" "\n" vtk_web_python_modules "${vtk_web_python_modules}")
+  file(WRITE "${CMAKE_BINARY_DIR}/requirements_web.txt"
+    "${vtk_web_python_modules}\n")
   get_property(vtk_soabi GLOBAL
     PROPERTY  _vtk_python_soabi)
   cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE "Append `_d` to Python module names" OFF
     "WIN32;VTK_WRAP_PYTHON" OFF)
   mark_as_advanced(VTK_WINDOWS_PYTHON_DEBUGGABLE)
+  cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE_REPLACE_SUFFIX "Replace any other debug suffix for Python module names" OFF
+    "VTK_WINDOWS_PYTHON_DEBUGGABLE" OFF)
+  mark_as_advanced(VTK_WINDOWS_PYTHON_DEBUGGABLE_REPLACE_SUFFIX)
   cmake_dependent_option(VTK_BUILD_PYI_FILES "Build `.pyi` files for VTK's Python modules" OFF
     "VTK_WRAP_PYTHON" OFF)
   mark_as_advanced(VTK_BUILD_PYI_FILES)
@@ -488,6 +556,27 @@ if (VTK_WRAP_PYTHON)
       "@loader_path/.dylibs")
   endif ()
 
+  set(vtk_python_interpreter_args)
+  if (NOT VTK_WHEEL_BUILD)
+    list(APPEND vtk_python_interpreter_args
+      INTERPRETER "$<TARGET_FILE:VTK::vtkpython>")
+  elseif (NOT vtk_python_interpreter_can_import_vtk)
+    if (VTK_PYTHON_VERSION STREQUAL "3" AND
+        Python3_VERSION VERSION_LESS "3.8" AND
+        WIN32)
+      if ("$ENV{CI}" STREQUAL "")
+        message(AUTHOR_WARNING
+          "Disabling `.pyi` compilation as building it in the wheel does not "
+          "work. Please update to Python 3.8 for `.pyi` support in Windows "
+          "wheels. If the interpreter is known to be able to import "
+          "`vtkmodules`, " "please set "
+          "`vtk_python_interpreter_can_import_vtk` to `ON`.")
+      endif ()
+      list(APPEND vtk_python_interpreter_args
+        INTERPRETER "DISABLE")
+    endif ()
+  endif ()
+
   vtk_module_wrap_python(
     MODULES         ${vtk_modules}
     INSTALL_EXPORT  VTKPython
@@ -496,9 +585,11 @@ if (VTK_WRAP_PYTHON)
     MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
     CMAKE_DESTINATION   "${vtk_cmake_destination}"
     INSTALL_HEADERS     "${VTK_INSTALL_SDK}"
+    HEADERS_DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/vtk${vtk_version_suffix}/vtkpythonmodules"
     BUILD_PYI_FILES     "${VTK_BUILD_PYI_FILES}"
     SOABI               "${vtk_soabi}"
     USE_DEBUG_SUFFIX    "${VTK_WINDOWS_PYTHON_DEBUGGABLE}"
+    REPLACE_DEBUG_SUFFIX "${VTK_WINDOWS_PYTHON_DEBUGGABLE_REPLACE_SUFFIX}"
     UTILITY_TARGET      "VTK::vtkbuild"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET_SPECIFIC_COMPONENTS "${VTK_TARGET_SPECIFIC_COMPONENTS}"
@@ -575,16 +666,14 @@ if (VTK_BUILD_TESTING)
 endif ()
 
 # The doxygen documentation needs to be aware of all modules.
-option(VTK_BUILD_DOCUMENTATION "Build the VTK documentation" OFF)
+option(VTK_BUILD_DOCUMENTATION "Build the Doxygen VTK documentation" OFF)
 if (VTK_BUILD_DOCUMENTATION)
   add_subdirectory(Utilities/Doxygen)
 endif ()
 
-# If python wrapping and testing is enabled then add driver scripts to run
-# tests.  Note: Many python tests used to be automatically converted from TCL
-# scripts. Hence the name vtkTclTest2Py
-if (VTK_BUILD_TESTING AND VTK_WRAP_PYTHON)
-  add_subdirectory(Utilities/vtkTclTest2Py)
+option(VTK_BUILD_SPHINX_DOCUMENTATION "Build the Sphinx documentation for VTK" OFF)
+if (VTK_BUILD_SPHINX_DOCUMENTATION)
+  add_subdirectory(Utilities/Sphinx)
 endif ()
 
 if (NOT TARGET uninstall)

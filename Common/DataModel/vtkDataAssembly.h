@@ -125,6 +125,7 @@
 #include <string> // for std::string
 #include <vector> // for std::vector
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataAssemblyVisitor;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataAssembly : public vtkObject
@@ -167,8 +168,11 @@ public:
   /**
    * Get/Set root node name. Defaults to DataAssembly.
    */
-  void SetRootNodeName(const char* name) { this->SetNodeName(this->GetRootNode(), name); }
-  const char* GetRootNodeName() const { return this->GetNodeName(this->GetRootNode()); }
+  void SetRootNodeName(const char* name)
+  {
+    this->SetNodeName(vtkDataAssembly::GetRootNode(), name);
+  }
+  const char* GetRootNodeName() const { return this->GetNodeName(vtkDataAssembly::GetRootNode()); }
   ///@}
 
   /**
@@ -474,4 +478,5 @@ private:
   std::unique_ptr<vtkInternals> Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

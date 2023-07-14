@@ -33,6 +33,7 @@
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendDataSets);
 
 //------------------------------------------------------------------------------
@@ -120,6 +121,7 @@ int vtkAppendDataSets::RequestData(vtkInformation* vtkNotUsed(request),
   if (outputUG)
   {
     vtkNew<vtkAppendFilter> appender;
+    appender->SetContainerAlgorithm(this);
     appender->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
     appender->SetMergePoints(this->GetMergePoints());
     appender->SetToleranceIsAbsolute(this->GetToleranceIsAbsolute());
@@ -139,6 +141,7 @@ int vtkAppendDataSets::RequestData(vtkInformation* vtkNotUsed(request),
   else if (outputPD)
   {
     vtkNew<vtkAppendPolyData> appender;
+    appender->SetContainerAlgorithm(this);
     appender->SetOutputPointsPrecision(this->GetOutputPointsPrecision());
     for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
     {
@@ -154,6 +157,7 @@ int vtkAppendDataSets::RequestData(vtkInformation* vtkNotUsed(request),
       {
         vtkNew<vtkCleanPolyData> cleaner;
         cleaner->SetInputConnection(appender->GetOutputPort());
+        cleaner->SetContainerAlgorithm(this);
         cleaner->PointMergingOn();
         cleaner->ConvertLinesToPointsOff();
         cleaner->ConvertPolysToLinesOff();
@@ -231,3 +235,4 @@ void vtkAppendDataSets::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "OutputPointsPrecision: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

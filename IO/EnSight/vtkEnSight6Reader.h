@@ -41,6 +41,7 @@
 #include "vtkEnSightReader.h"
 #include "vtkIOEnSightModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 class vtkIdTypeArray;
 class vtkPoints;
@@ -139,6 +140,11 @@ protected:
   int CreateStructuredGridOutput(
     int partId, char line[256], const char* name, vtkMultiBlockDataSet* output) override;
 
+  /**
+   * Clean up the internal cached data
+   */
+  virtual void CleanUpCache();
+
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;
   vtkPoints* UnstructuredPoints;
@@ -148,4 +154,5 @@ private:
   void operator=(const vtkEnSight6Reader&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

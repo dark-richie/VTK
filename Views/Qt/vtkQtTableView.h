@@ -38,13 +38,15 @@
 #include "vtkSmartPointer.h" // Needed for member variables
 #include <QPointer>          // Needed to hold the view
 
-class vtkAddMembershipArray;
-class vtkApplyColors;
-class vtkDataObjectToTable;
-class vtkIdTypeArray;
 class QItemSelection;
 class QSortFilterProxyModel;
 class QTableView;
+
+VTK_ABI_NAMESPACE_BEGIN
+class vtkAddMembershipArray;
+class vtkApplyColors;
+class vtkAttributeDataToTableFilter;
+class vtkIdTypeArray;
 class vtkQtTableModelAdapter;
 
 class VTKVIEWSQT_EXPORT vtkQtTableView : public vtkQtView
@@ -222,7 +224,7 @@ protected:
 private Q_SLOTS:
   void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
   void SetVTKSelection();
   vtkMTimeType LastSelectionMTime;
   vtkMTimeType LastInputMTime;
@@ -243,11 +245,12 @@ private:
   char* ColorArrayNameInternal;
 
   vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
-  vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
+  vtkSmartPointer<vtkAttributeDataToTableFilter> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
   vtkQtTableView(const vtkQtTableView&) = delete;
   void operator=(const vtkQtTableView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

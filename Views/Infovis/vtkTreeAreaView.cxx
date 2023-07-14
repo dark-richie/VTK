@@ -36,6 +36,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTreeAreaView);
 //------------------------------------------------------------------------------
 vtkTreeAreaView::vtkTreeAreaView()
@@ -256,7 +257,7 @@ vtkAreaLayoutStrategy* vtkTreeAreaView::GetLayoutStrategy()
 }
 
 //------------------------------------------------------------------------------
-void vtkTreeAreaView::SetAreaLabelFontSize(const int size)
+void vtkTreeAreaView::SetAreaLabelFontSize(int size)
 {
   this->GetTreeAreaRepresentation()->GetAreaLabelTextProperty()->SetFontSize(size);
 }
@@ -268,7 +269,7 @@ int vtkTreeAreaView::GetAreaLabelFontSize()
 }
 
 //------------------------------------------------------------------------------
-void vtkTreeAreaView::SetEdgeLabelFontSize(const int size)
+void vtkTreeAreaView::SetEdgeLabelFontSize(int size)
 {
   vtkTextProperty* prop = this->GetTreeAreaRepresentation()->GetGraphEdgeLabelTextProperty();
   if (prop)
@@ -365,3 +366,4 @@ void vtkTreeAreaView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

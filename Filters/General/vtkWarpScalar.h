@@ -41,7 +41,14 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+class vtkCellArray;
 class vtkDataArray;
+class vtkDataSet;
+class vtkDataSetAttributes;
+class vtkIdTypeArray;
+class vtkPointSet;
+class vtkUnsignedCharArray;
 
 class VTKFILTERSGENERAL_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
 {
@@ -104,6 +111,20 @@ public:
   vtkGetMacro(OutputPointsPrecision, int);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get for a property flag that makes the filter include the input data set in the output and
+   * connects the output surface to the input surface through "side walls" effectively making a
+   * single grid enclosing a volume.
+   *
+   * In order to use this functionality correctly, the input must be a two dimensional surface and
+   * cannot be 3D.
+   */
+  vtkGetMacro(GenerateEnclosure, bool);
+  vtkSetMacro(GenerateEnclosure, bool);
+  vtkBooleanMacro(GenerateEnclosure, bool);
+  ///@}
+
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 protected:
@@ -114,15 +135,31 @@ protected:
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**
+   * Check the topological dimension of the data set (only used when SideWallsActive)
+   */
+  unsigned int GetInputDimension(vtkDataSet* input);
+  /**
+   * When GenerateEnclosure is active, construct the cells between the base and warped surfaces
+   */
+  void BuildSideWalls(vtkPointSet* output, int nInputPoints, vtkUnsignedCharArray* boundaryCells,
+    vtkIdTypeArray* boundaryFaceIndexes);
+  /**
+   * Append the values in the arrays of the array attribute collection to themselves
+   */
+  void AppendArrays(vtkDataSetAttributes* setData);
+
   double ScaleFactor;
   vtkTypeBool UseNormal;
   double Normal[3];
   vtkTypeBool XYPlane;
   int OutputPointsPrecision;
+  bool GenerateEnclosure = false;
 
 private:
   vtkWarpScalar(const vtkWarpScalar&) = delete;
   void operator=(const vtkWarpScalar&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

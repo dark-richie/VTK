@@ -29,6 +29,7 @@
 #include "vtkPainterCommunicator.h"
 #include "vtkRenderingParallelLICModule.h" // for export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPPainterCommunicatorInternals;
 class vtkMPICommunicatorOpaqueComm;
 
@@ -83,8 +84,8 @@ public:
   /**
    * Query MPI state.
    */
-  bool GetMPIInitialized() override { return this->MPIInitialized(); }
-  bool GetMPIFinalized() override { return this->MPIFinalized(); }
+  bool GetMPIInitialized() override { return vtkPPainterCommunicator::MPIInitialized(); }
+  bool GetMPIFinalized() override { return vtkPPainterCommunicator::MPIFinalized(); }
 
   static bool MPIInitialized();
   static bool MPIFinalized();
@@ -121,5 +122,6 @@ private:
   vtkPPainterCommunicatorInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkPPainterCommunicator.h

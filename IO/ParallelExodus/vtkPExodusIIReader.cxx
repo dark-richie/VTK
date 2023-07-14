@@ -52,6 +52,7 @@
 #undef DBG_PEXOIIRDR
 #define vtkPExodusIIReaderMAXPATHLEN 2048
 
+VTK_ABI_NAMESPACE_BEGIN
 static const int objTypes[] = { vtkExodusIIReader::EDGE_BLOCK, vtkExodusIIReader::FACE_BLOCK,
   vtkExodusIIReader::ELEM_BLOCK, vtkExodusIIReader::NODE_SET, vtkExodusIIReader::EDGE_SET,
   vtkExodusIIReader::FACE_SET, vtkExodusIIReader::SIDE_SET, vtkExodusIIReader::ELEM_SET,
@@ -661,7 +662,7 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (append->GetNumberOfInputConnections(0) != 0)
   {
     append->Update();
-    output->ShallowCopy(append->GetOutput());
+    output->CompositeShallowCopy(append->GetOutput());
   }
 
   // I've copied append's output to the 'output' so delete append
@@ -1468,3 +1469,4 @@ void vtkPExodusIIReader::Broadcast(vtkMultiProcessController* ctrl)
     ctrl->Broadcast(&this->NumberOfFiles, 1, 0);
   }
 }
+VTK_ABI_NAMESPACE_END

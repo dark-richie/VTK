@@ -24,6 +24,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRToMultiBlockFilter);
 vtkCxxSetObjectMacro(vtkAMRToMultiBlockFilter, Controller, vtkMultiProcessController);
 
@@ -72,11 +73,17 @@ void vtkAMRToMultiBlockFilter::CopyAMRToMultiBlock(
   mbds->SetNumberOfBlocks(amr->GetTotalNumberOfBlocks());
   unsigned int blockIdx = 0;
   unsigned int levelIdx = 0;
-  for (; levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
+  bool abort = false;
+  for (; levelIdx < amr->GetNumberOfLevels() && !abort; ++levelIdx)
   {
     unsigned int dataIdx = 0;
     for (; dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx)
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataIdx);
       if (grid != nullptr)
       {
@@ -117,3 +124,4 @@ int vtkAMRToMultiBlockFilter::RequestData(vtkInformation* vtkNotUsed(rqst),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

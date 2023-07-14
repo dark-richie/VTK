@@ -37,6 +37,7 @@
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation, HandleRepresentation, vtkPointHandleRepresentation3D);
@@ -680,12 +681,12 @@ void vtkLineRepresentation::CreateDefaultProperties()
   // Line properties
   this->LineProperty = vtkProperty::New();
   this->LineProperty->SetAmbient(1.0);
-  this->LineProperty->SetAmbientColor(1.0, 1.0, 1.0);
+  this->LineProperty->SetColor(1.0, 1.0, 1.0);
   this->LineProperty->SetLineWidth(2.0);
 
   this->SelectedLineProperty = vtkProperty::New();
   this->SelectedLineProperty->SetAmbient(1.0);
-  this->SelectedLineProperty->SetAmbientColor(0.0, 1.0, 0.0);
+  this->SelectedLineProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedLineProperty->SetLineWidth(2.0);
 }
 
@@ -846,6 +847,22 @@ void vtkLineRepresentation::SetLineColor(double r, double g, double b)
 }
 
 //------------------------------------------------------------------------------
+void vtkLineRepresentation::SetInteractionColor(double r, double g, double b)
+{
+  this->SelectedEndPointProperty->SetColor(r, g, b);
+  this->SelectedEndPoint2Property->SetColor(r, g, b);
+  this->SelectedLineProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkLineRepresentation::SetForegroundColor(double r, double g, double b)
+{
+  this->EndPointProperty->SetColor(r, g, b);
+  this->EndPoint2Property->SetColor(r, g, b);
+  this->LineProperty->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
 void vtkLineRepresentation::ClampPosition(double x[3])
 {
   for (int i = 0; i < 3; i++)
@@ -877,10 +894,14 @@ int vtkLineRepresentation::InBounds(double x[3])
 //------------------------------------------------------------------------------
 void vtkLineRepresentation::GetActors(vtkPropCollection* pc)
 {
-  this->LineActor->GetActors(pc);
-  this->Handle[0]->GetActors(pc);
-  this->Handle[1]->GetActors(pc);
-  this->TextActor->GetActors(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->LineActor->GetActors(pc);
+    this->Handle[0]->GetActors(pc);
+    this->Handle[1]->GetActors(pc);
+    this->TextActor->GetActors(pc);
+  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------
@@ -1087,3 +1108,4 @@ void vtkLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors
 }
+VTK_ABI_NAMESPACE_END

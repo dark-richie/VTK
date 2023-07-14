@@ -31,6 +31,7 @@
 #include <cassert>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPHyperTreeGridReader);
 
 //------------------------------------------------------------------------------
@@ -201,7 +202,15 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
 
   if (!output)
   {
-    vtkErrorMacro("Incorrect type of output: " << output->GetClassName());
+    if (this->GetCurrentOutput())
+    {
+      vtkErrorMacro(
+        "Expected: vtkHyperTreeGrid, got: " << this->GetCurrentOutput()->GetClassName());
+    }
+    else
+    {
+      vtkErrorMacro("Expected: vtkHyperTreeGrid, got NULL output");
+    }
     return 0;
   }
 
@@ -614,3 +623,4 @@ void vtkXMLPHyperTreeGridReader::RecursivelyProcessTree(
     }
   }
 }
+VTK_ABI_NAMESPACE_END

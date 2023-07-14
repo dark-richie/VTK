@@ -29,6 +29,7 @@
 #include <numeric>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMeanValueCoordinatesInterpolator);
 
 // Special class that can iterate over different type of triangle representations
@@ -168,6 +169,12 @@ struct ComputeWeightsForPolygonMesh
     while (iter.Id < iter.NumberOfPolygons)
     {
       int nPolyPts = iter.CurrentPolygonSize;
+
+      if (nPolyPts == 0)
+      {
+        poly = ++iter;
+        continue;
+      }
 
       for (int j = 0; j < nPolyPts; j++)
       {
@@ -638,3 +645,4 @@ void vtkMeanValueCoordinatesInterpolator::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

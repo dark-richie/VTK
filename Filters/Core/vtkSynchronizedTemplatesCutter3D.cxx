@@ -42,6 +42,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSynchronizedTemplatesCutter3D);
 vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D, CutFunction, vtkImplicitFunction);
 
@@ -159,6 +160,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageDa
   ptr += self->GetArrayComponent();
   vtkPolygonBuilder polyBuilder;
   vtkSmartPointer<vtkIdListCollection> polys = vtkSmartPointer<vtkIdListCollection>::New();
+  bool abort = false;
 
   vtkSynchronizedTemplatesCutter3DInitializeOutput(
     exExt, self->GetOutputPointsPrecision(), data, output);
@@ -225,8 +227,10 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageDa
   T* scalars1 = scalars;
   T* scalars2 = scalars + xdim * ydim;
 
+  int checkAbortInterval = std::min((zMax - zMin) / 10 + 1, 1000);
+
   // for each contour
-  for (vidx = 0; vidx < numContours; vidx++)
+  for (vidx = 0; vidx < numContours && !abort; vidx++)
   {
     value = values[vidx];
     inPtrZ = ptr;
@@ -254,6 +258,11 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D* self, int* exExt, vtkImageDa
     {
       self->UpdateProgress(
         (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
+      if (k % checkAbortInterval == 0 && self->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       inPtrY = inPtrZ;
 
       // for each slice compute the scalars
@@ -584,3 +593,4 @@ void vtkSynchronizedTemplatesCutter3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cut Function: " << this->CutFunction << "\n";
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

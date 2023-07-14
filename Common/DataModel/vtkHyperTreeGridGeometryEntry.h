@@ -40,6 +40,7 @@ JB
 
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
@@ -220,10 +221,11 @@ private:
   vtkIdType Index;
 
   /**
-   * origin coiordinates of the current cell
+   * origin coordinates of the current cell
    */
   double Origin[3];
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridGeometryEntry_h
 // VTK-HeaderTest-Exclude: vtkHyperTreeGridGeometryEntry.h

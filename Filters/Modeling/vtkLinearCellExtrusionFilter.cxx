@@ -27,6 +27,7 @@
 #include <array>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearCellExtrusionFilter);
 
 //------------------------------------------------------------------------------
@@ -76,6 +77,10 @@ int vtkLinearCellExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
   auto iter = vtk::TakeSmartPointer(polys->NewIterator());
   for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell(), cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkIdType cellSize;
     const vtkIdType* cellPoints;
     iter->GetCurrentCell(cellSize, cellPoints);
@@ -237,3 +242,4 @@ int vtkLinearCellExtrusionFilter::FillOutputPortInformation(
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

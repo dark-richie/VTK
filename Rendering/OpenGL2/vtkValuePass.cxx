@@ -15,7 +15,7 @@
 #include "vtkValuePass.h"
 
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
@@ -47,6 +47,7 @@
 #include <cassert>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkValuePass::Parameters
 {
   Parameters()
@@ -397,8 +398,12 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState* s)
     vtkProperty* property = actor->GetProperty();
     vtkMapper* mapper = actor->GetMapper();
 
+    // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+    // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+    // here, it is very likely that OpenGL classes are used.
     vtkOpenGLPolyDataMapper* pdm = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
-    if (!pdm)
+    vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(mapper);
+    if (!pdm && !cpdm)
     {
       continue;
     }
@@ -412,7 +417,6 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState* s)
     this->ImplFloat->CellCellMap.clear();
     this->ImplFloat->CCMapTime = maptime;
 
-    vtkCompositePolyDataMapper2* cpdm = vtkCompositePolyDataMapper2::SafeDownCast(mapper);
     if (cpdm)
     {
       vtkIdType offset = 0;
@@ -694,8 +698,7 @@ vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
 }
 
 //------------------------------------------------------------------------------
-void vtkValuePass::GetFloatImageData(
-  int const format, int const width, int const height, void* data)
+void vtkValuePass::GetFloatImageData(int format, int width, int height, void* data)
 {
   auto ostate = this->ImplFloat->ValueFBO->GetContext()->GetState();
 
@@ -813,7 +816,10 @@ void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr, vtkMapper* mapper)
   // In the parallel case however (ParaView with IceT), the solution below causes
   // data not to be uploaded at all (leading to empty images). Because of this, data
   // is uploaded on every render pass.
-  vtkOpenGLPolyDataMapper* pdm = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+  // The mapper may be a vtkCompositePolyDataMapper, in that case, we should not return.
+  // It is hard to determine if that CPDM uses OpenGL delegates. But if execution reaches
+  // here, it is very likely that OpenGL classes are used.
+  vtkPolyDataMapper* pdm = vtkPolyDataMapper::SafeDownCast(mapper);
   if (!pdm)
   {
     return;
@@ -1031,7 +1037,7 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper, Parameters* array
 vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(vtkMapper* mapper, Parameters* arrayPar)
 {
   vtkAbstractArray* abstractArray = nullptr;
-  vtkCompositePolyDataMapper2* cpdm = vtkCompositePolyDataMapper2::SafeDownCast(mapper);
+  vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(mapper);
   if (cpdm)
   {
     std::vector<vtkPolyData*> pdl = cpdm->GetRenderedList();
@@ -1061,3 +1067,4 @@ vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(vtkMapper* mapper, Par
 
   return abstractArray;
 }
+VTK_ABI_NAMESPACE_END

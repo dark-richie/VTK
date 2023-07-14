@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalDelimitedTextReader);
 
 //------------------------------------------------------------------------------
@@ -35,7 +36,7 @@ vtkTemporalDelimitedTextReader::vtkTemporalDelimitedTextReader()
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalDelimitedTextReader::SetTimeColumnName(const std::string name)
+void vtkTemporalDelimitedTextReader::SetTimeColumnName(std::string name)
 {
   if (this->TimeColumnName != name)
   {
@@ -47,7 +48,7 @@ void vtkTemporalDelimitedTextReader::SetTimeColumnName(const std::string name)
 }
 
 //------------------------------------------------------------------------------
-void vtkTemporalDelimitedTextReader::SetTimeColumnId(const int idx)
+void vtkTemporalDelimitedTextReader::SetTimeColumnId(int idx)
 {
   if (idx != this->TimeColumnId)
   {
@@ -285,3 +286,4 @@ void vtkTemporalDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
   os << "TimeColumnId: " << this->TimeColumnId << endl;
   os << "RemoveTimeStepColumn: " << this->RemoveTimeStepColumn << endl;
 }
+VTK_ABI_NAMESPACE_END

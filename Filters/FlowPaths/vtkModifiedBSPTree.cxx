@@ -32,6 +32,7 @@
 #include <vector>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkModifiedBSPTree);
 
 //------------------------------------------------------------------------------
@@ -340,6 +341,7 @@ void vtkModifiedBSPTree::Subdivide(BSPNode* node, Sorted_cell_extents_Lists* lis
           //
           // process the MAX-List
           ext = lists->Maxs[Daxis][i];
+          this->GetCellBounds(ext.cell_ID, cellBoundsPtr);
           if (cellBoundsPtr[2 * node->mAxis + 1] < pDiv)
           {
             left->Maxs[Daxis][Cmax_l[Daxis]++] = ext;
@@ -511,7 +513,7 @@ void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)
     ns.pop();
     if (node->depth == level)
     {
-      bl.push_back(box(node->Bounds));
+      bl.emplace_back(node->Bounds);
     }
     else
     {
@@ -526,7 +528,7 @@ void vtkModifiedBSPTree::GenerateRepresentation(int level, vtkPolyData* pd)
       }
       else if (level == -1)
       {
-        bl.push_back(box(node->Bounds));
+        bl.emplace_back(node->Bounds);
       }
     }
   }
@@ -778,7 +780,7 @@ struct IntersectionInfo
 };
 
 //------------------------------------------------------------------------------
-int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], const double tol,
+int vtkModifiedBSPTree::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   vtkPoints* points, vtkIdList* cellIds, vtkGenericCell* cell)
 {
   this->BuildLocator();
@@ -1117,3 +1119,4 @@ bool BSPNode::Inside(double point[3]) const
     this->Bounds[2] <= point[1] && point[1] <= this->Bounds[3] && this->Bounds[4] <= point[2] &&
     point[2] <= this->Bounds[5];
 }
+VTK_ABI_NAMESPACE_END

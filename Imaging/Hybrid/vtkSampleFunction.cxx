@@ -27,6 +27,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction, ImplicitFunction, vtkImplicitFunction);
 
@@ -87,7 +88,7 @@ public:
     }
   };
 
-  // Interface implicit function graadient computation to SMP tools.
+  // Interface implicit function gradient computation to SMP tools.
   template <class TT>
   class FunctionGradientOp
   {
@@ -527,3 +528,4 @@ void vtkSampleFunction::ReportReferences(vtkGarbageCollector* collector)
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->ImplicitFunction, "ImplicitFunction");
 }
+VTK_ABI_NAMESPACE_END

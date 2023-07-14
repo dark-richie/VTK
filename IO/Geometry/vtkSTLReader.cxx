@@ -36,6 +36,7 @@
 #include <string>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -524,11 +525,14 @@ bool vtkSTLReader::ReadASCIISTL(
           {
             header += "\n";
           }
-          header += arg;
-          // strip end-of-line character from the end
-          while (!header.empty() && (header.back() == '\r' || header.back() == '\n'))
+          if (*arg)
           {
-            header.pop_back();
+            header += arg;
+            // strip end-of-line character from the end
+            while (!header.empty() && (header.back() == '\r' || header.back() == '\n'))
+            {
+              header.pop_back();
+            }
           }
         }
         else
@@ -706,3 +710,4 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

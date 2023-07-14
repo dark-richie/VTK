@@ -65,6 +65,7 @@
 #define DEBUG_OUT(out)
 #endif // DEBUG
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPExtractRectilinearGrid);
 vtkCxxSetObjectMacro(vtkPExtractRectilinearGrid, Controller, vtkMPIController);
 
@@ -152,7 +153,7 @@ int vtkPExtractRectilinearGrid::RequestData(
   //   FinalOutputExtent = [4, 7]
   //
   // This filter should:
-  // 1) Compute ParititonedVOI that will allow the base class to produce as much
+  // 1) Compute PartitionedVOI that will allow the base class to produce as much
   //    of the output data set as possible from the partitioned piece.
   //
   // 2) Update the output dataset's extents to match PartitionedOutputExtent (it
@@ -262,3 +263,4 @@ int vtkPExtractRectilinearGrid::RequestUpdateExtent(
 
   return this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

@@ -29,6 +29,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 class vtkPlaneCollection;
 class vtkPlanes;
@@ -156,7 +157,7 @@ public:
    */
   int ValidateWorldPosition(double worldPos[3]) override;
 
-  // Descrption:
+  // Description:
   // Orientationation is ignored, and the above method
   // is called instead.
   int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
@@ -214,4 +215,5 @@ private:
   void operator=(const vtkBoundedPlanePointPlacer&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

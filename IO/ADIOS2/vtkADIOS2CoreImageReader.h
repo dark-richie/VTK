@@ -41,6 +41,7 @@
 
 #include "vtkIOADIOS2Module.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataObject;
@@ -203,8 +204,7 @@ public:
   /**
    * The main interface which triggers the reader to start
    */
-  virtual int ProcessRequest(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkADIOS2CoreImageReader();
@@ -212,9 +212,9 @@ protected:
 
   int RequestDataObjectInternal(vtkInformationVector*);
 
-  virtual int RequestInformation(
+  int RequestInformation(
     vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output) override;
-  virtual int RequestData(
+  int RequestData(
     vtkInformation* request, vtkInformationVector** input, vtkInformationVector* output) override;
 
   std::string FetchTypeStringFromVarName(const std::string& name);
@@ -271,4 +271,5 @@ private:
   vtkADIOS2CoreImageReader(const vtkADIOS2CoreImageReader&) = delete;
   void operator=(const vtkADIOS2CoreImageReader&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

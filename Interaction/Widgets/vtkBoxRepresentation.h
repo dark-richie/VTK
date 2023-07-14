@@ -39,6 +39,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkLineSource;
@@ -155,6 +156,29 @@ public:
    */
   vtkGetObjectMacro(OutlineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
+  ///@}
+
+  ///@{
+  /**
+   * Set the foreground color (the outline of the box).
+   */
+  void SetForegroundColor(double _arg1, double _arg2, double _arg3);
+  void SetForegroundColor(const double _arg[3])
+  {
+    this->SetForegroundColor(_arg[0], _arg[1], _arg[2]);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Set the interaction color. Applies to the handle and outline
+   * when interaction is happening.
+   */
+  void SetInteractionColor(double _arg1, double _arg2, double _arg3);
+  void SetInteractionColor(const double _arg[3])
+  {
+    this->SetInteractionColor(_arg[0], _arg[1], _arg[2]);
+  }
   ///@}
 
   ///@{
@@ -298,7 +322,7 @@ public:
 
   ///@{
   /**
-   * Returns true if ContrainedAxis
+   * Returns true if ConstrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
   ///@}
@@ -417,4 +441,5 @@ private:
   void operator=(const vtkBoxRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

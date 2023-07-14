@@ -51,6 +51,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkPolygon;
 
@@ -137,9 +138,9 @@ private:
 
   vtkTimeStamp InitializationTime;
 
-private:
   vtkImplicitSelectionLoop(const vtkImplicitSelectionLoop&) = delete;
   void operator=(const vtkImplicitSelectionLoop&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

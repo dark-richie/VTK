@@ -40,6 +40,7 @@ enum vtkImageBorderMode : int
   VTK_IMAGE_BORDER_MIRROR = 2,
 };
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkImageData;
 class vtkDataArray;
@@ -247,6 +248,13 @@ public:
 
   ///@{
   /**
+   * Get the direction of the data being interpolated.
+   */
+  vtkGetVectorMacro(Direction, double, 9);
+  ///@}
+
+  ///@{
+  /**
    * Get the origin of the data being interpolated.
    */
   vtkGetVector3Macro(Origin, double);
@@ -272,6 +280,11 @@ protected:
    * Subclass-specific copy.
    */
   virtual void InternalDeepCopy(vtkAbstractImageInterpolator* obj) = 0;
+
+  /**
+   * Convert XYZ coordinate to IJK continuous index
+   */
+  void CoordinateToIJK(const double point[3], double ijk[3]);
 
   ///@{
   /**
@@ -308,12 +321,15 @@ protected:
   float StructuredBoundsFloat[6];
   int Extent[6];
   double Spacing[3];
+  double Direction[9];
+  double InverseDirection[9];
   double Origin[3];
   double OutValue;
   double Tolerance;
   vtkImageBorderMode BorderMode;
   int ComponentOffset;
   int ComponentCount;
+  bool UseDirection;
   bool SlidingWindow;
 
   // information needed by the interpolator funcs
@@ -369,4 +385,5 @@ inline void vtkAbstractImageInterpolator::InterpolateRow(
   this->RowInterpolationFuncFloat(weights, xIdx, yIdx, zIdx, value, n);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

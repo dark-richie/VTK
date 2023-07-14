@@ -1,6 +1,25 @@
 #!/usr/bin/env python
-import vtk
-from vtk.util.misc import vtkGetDataRoot
+from vtkmodules.vtkCommonCore import (
+    VTK_STRING,
+    vtkCommand,
+    vtkIntArray,
+    vtkPoints,
+)
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersCore import vtkClipPolyData
+from vtkmodules.vtkFiltersModeling import vtkSelectPolyData
+from vtkmodules.vtkIOXML import vtkXMLPolyDataReader
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderWindow,
+    vtkRenderWindowInteractor,
+    vtkRenderer,
+)
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+import vtkmodules.vtkRenderingOpenGL2
+from vtkmodules.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Callback object to capture errors
@@ -19,8 +38,9 @@ class callback:
         self.calldata = None
 
 
-reader = vtk.vtkXMLPolyDataReader()
+reader = vtkXMLPolyDataReader()
 reader.SetFileName(VTK_DATA_ROOT + "/Data/cow.vtp")
+reader.Update()
 
 # Create a loop around the ear of the cow. It is a somewhat complex area
 # where the heuristic greedy edge search method fails but Dijkstra can
@@ -67,22 +87,44 @@ loopPointPositions = [[ 4.5208645 ,  2.0485868 , -0.5763462 ],
        [ 4.463926  ,  2.1002119 , -0.5689619 ],
        [ 4.5208645 ,  2.0485868 , -0.5763462 ]]
 
-loopPoints = vtk.vtkPoints()
+loopPoints = vtkPoints()
 for xyz in loopPointPositions:
     loopPoints.InsertNextPoint(xyz)
 
-selectionFilter = vtk.vtkSelectPolyData()
-selectionFilter.SetInputConnection(reader.GetOutputPort())
+# Add attribute information
+cowPolyData = vtkPolyData()
+cowPolyData.ShallowCopy(reader.GetOutput())
+
+ptScalarArray = vtkIntArray()
+ptScalarArray.SetName("ScalarArray")
+ptScalarArray.SetNumberOfComponents(1)
+ptScalarArray.SetNumberOfTuples(cowPolyData.GetNumberOfPoints())
+ptScalarArray.Fill(1)
+
+cowPolyData.GetPointData().AddArray(ptScalarArray)
+
+cellScalarArray = vtkIntArray()
+cellScalarArray.SetName("ScalarArray")
+cellScalarArray.SetNumberOfComponents(1)
+cellScalarArray.SetNumberOfTuples(cowPolyData.GetNumberOfCells())
+cellScalarArray.Fill(1)
+
+cowPolyData.GetCellData().AddArray(cellScalarArray)
+
+# Filter setup
+selectionFilter = vtkSelectPolyData()
+selectionFilter.SetInputData(cowPolyData)
 selectionFilter.SetLoop(loopPoints)
 selectionFilter.GenerateSelectionScalarsOn()
+selectionFilter.SetSelectionScalarsArrayName("SelectionArray")
 selectionFilter.SetSelectionModeToSmallestRegion()
 
 # Run selection filter using greedy method (expected to fail)
 
 # Add error observer to catch the expected error (uncaught error would make the test fail)
 cb = callback()
-cb.CallDataType = vtk.VTK_STRING
-observerId = selectionFilter.AddObserver(vtk.vtkCommand.ErrorEvent, cb)
+cb.CallDataType = VTK_STRING
+observerId = selectionFilter.AddObserver(vtkCommand.ErrorEvent, cb)
 # Run the computation
 selectionFilter.SetEdgeSearchModeToGreedy()
 selectionFilter.Update()
@@ -90,9 +132,9 @@ selectionFilter.Update()
 selectionFilter.RemoveObserver(observerId)
 # Check the results
 if cb.event:
-    print(f"As expected, greedy edge search failed: {cb.calldata}")
+    print("As expected, greedy edge search failed: %s" % cb.calldata)
 numberOfOutputPoints = selectionFilter.GetOutput().GetNumberOfPoints()
-print(f"Number of points extracted using greedy edge search (0 means failure): {numberOfOutputPoints}")
+print("Number of points extracted using greedy edge search (0 means failure): %d" % numberOfOutputPoints)
 
 # Run selection filter using Dijkstra method (expected to succeed)
 
@@ -101,27 +143,39 @@ selectionFilter.SetEdgeSearchModeToDijkstra()
 selectionFilter.Update()
 # Check the results
 numberOfOutputPoints = selectionFilter.GetOutput().GetNumberOfPoints()
-print(f"Number of points extracted using Dijkstra edge search (0 means failure): {numberOfOutputPoints}")
+print("Number of points extracted using Dijkstra edge search (0 means failure): %d" % numberOfOutputPoints)
 if numberOfOutputPoints == 0:
-    raise ValueError("Dijkstra edge search failed")
+    raise ValueError("Dijkstra edge search failed.")
+
+testArray = selectionFilter.GetOutput().GetPointData().GetArray("SelectionArray")
+if testArray is None:
+    raise ValueError("Selection scalar array failed to generate using Dijkstra edge search.")
+
+testPtScalarArray = selectionFilter.GetOutput().GetPointData().GetArray("ScalarArray")
+if testPtScalarArray is None:
+    raise ValueError("Point scalar array did not pass through using Dijkstra edge search.")
+
+testCellScalarArray = selectionFilter.GetOutput().GetCellData().GetArray("ScalarArray")
+if testCellScalarArray is None:
+    raise ValueError("Cell scalar array did not pass through using Dijkstra edge search.")
 
 # Display results
 
 # Clip the mesh with the selection (cuts out a hole around the cow's ear)
-clipFilter = vtk.vtkClipPolyData()
+clipFilter = vtkClipPolyData()
 clipFilter.SetInputConnection(selectionFilter.GetOutputPort())
 
 # Set up renderer
-ren1 = vtk.vtkRenderer()
-renWin = vtk.vtkRenderWindow()
+ren1 = vtkRenderer()
+renWin = vtkRenderWindow()
 renWin.AddRenderer(ren1)
-iren = vtk.vtkRenderWindowInteractor()
+iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Set up actor
-mapper = vtk.vtkPolyDataMapper()
+mapper = vtkPolyDataMapper()
 mapper.SetInputConnection(clipFilter.GetOutputPort())
-actor = vtk.vtkActor()
+actor = vtkActor()
 actor.SetMapper(mapper)
 ren1.AddActor(actor)
 

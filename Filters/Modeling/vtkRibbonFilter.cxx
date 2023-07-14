@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does
@@ -89,7 +90,7 @@ int vtkRibbonFilter::RequestData(vtkInformation* vtkNotUsed(request),
   const vtkIdType* pts = nullptr;
   vtkIdType offset = 0;
   vtkFloatArray* newTCoords = nullptr;
-  int abort = 0;
+  bool abort = false;
   vtkIdType inCellId;
 
   // Check input and initialize
@@ -178,7 +179,7 @@ int vtkRibbonFilter::RequestData(vtkInformation* vtkNotUsed(request),
        inCellId++)
   {
     this->UpdateProgress((double)inCellId / numLines);
-    abort = this->GetAbortExecute();
+    abort = this->CheckAbort();
 
     if (npts < 2)
     {
@@ -522,3 +523,4 @@ void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate TCoords: " << this->GetGenerateTCoordsAsString() << endl;
   os << indent << "Texture Length: " << this->TextureLength << endl;
 }
+VTK_ABI_NAMESPACE_END

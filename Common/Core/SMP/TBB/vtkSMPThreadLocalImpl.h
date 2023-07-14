@@ -39,6 +39,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
 class vtkSMPThreadLocalImpl<BackendType::TBB, T> : public vtkSMPThreadLocalImplAbstract<T>
@@ -48,7 +49,7 @@ class vtkSMPThreadLocalImpl<BackendType::TBB, T> : public vtkSMPThreadLocalImplA
   typedef typename vtkSMPThreadLocalImplAbstract<T>::ItImpl ItImplAbstract;
 
 public:
-  vtkSMPThreadLocalImpl() {}
+  vtkSMPThreadLocalImpl() = default;
 
   explicit vtkSMPThreadLocalImpl(const T& exemplar)
     : Internal(exemplar)
@@ -74,7 +75,7 @@ public:
     T* GetContentPtr() override { return &*this->Iter; }
 
   protected:
-    virtual ItImpl* CloneImpl() const override { return new ItImpl(*this); };
+    ItImpl* CloneImpl() const override { return new ItImpl(*this); };
 
   private:
     TLSIter Iter;
@@ -110,6 +111,7 @@ private:
   void operator=(const vtkSMPThreadLocalImpl&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

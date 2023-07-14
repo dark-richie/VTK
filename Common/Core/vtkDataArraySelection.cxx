@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelection::vtkInternals
@@ -116,7 +117,7 @@ void vtkDataArraySelection::SetArraySetting(const char* name, int setting)
   }
   else if (name)
   {
-    internal.Arrays.push_back(vtkInternals::ArraySettingPair(name, status));
+    internal.Arrays.emplace_back(name, status);
     this->Modified();
   }
 }
@@ -275,7 +276,7 @@ int vtkDataArraySelection::AddArray(const char* name, bool state)
   {
     return 0;
   }
-  this->Internal->Arrays.push_back(vtkInternals::ArraySettingPair(name, state));
+  this->Internal->Arrays.emplace_back(name, state);
   return 1;
 }
 
@@ -330,7 +331,7 @@ void vtkDataArraySelection::SetArraysWithDefault(
     {
       setting = iter->second;
     }
-    newInternal->Arrays.push_back(vtkInternals::ArraySettingPair(names[i], setting));
+    newInternal->Arrays.emplace_back(names[i], setting);
   }
 
   // Delete the old map and save the new one.
@@ -402,3 +403,4 @@ void vtkDataArraySelection::Union(vtkDataArraySelection* other, bool skipModifie
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

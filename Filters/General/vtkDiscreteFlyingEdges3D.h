@@ -39,12 +39,17 @@
  * degenerate triangles (i.e., zero-area triangles).
  *
  * @warning
+ * See also vtkPackLabels which is a utility class for renumbering the labels
+ * found in the input segmentation mask to contiguous forms of smaller type.
+ *
+ * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
  * vtkDiscreteMarchingCubes vtkDiscreteFlyingEdges2D vtkDiscreteFlyingEdges3D
+ * vtkPackLabels
  */
 
 #ifndef vtkDiscreteFlyingEdges3D_h
@@ -54,6 +59,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
 class VTKFILTERSGENERAL_EXPORT vtkDiscreteFlyingEdges3D : public vtkPolyDataAlgorithm
@@ -197,4 +203,5 @@ private:
   void operator=(const vtkDiscreteFlyingEdges3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -24,6 +24,7 @@
 #include <cmath>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkVRHMDCamera::vtkVRHMDCamera()
 {
   // approximate for Vive
@@ -114,6 +115,9 @@ void vtkVRHMDCamera::GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& wcvc, vtkMa
 
       vtkMatrix4x4::Multiply4x4(this->LeftEyeToProjectionMatrix, this->PhysicalToLeftEyeMatrix,
         this->PhysicalToProjectionMatrixForLeftEye);
+
+      this->VCDCMatrix->DeepCopy(this->LeftEyeToProjectionMatrix);
+      this->VCDCMatrix->Transpose();
     }
     else
     {
@@ -128,6 +132,9 @@ void vtkVRHMDCamera::GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& wcvc, vtkMa
 
       vtkMatrix4x4::Multiply4x4(this->RightEyeToProjectionMatrix, this->PhysicalToRightEyeMatrix,
         this->PhysicalToProjectionMatrixForRightEye);
+
+      this->VCDCMatrix->DeepCopy(this->RightEyeToProjectionMatrix);
+      this->VCDCMatrix->Transpose();
     }
 
     this->KeyMatrixTime.Modified();
@@ -137,15 +144,7 @@ void vtkVRHMDCamera::GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& wcvc, vtkMa
   wcdc = this->WCDCMatrix;
   wcvc = this->WCVCMatrix;
   normMat = this->NormalMatrix;
-
-  if (this->LeftEye)
-  {
-    vcdc = this->LeftEyeToProjectionMatrix;
-  }
-  else
-  {
-    vcdc = this->RightEyeToProjectionMatrix;
-  }
+  vcdc = this->VCDCMatrix;
 }
 
 //------------------------------------------------------------------------------
@@ -186,3 +185,4 @@ void vtkVRHMDCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PhysicalToProjectionMatrixForRightEye: ";
   this->PhysicalToProjectionMatrixForRightEye->PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

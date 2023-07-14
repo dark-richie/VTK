@@ -32,6 +32,7 @@
 
 #include "vtk_glew.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQWidgetRepresentation);
 
 //------------------------------------------------------------------------------
@@ -159,7 +160,11 @@ double* vtkQWidgetRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkQWidgetRepresentation::GetActors(vtkPropCollection* pc)
 {
-  this->PlaneActor->GetActors(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->PlaneActor->GetActors(pc);
+  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------
@@ -243,3 +248,4 @@ void vtkQWidgetRepresentation::RegisterPickers()
   }
   pm->AddPicker(this->Picker, this);
 }
+VTK_ABI_NAMESPACE_END

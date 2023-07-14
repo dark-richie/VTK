@@ -44,6 +44,7 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderedHierarchyRepresentation;
 
 class VTKVIEWSINFOVIS_EXPORT vtkHierarchicalGraphView : public vtkGraphLayoutView
@@ -123,7 +124,7 @@ public:
   /**
    * The size of the font used for edge labeling
    */
-  virtual void SetGraphEdgeLabelFontSize(const int size);
+  virtual void SetGraphEdgeLabelFontSize(int size);
   virtual int GetGraphEdgeLabelFontSize();
   ///@}
 
@@ -146,4 +147,5 @@ private:
   void operator=(const vtkHierarchicalGraphView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

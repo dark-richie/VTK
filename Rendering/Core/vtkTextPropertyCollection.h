@@ -30,6 +30,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTextProperty.h"        // for inline functions
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
 {
 public:
@@ -71,7 +72,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o);
 
-private:
   vtkTextPropertyCollection(const vtkTextPropertyCollection&) = delete;
   void operator=(const vtkTextPropertyCollection&) = delete;
 };
@@ -114,4 +114,5 @@ inline void vtkTextPropertyCollection::AddItem(vtkObject* o)
   this->vtkCollection::AddItem(o);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

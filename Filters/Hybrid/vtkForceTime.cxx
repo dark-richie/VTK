@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkForceTime);
 
 //------------------------------------------------------------------------------
@@ -140,6 +141,7 @@ int vtkForceTime::RequestData(
     this->PipelineTimeFlag = false;
   }
   outData->ShallowCopy(this->Cache);
+  this->CheckAbort();
   return 1;
 }
 
@@ -170,3 +172,4 @@ int vtkForceTime::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

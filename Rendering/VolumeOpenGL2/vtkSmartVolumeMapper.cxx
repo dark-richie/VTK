@@ -38,6 +38,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSmartVolumeMapper);
 
 //------------------------------------------------------------------------------
@@ -59,6 +60,8 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->RayCastSupported = 0;
   this->LowResGPUNecessary = 0;
   this->InterpolationMode = VTK_RESLICE_CUBIC;
+
+  this->UseJittering = 0;
 
   // If the render window has a desired update greater than or equal to the
   // interactive update rate, we apply certain optimizations to ensure that the
@@ -466,6 +469,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
       this->GPUMapper->SetBlendMode(this->GetBlendMode());
       this->GPUMapper->SetFinalColorWindow(this->FinalColorWindow);
       this->GPUMapper->SetFinalColorLevel(this->FinalColorLevel);
+      this->GPUMapper->SetUseJittering(this->UseJittering);
       this->GPUMapper->SetSampleDistance(this->SampleDistance);
       this->GPUMapper->SetTransfer2DYAxisArray(this->Transfer2DYAxisArray);
       this->GPUMapper->SetComputeNormalFromOpacity(this->ComputeNormalFromOpacity);
@@ -482,14 +486,15 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
 
       // if any of the scale factors is not 1.0, then we do need
       // to use the low res mapper for interactive rendering
-      if (scale[0] != 1.0 || scale[1] != 1.0 || scale[2] != 1.0)
+      if (LowResMode == LowResModeResample &&
+        (scale[0] != 1.0 || scale[1] != 1.0 || scale[2] != 1.0))
       {
         this->LowResGPUNecessary = 1;
         this->ConnectFilterInput(this->GPUResampleFilter);
         this->GPUResampleFilter->SetInterpolationMode(this->InterpolationMode);
-        this->GPUResampleFilter->SetAxisMagnificationFactor(0, scale[0] / 2.0);
-        this->GPUResampleFilter->SetAxisMagnificationFactor(1, scale[1] / 2.0);
-        this->GPUResampleFilter->SetAxisMagnificationFactor(2, scale[2] / 2.0);
+        this->GPUResampleFilter->SetAxisMagnificationFactor(0, scale[0]);
+        this->GPUResampleFilter->SetAxisMagnificationFactor(1, scale[1]);
+        this->GPUResampleFilter->SetAxisMagnificationFactor(2, scale[2]);
 
         this->GPULowResMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
         this->GPULowResMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
@@ -502,6 +507,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer* ren, vtkVolume* vol)
         this->GPULowResMapper->SetBlendMode(this->GetBlendMode());
         this->GPULowResMapper->SetFinalColorWindow(this->FinalColorWindow);
         this->GPULowResMapper->SetFinalColorLevel(this->FinalColorLevel);
+        this->GPULowResMapper->SetUseJittering(this->UseJittering);
         this->GPULowResMapper->SetSampleDistance(this->SampleDistance);
       }
       else
@@ -930,3 +936,4 @@ void vtkSmartVolumeMapper::SetVectorMode(int mode)
     this->Modified();
   }
 }
+VTK_ABI_NAMESPACE_END

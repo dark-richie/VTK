@@ -49,6 +49,7 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGLTFExporter);
 
 vtkGLTFExporter::vtkGLTFExporter()
@@ -105,7 +106,8 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   size_t pointAccessor = 0;
   {
     vtkDataArray* da = tris->GetPoints()->GetData();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteBufferAndView(
+      da, fileName, inlineData, buffers, bufferViews, GLTF_ARRAY_BUFFER);
 
     // write the accessor
     nlohmann::json acc;
@@ -151,7 +153,8 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   for (size_t i = 0; i < arraysToSave.size(); ++i)
   {
     vtkDataArray* da = arraysToSave[i];
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteBufferAndView(
+      da, fileName, inlineData, buffers, bufferViews, GLTF_ARRAY_BUFFER);
 
     // write the accessor
     nlohmann::json acc;
@@ -170,7 +173,8 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   if (vertColor)
   {
     vtkUnsignedCharArray* da = aPart->GetMapper()->GetColorMapColors();
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteBufferAndView(
+      da, fileName, inlineData, buffers, bufferViews, GLTF_ARRAY_BUFFER);
 
     // write the accessor
     nlohmann::json acc;
@@ -195,7 +199,8 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   if (tcoords)
   {
     vtkFloatArray* da = tcoords;
-    vtkGLTFWriterUtils::WriteBufferAndView(tcoords, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteBufferAndView(
+      tcoords, fileName, inlineData, buffers, bufferViews, GLTF_ARRAY_BUFFER);
 
     // write the accessor
     nlohmann::json acc;
@@ -419,7 +424,8 @@ void WriteTexture(nlohmann::json& buffers, nlohmann::json& bufferViews, nlohmann
     png->Write();
     da = png->GetResult();
 
-    vtkGLTFWriterUtils::WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+    vtkGLTFWriterUtils::WriteBufferAndView(
+      da, fileName, inlineData, buffers, bufferViews, GLTF_ARRAY_BUFFER);
 
     // write the image
     nlohmann::json img;
@@ -680,3 +686,4 @@ void vtkGLTFExporter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FileName: (null)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

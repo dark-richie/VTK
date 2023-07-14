@@ -21,14 +21,6 @@ PURPOSE.  See the above copyright notice for more information.
  * class vtkVRRenderWindow. vtkOpenVRRenderer interfaces to the
  * OpenVR graphics library
  *
- * This class and its similar classes are designed to be drop in
- * replacements for VTK. If you link to this module and turn on
- * the CMake option VTK_OPENVR_OBJECT_FACTORY, the object
- * factory mechanism should replace the core rendering classes such as
- * RenderWindow with OpenVR specialized versions. The goal is for VTK
- * programs to be able to use the OpenVR library with little to no
- * changes.
- *
  * This class handles the bulk of interfacing to OpenVR. It supports one
  * renderer currently. The renderer is assumed to cover the entire window
  * which is what makes sense to VR. Overlay renderers can probably be
@@ -60,6 +52,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <openvr.h> // for ivars
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkOpenVRModel;
 
@@ -80,10 +73,11 @@ public:
   void Initialize() override;
 
   /**
-   * Free up any graphics resources associated with this window
-   * a value of nullptr means the context may already be destroyed
+   * Finalize the rendering window.  This will shutdown all system-specific
+   * resources. After having called this, it should be possible to destroy
+   * a window that was used for a SetWindowId() call without any ill effects.
    */
-  void ReleaseGraphicsResources(vtkWindow* renWin) override;
+  void Finalize() override;
 
   /**
    * Get the system pointer
@@ -150,12 +144,13 @@ public:
 
 protected:
   vtkOpenVRRenderWindow();
-  ~vtkOpenVRRenderWindow() override = default;
+  ~vtkOpenVRRenderWindow() override;
 
   std::string GetWindowTitleFromAPI() override;
   bool GetSizeFromAPI() override;
 
   bool CreateFramebuffers(uint32_t viewCount = 2) override;
+  void RenderFramebuffer(FramebufferDesc& framebufferDesc) override;
   bool CreateOneFramebuffer(int nWidth, int nHeight, FramebufferDesc& framebufferDesc);
 
   /**
@@ -178,4 +173,5 @@ private:
   void operator=(const vtkOpenVRRenderWindow&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

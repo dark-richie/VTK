@@ -28,6 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadRotationalExtrusionFilter);
 
 //------------------------------------------------------------------------------
@@ -83,13 +84,19 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis(double blockAngle, vtkIdT
   double radIncr = this->DeltaRadius / this->Resolution;
   double transIncr = this->Translation / this->Resolution;
   double angleIncr = vtkMath::RadiansFromDegrees(blockAngle) / this->Resolution;
+  bool abort = false;
 
   // Sweep over set resolution
-  for (int i = 1; i <= this->Resolution; ++i)
+  for (int i = 1; i <= this->Resolution && !abort; ++i)
   {
     this->UpdateProgress(.1 + .5 * (i - 1) / this->Resolution);
     for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
     {
+      if (this->CheckAbort())
+      {
+        abort = true;
+        break;
+      }
       // Get point coordinates
       double x[3];
       inPts->GetPoint(ptId, x);
@@ -193,6 +200,10 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
 
   while (inputIterator->IsDoneWithTraversal() == 0)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // get the input and output
     int blockId = inputIterator->GetCurrentFlatIndex();
     vtkPolyData* input = vtkPolyData::SafeDownCast(inputIterator->GetCurrentDataObject());
@@ -308,6 +319,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
       {
         for (vtkIdType cellId = 0; cellId < numCells && !abort; ++cellId)
         {
+          if (this->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
           type = mesh->GetCellType(cellId);
           if (type == VTK_VERTEX || type == VTK_POLY_VERTEX)
           {
@@ -326,7 +342,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
         }   // for all cells
       }     // if there are verts generating lines
       this->UpdateProgress(0.25);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
 
       // If capping is on, copy 2D cells to output ( plus create cap ). Notice
       // that polygons are done first, then strips.
@@ -341,6 +357,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
 
           for (vtkIdType cellId = 0; cellId < numCells && !abort; ++cellId)
           {
+            if (this->CheckAbort())
+            {
+              abort = true;
+              break;
+            }
             type = mesh->GetCellType(cellId);
             if (type == VTK_TRIANGLE || type == VTK_QUAD || type == VTK_POLYGON)
             {
@@ -365,6 +386,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
 
           for (vtkIdType cellId = 0; cellId < numCells && !abort; ++cellId)
           {
+            if (this->CheckAbort())
+            {
+              abort = true;
+              break;
+            }
             type = mesh->GetCellType(cellId);
             if (type == VTK_TRIANGLE_STRIP)
             {
@@ -383,7 +409,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
         }
       } // if capping
       this->UpdateProgress(0.5);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
 
       // Now process lines, polys and/or strips to produce strips
       //
@@ -396,6 +422,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(req
 
         for (vtkIdType cellId = 0; cellId < numCells && !abort; ++cellId)
         {
+          if (this->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
           type = mesh->GetCellType(cellId);
           if (type == VTK_LINE || type == VTK_POLY_LINE)
           {
@@ -531,3 +562,4 @@ void vtkQuadRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent.GetNextIndent() << "Block #" << it->first << " -> " << it->second << "\n";
   }
 }
+VTK_ABI_NAMESPACE_END

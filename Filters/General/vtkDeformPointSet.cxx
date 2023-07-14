@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDeformPointSet);
 
 //------------------------------------------------------------------------------
@@ -122,7 +123,7 @@ int vtkDeformPointSet::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetPoints(outPts);
 
   // Start by determining whether weights must be computed or not
-  int abort = 0;
+  bool abort = false;
   vtkIdType progressInterval = (numberOfPointSetPoints / 10 + 1);
   int workLoad = 1;
   double x[3], *weights;
@@ -146,7 +147,7 @@ int vtkDeformPointSet::RequestData(vtkInformation* vtkNotUsed(request),
       {
         vtkDebugMacro(<< "Processing #" << ptId);
         this->UpdateProgress(ptId / (workLoad * numberOfPointSetPoints));
-        abort = this->GetAbortExecute();
+        abort = this->CheckAbort();
       }
 
       inPts->GetPoint(ptId, x);
@@ -171,7 +172,7 @@ int vtkDeformPointSet::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "Processing #" << ptId);
       this->UpdateProgress(ptId / (workLoad * numberOfPointSetPoints));
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     weights = this->Weights->GetPointer(ptId * numberOfControlMeshPoints);
@@ -203,3 +204,4 @@ void vtkDeformPointSet::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Initialize Weights: " << (this->InitializeWeights ? "true" : "false") << "\n";
 }
+VTK_ABI_NAMESPACE_END

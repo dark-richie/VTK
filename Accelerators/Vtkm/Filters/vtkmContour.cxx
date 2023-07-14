@@ -32,12 +32,12 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/cont/ErrorFilterExecution.h>
+#include <vtkm/cont/ErrorUserAbort.h>
 #include <vtkm/filter/contour/Contour.h>
 #include <vtkm/worklet/WorkletMapField.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmContour);
 
 //------------------------------------------------------------------------------
@@ -73,9 +73,7 @@ bool vtkmContour::CanProcessInput(vtkDataSet* input)
   auto imageData = vtkImageData::SafeDownCast(input);
   if (imageData && imageData->GetDataDimension() == 3)
   {
-    // Currently, vtkm's flying edges implementation crashes for some cases.
-    // Temporarily disabling this code path
-    return false;
+    return true;
   }
 
   auto rectilinearGrid = vtkRectilinearGrid::SafeDownCast(input);
@@ -188,6 +186,8 @@ int vtkmContour::RequestData(
 
   try
   {
+    vtkm::cont::ScopedRuntimeDeviceTracker rtdt([&]() { return this->CheckAbort(); });
+
     if (!this->CanProcessInput(input))
     {
       throw vtkm::cont::ErrorFilterExecution(
@@ -212,20 +212,12 @@ int vtkmContour::RequestData(
     }
 
     // convert the input dataset to a vtkm::cont::DataSet
-    vtkm::cont::DataSet in;
-    if (this->ComputeScalars)
+    vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    if (!this->ComputeScalars)
     {
-      in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
-    }
-    else
-    {
-      in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
-      // explicitly convert just the field we need
-      auto inField = tovtkm::Convert(inputArray, association);
-      in.AddField(inField);
-      // don't pass this field
+      // don't pass the scalar field
       filter.SetFieldsToPass(
-        vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None));
+        vtkm::filter::FieldSelection(scalarFieldName, vtkm::filter::FieldSelection::Mode::Exclude));
     }
 
     vtkm::cont::DataSet result = filter.Execute(in);
@@ -247,6 +239,11 @@ int vtkmContour::RequestData(
         filter.GetNormalArrayName().c_str(), vtkDataSetAttributes::NORMALS);
     }
   }
+  catch (const vtkm::cont::ErrorUserAbort&)
+  {
+    // vtkm detected an abort request, clear the output
+    output->Initialize();
+  }
   catch (const vtkm::cont::Error& e)
   {
     vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
@@ -257,3 +254,4 @@ int vtkmContour::RequestData(
   // we got this far, everything is good
   return 1;
 }
+VTK_ABI_NAMESPACE_END

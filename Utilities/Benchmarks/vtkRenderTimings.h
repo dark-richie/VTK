@@ -25,6 +25,7 @@
 #include <map>
 #include <vtksys/CommandLineArguments.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkRTTestResult;
 class vtkRTTestSequence;
 class vtkRenderTimings;
@@ -73,7 +74,7 @@ public:
     RenderWidth = RenderHeight = 600;
   }
 
-  virtual ~vtkRTTest() {}
+  virtual ~vtkRTTest() = default;
 
 protected:
   float TargetTime;
@@ -125,13 +126,13 @@ public:
 
   vtkRTTestSequence(vtkRenderTimings* rt)
   {
-    this->Test = NULL;
+    this->Test = nullptr;
     this->TargetTime = 10.0;
     this->RenderTimings = rt;
     this->ChartResults = true;
   }
 
-  virtual ~vtkRTTestSequence() {}
+  virtual ~vtkRTTestSequence() = default;
 
 protected:
   std::vector<vtkRTTestResult> TestResults;
@@ -151,7 +152,7 @@ public:
   int GetSequenceStart() { return this->SequenceStart; }
   int GetSequenceEnd() { return this->SequenceEnd; }
 
-  // get the maxmimum time allowed per step
+  // get the maximum time allowed per step
   double GetSequenceStepTimeLimit() { return this->SequenceStepTimeLimit; }
 
   // get the render size
@@ -189,5 +190,6 @@ private:
   int RenderHeight;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkRenderTimings.h

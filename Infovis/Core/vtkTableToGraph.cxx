@@ -51,6 +51,7 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableToGraph);
 vtkCxxSetObjectMacro(vtkTableToGraph, LinkGraph, vtkMutableDirectedGraph);
 //------------------------------------------------------------------------------
@@ -793,7 +794,7 @@ int vtkTableToGraph::RequestData(
       }
       else if (!hiddenSource && hiddenTarget)
       {
-        hiddenInEdges[target].push_back(std::make_pair(source, r));
+        hiddenInEdges[target].emplace_back(source, r);
       }
       else
       {
@@ -931,3 +932,4 @@ void vtkTableToGraph::PrintSelf(ostream& os, vtkIndent indent)
     this->LinkGraph->PrintSelf(os, indent.GetNextIndent());
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -24,6 +24,8 @@
 
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkLine : public vtkCell
@@ -121,7 +123,7 @@ public:
    *
    */
   static int Intersection(const double p1[3], const double p2[3], const double x1[3],
-    const double x2[3], double& u, double& v, const double tolerance = 1e-6,
+    const double x2[3], double& u, double& v, double tolerance = 1e-6,
     int toleranceType = ToleranceType::Relative);
 
   /**
@@ -198,4 +200,5 @@ inline int vtkLine::GetParametricCenter(double pcoords[3])
   return 0;
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

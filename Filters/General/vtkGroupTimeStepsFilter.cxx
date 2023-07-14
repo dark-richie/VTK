@@ -27,6 +27,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGroupTimeStepsFilter);
 //----------------------------------------------------------------------------
 vtkGroupTimeStepsFilter::vtkGroupTimeStepsFilter()
@@ -134,7 +135,7 @@ int vtkGroupTimeStepsFilter::RequestData(
     this->AddTimeStep(time, timeStep, clone);
   }
 
-  if ((++this->UpdateTimeIndex) < this->TimeSteps.size())
+  if ((++this->UpdateTimeIndex) < this->TimeSteps.size() && !this->CheckAbort())
   {
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
   }
@@ -278,3 +279,4 @@ void vtkGroupTimeStepsFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -57,6 +57,7 @@
 #include "vtkNew.h"                // needed for vtkNew
 #include "vtkSmartPointer.h"       // needed for vtkSmartPointer
 
+VTK_ABI_NAMESPACE_BEGIN
 class QVTKInteractor;
 class QVTKInteractorAdapter;
 class QVTKRenderWindowAdapter;
@@ -175,13 +176,12 @@ protected Q_SLOTS:
    */
   friend class QVTKOpenGLStereoWidget;
 
-protected:
+protected: // NOLINT(readability-redundant-access-specifiers)
   bool event(QEvent* evt) override;
   void initializeGL() override;
   void paintGL() override;
   void resizeGL(int w, int h) override;
 
-protected:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
   QScopedPointer<QVTKRenderWindowAdapter> RenderWindowAdapter;
 
@@ -193,4 +193,5 @@ private:
   QCursor DefaultCursor;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

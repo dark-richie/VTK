@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "vtkABINamespace.h"
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -48,24 +49,21 @@
 //================================================================================
 //                          INTERNAL VELODYNE READER
 //================================================================================
-typedef struct tagVelodyneSimParameters
-{
-  double Time;
-  int CycleTime;
-} VelodneSimParameters;
+VTK_ABI_NAMESPACE_BEGIN
 
-typedef struct tagBlock
-{
-  int Index;
-  int dSetLoc;
-  int Level;
-  double Origin[3];
-  bool isFull;
-  bool isLeaf;
-} Block;
 class vtkAMRVelodyneReaderInternal
 {
 public:
+  typedef struct tagVelodyneBlock
+  {
+    int Index;
+    int dSetLoc;
+    int Level;
+    double Origin[3];
+    bool isFull;
+    bool isLeaf;
+  } Block;
+
   vtkAMRVelodyneReaderInternal();
   ~vtkAMRVelodyneReaderInternal();
   void SetFileName(VTK_FILEPATH VTK_FUTURE_CONST char* fileName);
@@ -93,7 +91,7 @@ private:
   void AttachTensorToGrid(int, const char*, int, vtkUniformGrid*);
   int ReadLevelsAndX0(hid_t grp_id, std::vector<int>& levels, std::vector<double>& X0);
   herr_t CloseFile(hid_t& fid);
-  vtkDataArray* GetTypeAndArray(const int, hid_t&);
+  vtkDataArray* GetTypeAndArray(int, hid_t&);
 
   std::string FileName;
   int nLeaves;
@@ -102,5 +100,6 @@ private:
   std::unordered_map<std::string, int> typeMap;
   std::unordered_map<std::string, int> arrayMap;
 };
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkAMRVelodyneReaderInternal.h

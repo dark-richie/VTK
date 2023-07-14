@@ -41,6 +41,7 @@
 #include <iomanip>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMReXGridReader);
 //------------------------------------------------------------------------------
 vtkAMReXGridReader::vtkAMReXGridReader()
@@ -203,7 +204,7 @@ int vtkAMReXGridReader::FillMetaData()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(const int blockIdx)
+vtkUniformGrid* vtkAMReXGridReader::GetAMRGrid(int blockIdx)
 {
   if (!this->Internal->headersAreRead)
   {
@@ -279,7 +280,7 @@ int vtkAMReXGridReader::GetNumberOfBlocks()
 }
 
 //------------------------------------------------------------------------------
-int vtkAMReXGridReader::GetBlockLevel(const int blockIdx)
+int vtkAMReXGridReader::GetBlockLevel(int blockIdx)
 {
   if (!this->Internal->headersAreRead)
   {
@@ -302,7 +303,7 @@ int vtkAMReXGridReader::GetBlockLevel(const int blockIdx)
 }
 
 //------------------------------------------------------------------------------
-int vtkAMReXGridReader::GetLevelBlockID(const int blockIdx)
+int vtkAMReXGridReader::GetLevelBlockID(int blockIdx)
 {
   if (!this->Internal->headersAreRead)
   {
@@ -325,8 +326,7 @@ int vtkAMReXGridReader::GetLevelBlockID(const int blockIdx)
 }
 
 //------------------------------------------------------------------------------
-void vtkAMReXGridReader::GetAMRGridData(
-  const int blockIdx, vtkUniformGrid* block, const char* field)
+void vtkAMReXGridReader::GetAMRGridData(int blockIdx, vtkUniformGrid* block, const char* field)
 {
   if (this->Internal->headersAreRead)
   {
@@ -373,3 +373,4 @@ void vtkAMReXGridReader::SetUpDataArraySelections()
     }
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -71,12 +71,14 @@
 // Helper functions
 //------------------------------------------------------------------------------
 
+VTK_ABI_NAMESPACE_BEGIN
 bool StringEndsWith(const std::string& a, const std::string& b)
 {
   return a.size() >= b.size() && a.compare(a.size() - b.size(), b.size(), b) == 0;
 }
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkADIOS2CoreImageReader);
+VTK_ABI_NAMESPACE_END
 namespace
 {
 inline std::vector<int> parseDimensions(const std::string& dimsStr)
@@ -91,6 +93,7 @@ inline std::vector<int> parseDimensions(const std::string& dimsStr)
   return dims;
 }
 }
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 struct vtkADIOS2CoreImageReader::vtkADIOS2CoreImageReaderImpl
@@ -358,12 +361,12 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     vtkMPICommunicator* comm =
       static_cast<vtkMPICommunicator*>(this->Controller->GetCommunicator());
 
-    this->Impl->Adios.reset(new adios2::ADIOS(*comm->GetMPIComm()->GetHandle(), adios2::DebugON));
+    this->Impl->Adios.reset(new adios2::ADIOS(*comm->GetMPIComm()->GetHandle()));
 #else
     // Make sure the ADIOS subsystem is initialized before processing any
     // sort of request.
 
-    this->Impl->Adios.reset(new adios2::ADIOS(adios2::DebugON));
+    this->Impl->Adios.reset(new adios2::ADIOS());
     // Before processing any request, read the meta data first
 #endif
   }
@@ -1040,3 +1043,4 @@ void vtkADIOS2CoreImageReader::GatherTimeStepsFromADIOSTimeArray()
     vtkErrorMacro("Fail to gather time steps from time array " << this->TimeStepArray << ex.what());
   }
 }
+VTK_ABI_NAMESPACE_END

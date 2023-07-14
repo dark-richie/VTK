@@ -29,6 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //------------------------------------------------------------------------------
@@ -140,6 +141,7 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->OutputPointsPrecision = DEFAULT_PRECISION;
   this->Locator = nullptr;
   this->TetraArray = nullptr;
+  this->References = nullptr;
 
   // added for performance
   this->Tetras = vtkIdList::New();
@@ -204,7 +206,7 @@ vtkIdType vtkDelaunay3D::FindEnclosingFaces(double x[3], vtkUnstructuredGrid* Me
   }
 
   closestPoint = locator->FindClosestInsertedPoint(x);
-  vtkCellLinks* links = static_cast<vtkCellLinks*>(Mesh->GetCellLinks());
+  vtkCellLinks* links = static_cast<vtkCellLinks*>(Mesh->GetLinks());
   int numCells = links->GetNcells(closestPoint);
   vtkIdType* cells = links->GetCells(closestPoint);
   if (numCells <= 0) // shouldn't happen
@@ -450,7 +452,14 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   //
   if ((inPoints = input->GetPoints()) == nullptr)
   {
-    vtkErrorMacro("<<Cannot triangulate; no input points");
+    vtkWarningMacro("Cannot triangulate; no input points");
+    return 1;
+  }
+
+  numPoints = inPoints->GetNumberOfPoints();
+  if (numPoints == 0)
+  {
+    vtkWarningMacro("Cannot triangulate; no input points");
     return 1;
   }
 
@@ -458,8 +467,6 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   cells->Allocate(64);
   holeTetras = vtkIdList::New();
   holeTetras->Allocate(12);
-
-  numPoints = inPoints->GetNumberOfPoints();
 
   // Create initial bounding triangulation. Have to create bounding points.
   // Initialize mesh structure.
@@ -500,7 +507,7 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkDebugMacro(<< "point #" << ptId);
       this->UpdateProgress(static_cast<double>(ptId) / numPoints);
-      if (this->GetAbortExecute())
+      if (this->CheckAbort())
       {
         break;
       }
@@ -784,6 +791,11 @@ vtkUnstructuredGrid* vtkDelaunay3D::InitPointInsertion(
   vtkIdType pts[4];
   vtkUnstructuredGrid* Mesh = vtkUnstructuredGrid::New();
   Mesh->EditableOn();
+
+  if (numPtsToInsert == 0)
+  {
+    return Mesh;
+  }
 
   this->NumberOfDuplicatePoints = 0;
   this->NumberOfDegeneracies = 0;
@@ -1090,7 +1102,7 @@ static int GetTetraFaceNeighbor(vtkUnstructuredGrid* Mesh, vtkIdType tetraId, vt
   vtkIdType p2, vtkIdType p3, vtkIdType& nei)
 {
   // gather necessary information
-  vtkCellLinks* links = static_cast<vtkCellLinks*>(Mesh->GetCellLinks());
+  vtkCellLinks* links = static_cast<vtkCellLinks*>(Mesh->GetLinks());
   int numCells = links->GetNcells(p1);
   vtkIdType* cells = links->GetCells(p1);
   int i;
@@ -1132,3 +1144,4 @@ int vtkDelaunay3D::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

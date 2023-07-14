@@ -30,6 +30,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObjectTree.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPartitionedDataSet;
 class vtkDataAssembly;
 class vtkDataSet;
@@ -163,6 +164,7 @@ public:
   /**
    * Overridden to handle vtkDataAssembly.
    */
+  void CompositeShallowCopy(vtkCompositeDataSet* src) override;
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
   void CopyStructure(vtkCompositeDataSet* input) override;
@@ -186,4 +188,5 @@ private:
   vtkDataAssembly* DataAssembly;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

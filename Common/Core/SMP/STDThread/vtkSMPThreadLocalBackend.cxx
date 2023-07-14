@@ -15,6 +15,8 @@
 
 #include "SMP/STDThread/vtkSMPThreadLocalBackend.h"
 
+#include "SMP/STDThread/vtkSMPThreadPool.h"
+
 #include <algorithm>
 #include <cmath>      // For std::floor & std::log2
 #include <functional> // For std::hash
@@ -28,10 +30,11 @@ namespace smp
 {
 namespace STDThread
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 static ThreadIdType GetThreadId()
 {
-  return std::hash<std::thread::id>{}(std::this_thread::get_id());
+  return vtkSMPThreadPool::GetInstance().GetThreadId();
 }
 
 // 32 bit FNV-1a hash function
@@ -216,6 +219,7 @@ size_t ThreadSpecific::GetSize() const
   return this->Size;
 }
 
+VTK_ABI_NAMESPACE_END
 } // STDThread
 } // namespace smp
 } // namespace detail

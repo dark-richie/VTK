@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 //------------------------------------------------------------------------------
@@ -181,14 +182,15 @@ int vtkLinearExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   newStrips->AllocateEstimate(ncells, 4);
 
   vtkIdType progressInterval = numPts / 10 + 1;
-  int abort = 0;
+  bool abort = false;
 
   // copy points
-  for (ptId = 0; ptId < numPts; ptId++)
+  for (ptId = 0; ptId < numPts && !abort; ptId++)
   {
     if (!(ptId % progressInterval)) // manage progress / early abort
     {
       this->UpdateProgress(0.25 * ptId / numPts);
+      abort = this->CheckAbort();
     }
 
     inPts->GetPoint(ptId, x);
@@ -267,7 +269,7 @@ int vtkLinearExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(inCellId % progressInterval)) // manage progress / early abort
     {
       this->UpdateProgress(0.4 + 0.6 * inCellId / numCells);
-      abort = this->GetAbortExecute();
+      abort = this->CheckAbort();
     }
 
     mesh->GetCell(inCellId, cell);
@@ -404,3 +406,4 @@ void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }
+VTK_ABI_NAMESPACE_END

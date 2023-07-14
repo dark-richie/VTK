@@ -30,10 +30,9 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmFilterPolicy.h"
-
 #include <vtkm/filter/entity_extraction/ExternalFaces.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmExternalFaces);
 
 //------------------------------------------------------------------------------
@@ -132,3 +131,4 @@ int vtkmExternalFaces::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+VTK_ABI_NAMESPACE_END

@@ -41,6 +41,7 @@
 
 typedef std::pair<vtkIdType, vtkIdType> vtkIdPair;
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellCenterDepthSortStack
 {
 public:
@@ -194,7 +195,7 @@ void vtkCellCenterDepthSort::InitTraversal()
 
   while (!this->ToSort->Stack.empty())
     this->ToSort->Stack.pop();
-  this->ToSort->Stack.push(vtkIdPair(0, numcells));
+  this->ToSort->Stack.emplace(0, numcells);
 
   this->LastSortTime.Modified();
 }
@@ -235,7 +236,7 @@ vtkIdTypeArray* vtkCellCenterDepthSort::GetNextCells()
       right--;
     }
 
-    this->ToSort->Stack.push(vtkIdPair(left, partition.second));
+    this->ToSort->Stack.emplace(left, partition.second);
     partition.second = left;
   }
 
@@ -256,3 +257,4 @@ vtkIdTypeArray* vtkCellCenterDepthSort::GetNextCells()
   vtkSortDataArray::Sort(this->CellPartitionDepths, this->SortedCellPartition);
   return this->SortedCellPartition;
 }
+VTK_ABI_NAMESPACE_END

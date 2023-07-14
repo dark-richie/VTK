@@ -45,6 +45,7 @@ DEALINGS IN THE SOFTWARE.
 
 #define RAY_EPSILON 1e-12 // some small epsilon for flt pt
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
@@ -155,7 +156,7 @@ bool vtkBilinearQuadIntersection::RayIntersection(
   double t2, u;           // the t values of the two roots
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // Variables for substitition
+  // Variables for substitution
   // a = this->Point11.- this->Point10.- this->Point01.+ this->Point00
   // b = this->Point10.- this->Point00
   // c = this->Point01.- this->Point00
@@ -303,3 +304,4 @@ bool vtkBilinearQuadIntersection::RayIntersection(
       return false;
   }
 }
+VTK_ABI_NAMESPACE_END

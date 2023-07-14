@@ -57,6 +57,7 @@
 #include <functional>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 template <typename T, int Size>
 bool operator<(const vtkVector<T, Size>& lhs, const vtkVector<T, Size>& rhs)
 {
@@ -709,7 +710,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
     // now, put the pieces in output_blocks in the output MB.
     // we use a trick, copy into to output and then replace
-    outputMB->ShallowCopy(inputMB);
+    outputMB->CompositeShallowCopy(inputMB);
 
     std::function<vtkDataObject*(vtkDataObject*)> replaceLeaves;
     replaceLeaves = [&replaceLeaves, &input_dataset_map, &output_blocks](
@@ -785,3 +786,4 @@ int vtkExtractSubsetWithSeed::RequestInformation(
   info->Remove(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return 1;
 }
+VTK_ABI_NAMESPACE_END

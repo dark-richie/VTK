@@ -41,15 +41,17 @@
 
 class QAbstractItemDelegate;
 class QAbstractItemView;
-class QFilterTreeProxyModel;
 class QColumnView;
 class QItemSelection;
 class QModelIndex;
 class QTreeView;
-class vtkApplyColors;
-class QVBoxLayout;
-class vtkQtTreeModelAdapter;
 class QItemSelectionModel;
+class QVBoxLayout;
+
+VTK_ABI_NAMESPACE_BEGIN
+class QFilterTreeProxyModel;
+class vtkApplyColors;
+class vtkQtTreeModelAdapter;
 
 class VTKVIEWSQT_EXPORT vtkQtTreeView : public vtkQtView
 {
@@ -203,7 +205,7 @@ protected:
 private Q_SLOTS:
   void slotQtSelectionChanged(const QItemSelection&, const QItemSelection&);
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
   void SetVTKSelection();
   vtkMTimeType CurrentSelectionMTime;
   vtkMTimeType LastInputMTime;
@@ -228,4 +230,5 @@ private:
   void operator=(const vtkQtTreeView&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

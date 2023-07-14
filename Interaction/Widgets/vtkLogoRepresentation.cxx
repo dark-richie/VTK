@@ -29,6 +29,7 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkWindow.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLogoRepresentation);
 
 vtkCxxSetObjectMacro(vtkLogoRepresentation, Image, vtkImageData);
@@ -182,7 +183,10 @@ void vtkLogoRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkLogoRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  pc->AddItem(this->TextureActor);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->TextureActor);
+  }
   this->Superclass::GetActors2D(pc);
 }
 
@@ -235,3 +239,4 @@ void vtkLogoRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Image Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

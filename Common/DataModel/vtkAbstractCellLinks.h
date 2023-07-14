@@ -32,8 +32,10 @@
 #define vtkAbstractCellLinks_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCellArray;
 class vtkIdList;
@@ -49,10 +51,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
+  ///@{
   /**
-   * Build the link list array. All subclasses must implement this method.
+   * Set/Get the points/cells defining this dataset.
    */
-  virtual void BuildLinks(vtkDataSet* data) = 0;
+  virtual void SetDataSet(vtkDataSet*);
+  vtkGetObjectMacro(DataSet, vtkDataSet);
+  ///@}
+
+  /**
+   * Set the input dataset and build the link list array.
+   */
+  VTK_DEPRECATED_IN_9_3_0("Use SetDataSet() and BuildLinks() instead.")
+  void BuildLinks(vtkDataSet* data);
+
+  /**
+   * Build the link list array from the input dataset.
+   */
+  virtual void BuildLinks() = 0;
 
   /**
    * Release memory and revert to empty state.
@@ -109,11 +125,12 @@ public:
    * is hardwired for vtkIdType.
    */
   static int ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray* ca);
+  static int ComputeType(vtkIdType maxPtId, vtkIdType maxCellId, vtkIdType connectivitySize);
 
   /**
    * Return the type of locator (see enum above).
    */
-  int GetType() { return this->Type; }
+  vtkGetMacro(Type, int);
 
   /**
    * These methods are not virtual due to performance concerns. However,
@@ -153,16 +170,35 @@ public:
   vtkBooleanMacro(SequentialProcessing, bool);
   ///@}
 
+  ///@{
+  /**
+   * Return the time of the last data structure build.
+   */
+  vtkGetMacro(BuildTime, vtkMTimeType);
+  ///@}
+
+  ///@{
+  /**
+   * Handle the dataset <-> Links loop.
+   */
+  bool UsesGarbageCollector() const override { return true; }
+  ///@}
 protected:
   vtkAbstractCellLinks();
   ~vtkAbstractCellLinks() override;
 
+  vtkDataSet* DataSet;
   bool SequentialProcessing; // control whether to thread or not
   int Type;                  // derived classes set this instance variable when constructed
+
+  vtkTimeStamp BuildTime; // time at which links were built
+
+  void ReportReferences(vtkGarbageCollector*) override;
 
 private:
   vtkAbstractCellLinks(const vtkAbstractCellLinks&) = delete;
   void operator=(const vtkAbstractCellLinks&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

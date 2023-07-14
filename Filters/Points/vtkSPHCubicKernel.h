@@ -41,6 +41,7 @@
 #include "vtkSPHKernel.h"
 #include <algorithm> // For std::min()
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkDoubleArray;
 
@@ -68,8 +69,8 @@ public:
    */
   double ComputeFunctionWeight(const double d) override
   {
-    double tmp1 = 2.0 - std::min(d, 2.0);
-    double tmp2 = 1.0 - std::min(d, 1.0);
+    double tmp1 = 2.0 - (std::min)(d, 2.0);
+    double tmp2 = 1.0 - (std::min)(d, 1.0);
     return (0.25 * tmp1 * tmp1 * tmp1 - tmp2 * tmp2 * tmp2);
   }
   ///@}
@@ -81,8 +82,8 @@ public:
    */
   double ComputeDerivWeight(const double d) override
   {
-    double tmp1 = 2.0 - std::min(d, 2.0);
-    double tmp2 = 1.0 - std::min(d, 1.0);
+    double tmp1 = 2.0 - (std::min)(d, 2.0);
+    double tmp2 = 1.0 - (std::min)(d, 1.0);
     return (-0.75 * tmp1 * tmp1 + 3.0 * tmp2 * tmp2);
   }
   ///@}
@@ -96,4 +97,5 @@ private:
   void operator=(const vtkSPHCubicKernel&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

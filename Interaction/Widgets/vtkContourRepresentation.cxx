@@ -36,6 +36,7 @@
 #include <iterator>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkContourRepresentation, PointPlacer, vtkPointPlacer);
 vtkCxxSetObjectMacro(vtkContourRepresentation, LineInterpolator, vtkContourLineInterpolator);
 
@@ -743,7 +744,7 @@ int vtkContourRepresentation::FindClosestPointOnContour(
         {
           // Shouldn't be able to get here (only if we don't have
           // a closed loop but we do have intermediate points after
-          // the last node - contradictary conditions)
+          // the last node - contradictory conditions)
           continue;
         }
       }
@@ -1380,3 +1381,4 @@ void vtkContourRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line Interpolator: " << this->LineInterpolator << "\n";
   os << indent << "Point Placer: " << this->PointPlacer << "\n";
 }
+VTK_ABI_NAMESPACE_END

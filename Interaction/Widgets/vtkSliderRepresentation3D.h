@@ -32,8 +32,10 @@
 #include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkSliderRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
 class vtkSphereSource;
@@ -158,10 +160,10 @@ public:
    * Methods supporting the rendering process.
    */
   double* GetBounds() VTK_SIZEHINT(6) override;
-  void GetActors(vtkPropCollection*) override;
-  void ReleaseGraphicsResources(vtkWindow*) override;
-  int RenderOpaqueGeometry(vtkViewport*) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  void GetActors(vtkPropCollection* propCollection) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   ///@}
 
@@ -259,4 +261,5 @@ private:
   void operator=(const vtkSliderRepresentation3D&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

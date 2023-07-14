@@ -16,7 +16,7 @@
  * @class   vtkUnstructuredGridToExplicitStructuredGrid
  * @brief   Filter which converts an unstructured grid data into an explicit structured grid.
  *          The input grid must have a structured coordinates int cell array.
- *          Moreover, its cell must be listed in the i-j-k order (k varying more ofter)
+ *          Moreover, its cell must be listed in the i-j-k order (k varying more often)
  */
 
 #ifndef vtkUnstructuredGridToExplicitStructuredGrid_h
@@ -25,6 +25,7 @@
 #include "vtkExplicitStructuredGridAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSCORE_EXPORT vtkUnstructuredGridToExplicitStructuredGrid
   : public vtkExplicitStructuredGridAlgorithm
 {
@@ -58,4 +59,5 @@ private:
   void operator=(const vtkUnstructuredGridToExplicitStructuredGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

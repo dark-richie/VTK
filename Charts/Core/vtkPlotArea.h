@@ -28,6 +28,7 @@
 
 #include "vtkPlot.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCHARTSCORE_EXPORT vtkPlotArea : public vtkPlot
 {
 public:
@@ -109,7 +110,7 @@ public:
    * This method is called by Update() when either the plot's data has changed or
    * CacheRequiresUpdate() returns true. It is not necessary to call this method explicitly.
    */
-  virtual bool UpdateCache() override;
+  bool UpdateCache() override;
 
 protected:
   vtkPlotArea();
@@ -130,4 +131,5 @@ private:
   vtkTimeStamp UpdateTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

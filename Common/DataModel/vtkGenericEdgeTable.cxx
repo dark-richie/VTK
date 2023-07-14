@@ -19,6 +19,7 @@
 #include <cmath>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = { 1, 3, 7, 13, 31, 61, 127, 251, 509, 1021, 2039, 4093 };
@@ -642,14 +643,6 @@ void vtkGenericEdgeTable::InsertPointAndScalar(vtkIdType ptId, double pt[3], dou
   // sizeof(s)=this->NumberOfComponents
   vtkIdType pos = this->HashFunction(ptId);
 
-  // Need to check size first
-  // this->HashPoints->Resize( pos );
-  if (!(static_cast<unsigned>(pos) < this->HashPoints->PointVector.size()))
-  {
-    int kk = 2;
-    kk++;
-  }
-
   // Be careful with reference the equal is not overloaded
   vtkEdgeTablePoints::VectorPointTableType& vect = this->HashPoints->PointVector[pos];
 
@@ -742,3 +735,4 @@ void vtkGenericEdgeTable::LoadFactor()
   this->EdgeTable->LoadFactor();
   this->HashPoints->LoadFactor();
 }
+VTK_ABI_NAMESPACE_END

@@ -63,6 +63,7 @@
 #define GL_NEAREST 0x2600
 #define GL_LINEAR 0x2601
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 //------------------------------------------------------------------------------
@@ -918,7 +919,10 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
     this->InternalModel->Buffers.push_back(glbBuffer);
   }
 
-  impl.LoadBuffers(!glbBuffer.empty());
+  if (!impl.LoadBuffers(!glbBuffer.empty()))
+  {
+    return false;
+  }
 
   // Read primitive attributes from buffers
   size_t numberOfMeshes = this->InternalModel->Meshes.size();
@@ -1539,3 +1543,4 @@ void vtkGLTFDocumentLoader::ComputeJointMatrices(const Model& model, const Skin&
     jointMats.emplace_back(jointMat);
   }
 }
+VTK_ABI_NAMESPACE_END

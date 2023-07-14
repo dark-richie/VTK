@@ -35,6 +35,7 @@
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAnnotationLayers;
 class vtkSelection;
 
@@ -59,10 +60,9 @@ public:
   /**
    * Selection conversion from VTK land to Qt land
    */
-  virtual vtkAnnotationLayers* QModelIndexListToVTKAnnotationLayers(
-    const QModelIndexList qmil) const;
+  virtual vtkAnnotationLayers* QModelIndexListToVTKAnnotationLayers(QModelIndexList qmil) const;
   virtual QItemSelection VTKAnnotationLayersToQItemSelection(vtkAnnotationLayers* vtkann) const;
-  vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const override;
+  vtkSelection* QModelIndexListToVTKIndexSelection(QModelIndexList qmil) const override;
   QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const override;
   ///@}
 
@@ -104,5 +104,6 @@ private:
   void operator=(const vtkQtAnnotationLayersModelAdapter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif
 // VTK-HeaderTest-Exclude: vtkQtAnnotationLayersModelAdapter.h

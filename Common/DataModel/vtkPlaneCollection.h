@@ -30,6 +30,7 @@
 
 #include "vtkPlane.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
@@ -66,7 +67,6 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkPlaneCollection(const vtkPlaneCollection&) = delete;
   void operator=(const vtkPlaneCollection&) = delete;
 };
@@ -81,4 +81,5 @@ inline vtkPlane* vtkPlaneCollection::GetNextItem()
   return static_cast<vtkPlane*>(this->GetNextItemAsObject());
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

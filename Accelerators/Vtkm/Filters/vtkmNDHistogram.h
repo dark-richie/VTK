@@ -34,12 +34,15 @@
 #ifndef vtkmNDHistogram_h
 #define vtkmNDHistogram_h
 
-#include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
-#include "vtkArrayDataAlgorithm.h"
 #include <string>  // for std::string
 #include <utility> // for std::pair
 #include <vector>  // for std::vector
 
+#include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
+#include "vtkArrayDataAlgorithm.h"
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
+
+VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmNDHistogram : public vtkArrayDataAlgorithm
 {
 public:
@@ -75,6 +78,8 @@ private:
   std::vector<vtkIdType> NumberOfBins;
   std::vector<double> BinDeltas;
   std::vector<std::pair<double, double>> DataRanges;
+  vtkmInitializer Initializer;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkmNDHistogram_h

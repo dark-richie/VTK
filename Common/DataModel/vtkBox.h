@@ -33,6 +33,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
+VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBox : public vtkImplicitFunction
@@ -97,7 +98,7 @@ public:
    * 0<=t<=1.)
    */
   static char IntersectBox(const double bounds[6], const double origin[3], const double dir[3],
-    double coord[3], double& t, const double tolerance = 0.0);
+    double coord[3], double& t, double tolerance = 0.0);
 
   /**
    * Intersect a line with the box.  Give the endpoints of the line in
@@ -181,4 +182,5 @@ inline void vtkBox::SetXMax(double p[3])
   this->SetXMax(p[0], p[1], p[2]);
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

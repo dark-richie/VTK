@@ -40,10 +40,11 @@
 // the group, element, type, data, and data length.
 //
 
+VTK_ABI_NAMESPACE_BEGIN
 class DICOM_EXPORT DICOMCallback
 {
 public:
-  virtual ~DICOMCallback() {}
+  virtual ~DICOMCallback() = default;
   virtual void Execute(DICOMParser* parser, doublebyte group, doublebyte element,
     DICOMParser::VRTypes type, unsigned char* val, quadbyte len) = 0;
 };
@@ -90,4 +91,5 @@ protected:
 #pragma warning(pop)
 #endif
 
+VTK_ABI_NAMESPACE_END
 #endif

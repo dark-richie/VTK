@@ -26,6 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBooleanOperationPolyDataFilter);
 
 //------------------------------------------------------------------------------
@@ -99,6 +100,7 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(re
   PolyDataIntersection->SetInputConnection(1, this->GetInputConnection(1, 0));
   PolyDataIntersection->SplitFirstOutputOn();
   PolyDataIntersection->SplitSecondOutputOn();
+  PolyDataIntersection->SetContainerAlgorithm(this);
   PolyDataIntersection->Update();
 
   if (PolyDataIntersection->GetStatus() != 1)
@@ -117,6 +119,7 @@ int vtkBooleanOperationPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(re
   PolyDataDistance->SetInputConnection(0, PolyDataIntersection->GetOutputPort(1));
   PolyDataDistance->SetInputConnection(1, PolyDataIntersection->GetOutputPort(2));
   PolyDataDistance->ComputeSecondDistanceOn();
+  PolyDataDistance->SetContainerAlgorithm(this);
   PolyDataDistance->Update();
 
   vtkPolyData* pd0 = PolyDataDistance->GetOutput();
@@ -299,6 +302,10 @@ void vtkBooleanOperationPolyDataFilter ::CopyCells(vtkPolyData* in, vtkPolyData*
   vtkSmartPointer<vtkIdList> newCellPts = vtkSmartPointer<vtkIdList>::New();
   for (vtkIdType cellId = 0; cellId < cellIds->GetNumberOfIds(); cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     in->GetCell(cellIds->GetId(cellId), cell);
     vtkIdList* cellPts = cell->GetPointIds();
     vtkIdType numCellPts = cell->GetNumberOfPoints();
@@ -346,3 +353,4 @@ void vtkBooleanOperationPolyDataFilter ::CopyCells(vtkPolyData* in, vtkPolyData*
     newCellPts->Reset();
   } // for all cells
 }
+VTK_ABI_NAMESPACE_END

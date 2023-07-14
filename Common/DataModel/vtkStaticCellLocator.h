@@ -54,6 +54,7 @@
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_2_0
 
 // Forward declarations for PIMPL
+VTK_ABI_NAMESPACE_BEGIN
 struct vtkCellBinner;
 struct vtkCellProcessor;
 
@@ -171,7 +172,7 @@ public:
    *
    * For other IntersectWithLine signatures, see vtkAbstractCellLocator.
    */
-  int IntersectWithLine(const double p1[3], const double p2[3], const double tol, vtkPoints* points,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, vtkPoints* points,
     vtkIdList* cellIds, vtkGenericCell* cell) override;
 
   /**
@@ -287,4 +288,5 @@ private:
   void operator=(const vtkStaticCellLocator&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

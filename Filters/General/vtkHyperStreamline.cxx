@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -476,7 +477,7 @@ int vtkHyperStreamline::RequestData(vtkInformation* vtkNotUsed(request),
   //
   // For each hyperstreamline, integrate in appropriate direction (using RK2).
   //
-  for (ptId = 0; ptId < this->NumberOfStreamers; ptId++)
+  for (ptId = 0; ptId < this->NumberOfStreamers && !this->CheckAbort(); ptId++)
   {
     // get starting step
     sPtr = this->Streamers[ptId].GetHyperPoint(0);
@@ -499,7 +500,10 @@ int vtkHyperStreamline::RequestData(vtkInformation* vtkNotUsed(request),
     while (sPtr->CellId >= 0 && fabs(sPtr->W[0]) > this->TerminalEigenvalue &&
       sPtr->D < this->MaximumPropagationDistance)
     {
-
+      if (this->CheckAbort())
+      {
+        break;
+      }
       // compute updated position using this step (Euler integration)
       for (i = 0; i < 3; i++)
       {
@@ -901,3 +905,4 @@ void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Integrate Along Minor Eigenvector\n";
   }
 }
+VTK_ABI_NAMESPACE_END

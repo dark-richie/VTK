@@ -43,11 +43,12 @@
 #include <cstddef>
 
 /*--------------------------------------------------------------------------*/
+VTK_ABI_NAMESPACE_BEGIN
 void vtkImageBSplineInternals::ConvertToInterpolationCoefficients(
   double c[],                /* input samples --> output coefficients */
   long DataLength,           /* number of samples or coefficients */
   vtkImageBorderMode Border, /* border mode */
-  double z[],                /* poles */
+  double z[4],               /* poles */
   long NbPoles,              /* number of poles */
   double Tolerance           /* admissible relative error */
 )
@@ -849,3 +850,4 @@ int vtkImageBSplineInternals::InterpolatedValue(const float* coeffs, float* valu
   return vtkImageBSplineInterpolatedValue(
     coeffs, value, width, height, slices, depth, x, y, z, degree, border);
 }
+VTK_ABI_NAMESPACE_END

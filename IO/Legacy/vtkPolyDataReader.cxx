@@ -24,6 +24,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyDataReader);
 
 //------------------------------------------------------------------------------
@@ -78,7 +79,7 @@ int vtkPolyDataReader::ReadMeshSimple(const std::string& fname, vtkDataObject* d
       if (!this->ReadCellsLegacy(size, tempArray.data()))
       {
         this->CloseVTKFile();
-        return true;
+        return false;
       }
 
       // Convert to id type
@@ -305,3 +306,4 @@ void vtkPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

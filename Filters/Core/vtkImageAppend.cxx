@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageAppend);
 
 //------------------------------------------------------------------------------
@@ -356,16 +357,22 @@ void vtkImageAppendExecute(vtkImageAppend* self, int id, int inExt[6], vtkImageD
 
   target = static_cast<unsigned long>((maxZ + ptAdjust) * (maxY + ptAdjust) / 50.0 / dnArrays);
   target++;
+  bool abort = false;
 
   // Loop through input pixels
-  for (idxZ = 0; idxZ < maxZ; idxZ++)
+  for (idxZ = 0; idxZ < maxZ && !abort; idxZ++)
   {
-    for (idxY = 0; !self->AbortExecute && idxY < maxY; idxY++)
+    for (idxY = 0; !abort && idxY < maxY; idxY++)
     {
       if (!id)
       {
         if (!(count % target))
         {
+          if (self->CheckAbort())
+          {
+            abort = true;
+            break;
+          }
           self->UpdateProgress(count / (50.0 * target));
         }
         count++;
@@ -660,3 +667,4 @@ void vtkImageAppend::CopyAttributeData(vtkImageData* vtkNotUsed(input),
   // Do not simply shallow copy forward the data as other imaging filters do.
   // We have to append instead.
 }
+VTK_ABI_NAMESPACE_END

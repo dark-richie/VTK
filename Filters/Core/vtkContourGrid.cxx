@@ -44,6 +44,7 @@
 #include <cmath>
 #include <limits>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContourGrid);
 
 //------------------------------------------------------------------------------
@@ -114,7 +115,7 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
   int useScalarTree, vtkScalarTree* scalarTree, bool generateTriangles)
 {
   vtkIdType i;
-  int abortExecute = 0;
+  bool abortExecute = false;
   vtkIncrementalPointLocator* locator = self->GetLocator();
   vtkNew<vtkGenericCell> cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
@@ -208,7 +209,6 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     estimatedSize, generateTriangles);
   // If enabled, build a scalar tree to accelerate search
   //
-  vtkIdType numCellsContoured = 0;
   if (!useScalarTree)
   {
     // Three passes over the cells to process lower dimensional cells first.
@@ -279,9 +279,9 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
         if (dimensionality == 3 && !(cellIter->GetCellId() % 5000))
         {
           self->UpdateProgress(static_cast<double>(cellIter->GetCellId()) / numCells);
-          if (self->GetAbortExecute())
+          if (self->CheckAbort())
           {
-            abortExecute = 1;
+            abortExecute = true;
             break;
           }
         }
@@ -326,14 +326,19 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     vtkCell* tmpCell;
     vtkIdList* dummyIdList = nullptr;
     vtkIdType cellId = cellIter->GetCellId();
-    for (i = 0; i < numContours; i++)
+    vtkIdType numCellsContoured = 0;
+    vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
+    for (i = 0; i < numContours && !abortExecute; i++)
     {
       for (scalarTree->InitTraversal(values[i]);
            (tmpCell = scalarTree->GetNextCell(cellId, dummyIdList, cellScalars));)
       {
+        if (numCellsContoured % checkAbortInterval == 0 && self->CheckAbort())
+        {
+          abortExecute = true;
+          break;
+        }
         helper.Contour(tmpCell, values[i], cellScalars, cellId);
-        numCellsContoured++;
-
         // don't want to call Contour any more than necessary
       } // for all cells
     }   // for all contour values
@@ -544,3 +549,4 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

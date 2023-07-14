@@ -27,6 +27,7 @@
 #include <cassert>
 #include <set>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkExtractDataSets::vtkInternals
 {
 public:
@@ -126,6 +127,10 @@ int vtkExtractDataSets::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInternals::DatasetsType::iterator iter = this->Internals->Datasets.begin();
   for (; iter != this->Internals->Datasets.end(); ++iter)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkUniformGrid* inUG = input->GetDataSet(iter->Level, iter->Index);
     if (inUG)
     {
@@ -152,3 +157,4 @@ void vtkExtractDataSets::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

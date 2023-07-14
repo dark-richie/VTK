@@ -24,6 +24,7 @@
 #include <sstream>
 #include <windows.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 inline LONG WINAPI vtkWindowsTestUlititiesExceptionHandler(EXCEPTION_POINTERS* ExceptionInfo)
 {
   switch (ExceptionInfo->ExceptionRecord->ExceptionCode)
@@ -100,15 +101,15 @@ inline LONG WINAPI vtkWindowsTestUlititiesExceptionHandler(EXCEPTION_POINTERS* E
   return EXCEPTION_CONTINUE_SEARCH;
 }
 
-inline void vtkWindowsTestUtilitiesSetupForTesting(void)
+inline void vtkWindowsTestUtilitiesSetupForTesting()
 {
   SetUnhandledExceptionFilter(vtkWindowsTestUlititiesExceptionHandler);
 }
+VTK_ABI_NAMESPACE_END
 #else
-inline void vtkWindowsTestUtilitiesSetupForTesting(void)
-{
-  return;
-}
+VTK_ABI_NAMESPACE_BEGIN
+inline void vtkWindowsTestUtilitiesSetupForTesting() {}
+VTK_ABI_NAMESPACE_END
 #endif
 #endif
 // VTK-HeaderTest-Exclude: vtkWindowsTestUtilities.h

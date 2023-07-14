@@ -33,6 +33,7 @@
 
 #include <string> // for std::string compat
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkExecutive;
 class vtkInformationDataObjectKey;
@@ -457,10 +458,10 @@ private:
   friend class vtkInformationKeyToInformationFriendship;
   friend class vtkInformationIterator;
 
-private:
   vtkInformation(const vtkInformation&) = delete;
   void operator=(const vtkInformation&) = delete;
   vtkInformationRequestKey* Request;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

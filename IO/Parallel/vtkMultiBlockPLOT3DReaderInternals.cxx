@@ -18,6 +18,7 @@
 #include "vtkMultiProcessController.h"
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
 {
   int retVal = static_cast<int>(fread(val, sizeof(int), n, fp));
@@ -386,6 +387,14 @@ size_t vtkMultiBlockPLOT3DReaderInternals::CalculateFileSizeForBlock(int precisi
   return size;
 }
 
+#ifdef _WIN64
+#define vtk_fseek _fseeki64
+#define vtk_ftell _ftelli64
+#else
+#define vtk_fseek fseek
+#define vtk_ftell ftell
+#endif
+
 //------------------------------------------------------------------------------
 bool vtkMultiBlockPLOT3DReaderRecord::Initialize(FILE* fp, vtkTypeUInt64 offset,
   const vtkMultiBlockPLOT3DReaderInternals::InternalSettings& settings,
@@ -548,3 +557,4 @@ vtkTypeUInt64 vtkMultiBlockPLOT3DReaderRecord::GetLengthWithSeparators(
     vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparatorWidth +
     length;
 }
+VTK_ABI_NAMESPACE_END

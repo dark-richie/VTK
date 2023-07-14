@@ -43,6 +43,7 @@
 
 #include "vtkIdTypeArray.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
@@ -125,7 +126,7 @@ protected:
   vtkPriorityQueue();
   ~vtkPriorityQueue() override;
 
-  Item* Resize(const vtkIdType sz);
+  Item* Resize(vtkIdType sz);
 
   vtkIdTypeArray* ItemLocation;
   Item* Array;
@@ -186,4 +187,5 @@ inline vtkIdType vtkPriorityQueue::Peek(vtkIdType location)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

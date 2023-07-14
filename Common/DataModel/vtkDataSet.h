@@ -42,7 +42,9 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_3_0
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkCellData;
 class vtkCellIterator;
@@ -214,6 +216,17 @@ public:
    * THE DATASET IS NOT MODIFIED
    */
   virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds);
+
+  /**
+   * Get the number of faces of a cell.
+   *
+   * Most of the times extracting the number of faces requires only extracting
+   * the cell type. However, for some cell types, the number of faces is not
+   * constant. For example, a vtkPolyhedron cell can have a different number of
+   * faces for each cell. That's why this method requires the cell id and the
+   * dataset.
+   */
+  int GetCellNumberOfFaces(vtkIdType cellId, unsigned char& cellType, vtkGenericCell* cell);
 
   ///@{
   /**
@@ -476,10 +489,12 @@ public:
    * We cache the pointer to the array to save a lookup involving string comparisons
    */
   vtkUnsignedCharArray* GetPointGhostArray();
+
   /**
    * Updates the pointer to the point ghost array.
    */
-  void UpdatePointGhostArrayCache();
+  VTK_DEPRECATED_IN_9_3_0("This function is deprecated. It has no effect.")
+  void UpdatePointGhostArrayCache() {}
 
   /**
    * Allocate ghost array for points.
@@ -491,10 +506,12 @@ public:
    * We cache the pointer to the array to save a lookup involving string comparisons
    */
   vtkUnsignedCharArray* GetCellGhostArray();
+
   /**
    * Updates the pointer to the cell ghost array.
    */
-  void UpdateCellGhostArrayCache();
+  VTK_DEPRECATED_IN_9_3_0("This function is deprecated. It has no effect.")
+  void UpdateCellGhostArrayCache() {}
 
   /**
    * Allocate ghost array for cells.
@@ -518,12 +535,6 @@ protected:
    */
   virtual void ComputeScalarRange();
 
-  /**
-   * Helper function that tests if any of the values in 'a' have bitFlag set.
-   * The test performed is (value & bitFlag).
-   */
-  bool IsAnyBitSet(vtkUnsignedCharArray* a, int bitFlag);
-
   vtkCellData* CellData;            // Scalars, vectors, etc. associated w/ each cell
   vtkPointData* PointData;          // Scalars, vectors, etc. associated w/ each point
   vtkCallbackCommand* DataObserver; // Observes changes to cell/point data
@@ -542,9 +553,13 @@ protected:
    * These arrays pointers are caches used to avoid a string comparison (when
    * getting ghost arrays using GetArray(name))
    */
+  VTK_DEPRECATED_IN_9_3_0("This member is deprecated. It's no longer used.")
   vtkUnsignedCharArray* PointGhostArray;
+  VTK_DEPRECATED_IN_9_3_0("This member is deprecated. It's no longer used.")
   vtkUnsignedCharArray* CellGhostArray;
+  VTK_DEPRECATED_IN_9_3_0("This member is deprecated. It's no longer used.")
   bool PointGhostArrayCached;
+  VTK_DEPRECATED_IN_9_3_0("This member is deprecated. It's no longer used.")
   bool CellGhostArrayCached;
   ///@}
 
@@ -557,9 +572,6 @@ private:
   static void OnDataModified(
     vtkObject* source, unsigned long eid, void* clientdata, void* calldata);
 
-  friend class vtkImageAlgorithmToDataSetFriendship;
-
-private:
   vtkDataSet(const vtkDataSet&) = delete;
   void operator=(const vtkDataSet&) = delete;
 };
@@ -572,4 +584,5 @@ inline void vtkDataSet::GetPoint(vtkIdType id, double x[3])
   x[2] = pt[2];
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

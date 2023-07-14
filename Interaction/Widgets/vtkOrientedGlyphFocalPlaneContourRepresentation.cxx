@@ -39,6 +39,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientedGlyphFocalPlaneContourRepresentation);
 
 //------------------------------------------------------------------------------
@@ -815,9 +816,13 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkOrientedGlyphFocalPlaneContourRepresentation::GetActors2D(vtkPropCollection* pc)
 {
-  this->Actor->GetActors2D(pc);
-  this->ActiveActor->GetActors2D(pc);
-  this->LinesActor->GetActors2D(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->Actor->GetActors2D(pc);
+    this->ActiveActor->GetActors2D(pc);
+    this->LinesActor->GetActors2D(pc);
+  }
+  this->Superclass::GetActors2D(pc);
 }
 
 //------------------------------------------------------------------------------
@@ -929,3 +934,4 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::PrintSelf(ostream& os, vtk
     os << indent << "Lines Property: (none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

@@ -30,6 +30,7 @@
 #include "vtkRenderingOpenXRModule.h" // For export macro
 #include "vtkVRHMDCamera.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRCamera : public vtkVRHMDCamera
 {
 public:
@@ -43,7 +44,7 @@ public:
 
 protected:
   vtkOpenXRCamera();
-  ~vtkOpenXRCamera();
+  ~vtkOpenXRCamera() override;
 
   // gets the pose and projections for the left and right eyes from
   // the openvr library
@@ -55,4 +56,5 @@ private:
   void operator=(const vtkOpenXRCamera&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

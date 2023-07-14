@@ -23,6 +23,7 @@
 
 #include <algorithm> // for std::max()
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkArrayRange::vtkArrayRange()
   : Begin(0)
   , End(0)
@@ -55,7 +56,7 @@ bool vtkArrayRange::Contains(const vtkArrayRange& range) const
   return this->Begin <= range.Begin && range.End <= this->End;
 }
 
-bool vtkArrayRange::Contains(const CoordinateT coordinate) const
+bool vtkArrayRange::Contains(CoordinateT coordinate) const
 {
   return this->Begin <= coordinate && coordinate < this->End;
 }
@@ -75,3 +76,4 @@ ostream& operator<<(ostream& stream, const vtkArrayRange& rhs)
   stream << "[" << rhs.Begin << ", " << rhs.End << ")";
   return stream;
 }
+VTK_ABI_NAMESPACE_END

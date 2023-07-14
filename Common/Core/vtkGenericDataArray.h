@@ -20,7 +20,7 @@
  *
  *
  * A more detailed description of this class and related tools can be found
- * \ref VTK-7-1-ArrayDispatch "here".
+ * [here](https://docs.vtk.org/en/latest/design_documents/array_dispatch.html)
  *
  * The vtkGenericDataArray class provides a generic implementation of the
  * vtkDataArray API. It relies on subclasses providing access to data
@@ -75,6 +75,7 @@
 
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 template <class DerivedT, class ValueTypeT>
 class vtkGenericDataArray : public vtkDataArray
 {
@@ -426,10 +427,12 @@ private:
   vtkGenericDataArray(const vtkGenericDataArray&) = delete;
   void operator=(const vtkGenericDataArray&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 
 // these predeclarations are needed before the .txx include for MinGW
 namespace vtkDataArrayPrivate
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename A, typename R, typename T>
 bool DoComputeScalarRange(A*, R*, T, const unsigned char* ghosts, unsigned char ghostsToSkip);
 template <typename A, typename R>
@@ -438,6 +441,7 @@ bool DoComputeVectorRange(
 template <typename A, typename R>
 bool DoComputeVectorRange(
   A*, R[2], FiniteValues, const unsigned char* ghosts, unsigned char ghostsToSkip);
+VTK_ABI_NAMESPACE_END
 } // namespace vtkDataArrayPrivate
 
 #include "vtkGenericDataArray.txx"
@@ -475,6 +479,7 @@ public:
 #ifdef VTK_GDA_VALUERANGE_INSTANTIATING
 
 // Forward declare necessary stuffs:
+VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 class vtkAOSDataArrayTemplate;
 template <typename ValueType>
@@ -484,6 +489,7 @@ class vtkSOADataArrayTemplate;
 template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
 #endif
+VTK_ABI_NAMESPACE_END
 
 #define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                 \
   template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(                                         \
@@ -521,6 +527,7 @@ class vtkScaledSOADataArrayTemplate;
 #pragma warning(disable : 4910) // extern and dllexport incompatible
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 // Forward declare necessary stuffs:
 template <typename ValueType>
 class vtkAOSDataArrayTemplate;
@@ -532,8 +539,11 @@ template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
 #endif
 
+VTK_ABI_NAMESPACE_END
+
 namespace vtkDataArrayPrivate
 {
+VTK_ABI_NAMESPACE_BEGIN
 template <typename A, typename R, typename T>
 bool DoComputeScalarRange(A*, R*, T, const unsigned char* ghosts, unsigned char ghostsToSkip);
 template <typename A, typename R>
@@ -542,6 +552,7 @@ bool DoComputeVectorRange(
 template <typename A, typename R>
 bool DoComputeVectorRange(
   A*, R[2], FiniteValues, const unsigned char* ghosts, unsigned char ghostsToSkip);
+VTK_ABI_NAMESPACE_END
 } // namespace vtkDataArrayPrivate
 
 #define VTK_DECLARE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                     \
@@ -571,6 +582,7 @@ bool DoComputeVectorRange(
 
 namespace vtkDataArrayPrivate
 {
+VTK_ABI_NAMESPACE_BEGIN
 // These are instantiated in vtkGenericDataArrayValueRange${i}.cxx
 VTK_DECLARE_VALUERANGE_VALUETYPE(long)
 VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long)
@@ -627,6 +639,7 @@ VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<long long>, doubl
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned long long>, double)
 #endif // VTK_USE_SCALED_SOA_ARRAYS
 
+VTK_ABI_NAMESPACE_END
 } // namespace vtkDataArrayPrivate
 
 #undef VTK_DECLARE_VALUERANGE_ARRAYTYPE

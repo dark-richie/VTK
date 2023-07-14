@@ -18,7 +18,8 @@
 
 namespace CGNSRead
 {
-//----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+//------------------------------------------------------------------------------
 int readNodeStringData(int cgioNum, double nodeId, std::string& data)
 {
   int n;
@@ -51,8 +52,8 @@ int readNodeStringData(int cgioNum, double nodeId, std::string& data)
 
   return 0;
 }
+
 //------------------------------------------------------------------------------
-// Specialize char array
 template <>
 int readNodeData<char>(int cgioNum, double nodeId, std::vector<char>& data)
 {
@@ -135,10 +136,13 @@ int readBaseIds(int cgioNum, double rootId, std::vector<double>& baseIds)
 
   for (nbases = 0, nc = 0; nc < baseIds.size(); nc++)
   {
+    // Ignore missing or invalid bases
     if (cgio_get_label(cgioNum, baseIds[nc], nodeLabel) != CG_OK)
     {
-      return 1;
+      vtkWarningWithObjectMacro(nullptr, "Failed to read node label, ignoring current base.");
+      continue;
     }
+
     if (strcmp(nodeLabel, "CGNSBase_t") == 0)
     {
       if (nbases < nc)
@@ -791,4 +795,5 @@ void releaseIds(int cgioNum, const std::vector<double>& ids)
     cgio_release_id(cgioNum, *iter);
   }
 }
+VTK_ABI_NAMESPACE_END
 }

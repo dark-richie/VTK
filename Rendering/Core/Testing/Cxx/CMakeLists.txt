@@ -2,6 +2,9 @@ set(extra_opengl2_tests)
 if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   list(APPEND extra_opengl2_tests TestOffscreenIsOffscreen.cxx,NO_DATA,NO_VALID)
 endif()
+if (VTK_USE_X)
+  list(APPEND extra_opengl2_tests TestInteractorTimers.cxx,NO_VALID)
+endif()
 
 vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   ${extra_opengl2_tests}
@@ -22,6 +25,8 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestBackfaceCulling.cxx
   TestBareScalarsToColors.cxx
   TestBackfaceTexture.cxx
+  TestBlockOpacity.cxx
+  TestBlockVisibility.cxx
   TestColorByCellDataStringArray.cxx
   TestColorByPointDataStringArray.cxx
   TestColorByStringArrayDefaultLookupTable.cxx
@@ -29,12 +34,28 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestColorTransferFunction.cxx,NO_VALID
   TestColorTransferFunctionStringArray.cxx,NO_VALID
   TestCompositeDataDisplayAttributes.cxx,NO_VALID
+  TestCompositePolyDataMapper.cxx,NO_DATA
+  TestCompositePolyDataMapperCameraShiftScale.cxx,NO_DATA
+  TestCompositePolyDataMapperCellScalars.cxx,NO_DATA
+  TestCompositePolyDataMapperCustomShader.cxx,NO_DATA
+  TestCompositePolyDataMapperMixedGeometryCellScalars.cxx,NO_DATA
+  TestCompositePolyDataMapperMixedGeometryEdges.cxx,NO_DATA
+  TestCompositePolyDataMapperNaNPartial.cxx,NO_DATA
+  TestCompositePolyDataMapperOverrideScalarArray.cxx,NO_DATA
+  TestCompositePolyDataMapperPickability.cxx,NO_DATA
+  TestCompositePolyDataMapperPicking.cxx,NO_DATA
+  TestCompositePolyDataMapperScalars.cxx,NO_DATA
+  TestCompositePolyDataMapperScalarsSurfaceOpacity.cxx,NO_DATA
+  TestCompositePolyDataMapperSharedArray.cxx,NO_DATA
+  TestCompositePolyDataMapperSpheres.cxx,NO_DATA
+  TestCompositePolyDataMapperVertices.cxx,NO_DATA
   TestDirectScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionOpacity.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionStringArray.cxx,NO_VALID
   TestDragEvent.cxx
   TestEdgeFlags.cxx
+  TestEdgeOpacity.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapper2.cxx,NO_VALID,NO_RT,NO_DATA
@@ -49,12 +70,14 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestHomogeneousTransformOfActor.cxx
   TestImageAndAnnotations.cxx,NO_DATA
   TestInteractorStyleImageProperty.cxx,NO_VALID
-  TestInteractorTimers.cxx,NO_VALID
   TestLabeledContourMapper.cxx
+  TestLabeledContourMapperNoLabels.cxx
   TestLabeledContourMapperWithActorMatrix.cxx
   TestManyActors.cxx,NO_VALID
   TestMapVectorsAsRGBColors.cxx
   TestMapVectorsToColors.cxx
+  TestMultiBlockPartialArrayFieldData.cxx
+  TestMultiBlockPartialArrayPointData.cxx
   TestOffAxisStereo.cxx
   TestOnAndOffScreenConeCxx.cxx
   TestOpacity.cxx
@@ -89,6 +112,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestTStripsNormalsColorsTCoords.cxx
   TestTStripsNormalsTCoords.cxx
   TestTStripsTCoords.cxx
+  TestTupleInterpolator.cxx,NO_VALID,NO_DATA
   TestWindowToImageFilter.cxx
   TestResizingWindowToImageFilter.cxx
   TestTextureWrap.cxx
@@ -99,5 +123,10 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
 set_source_files_properties(
   TestEdgeFlags.cxx # fails on OpenGL Mesa
   PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+
+if (VTK_USE_X)
+  set_tests_properties(VTK::RenderingCoreCxx-TestInteractorTimers
+     PROPERTIES RUN_SERIAL ON)
+endif ()  
 
 vtk_test_cxx_executable(vtkRenderingCoreCxxTests tests)

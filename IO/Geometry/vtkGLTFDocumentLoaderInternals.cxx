@@ -26,6 +26,7 @@
 #include <sstream>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 bool vtkGLTFDocumentLoaderInternals::LoadBuffer(
   const nlohmann::json& root, std::vector<char>& buffer, const std::string& glTFFileName)
 {
@@ -89,6 +90,11 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
           return false;
         }
         this->Self->GetInternalModel()->Buffers.emplace_back(std::move(buffer));
+      }
+      else
+      {
+        vtkErrorWithObjectMacro(this->Self, "Could not load Buffer from JSON.");
+        return false;
       }
     }
   }
@@ -1709,3 +1715,4 @@ vtkGLTFDocumentLoaderInternals::MaterialAlphaModeStringToEnum(std::string alphaM
   }
   return vtkGLTFDocumentLoader::Material::AlphaModeType::OPAQUE;
 }
+VTK_ABI_NAMESPACE_END

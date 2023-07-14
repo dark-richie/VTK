@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageRange3D);
 
 //------------------------------------------------------------------------------
@@ -56,7 +57,7 @@ void vtkImageRange3D::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 // This method sets the size of the neighborhood.  It also sets the
-// default middle of the neighborhood and computes the eliptical foot print.
+// default middle of the neighborhood and computes the elliptical foot print.
 void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
 {
   int modified = 0;
@@ -316,3 +317,4 @@ int vtkImageRange3D::RequestData(
   this->Ellipse->Update();
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
+VTK_ABI_NAMESPACE_END

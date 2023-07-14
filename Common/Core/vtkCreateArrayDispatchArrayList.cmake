@@ -148,17 +148,6 @@ endif()
 
 endmacro()
 
-# Concatenates a list of strings into a single string, since string(CONCAT ...)
-# is not currently available for VTK's cmake version.
-# Internal method.
-function(CollapseString input output)
-  set(temp "")
-  foreach(line ${input})
-    set(temp ${temp}${line})
-  endforeach()
-  set(${output} "${temp}" PARENT_SCOPE)
-endfunction()
-
 # Create a header that declares the vtkArrayDispatch::Arrays TypeList.
 macro(vtkArrayDispatch_generate_array_header result)
 
@@ -191,6 +180,7 @@ endforeach()
 list(APPEND temp
   "\n"
   "namespace vtkArrayDispatch {\n"
+  "VTK_ABI_NAMESPACE_BEGIN\n"
   "\n"
   "typedef vtkTypeList::Unique<\n"
   "  vtkTypeList::Create<\n"
@@ -201,18 +191,19 @@ foreach(array ${vtkAD_arrays})
 endforeach()
 
 # Remove the final comma from the array list:
-CollapseString("${temp}" temp)
+string(CONCAT temp ${temp})
 string(REGEX REPLACE ",\n$" "\n" temp "${temp}")
 
 list(APPEND temp
   "  >\n"
   ">::Result Arrays\;\n"
   "\n"
-  "} // end namespace vtkArrayDispatch\n"
+  "VTK_ABI_NAMESPACE_END\n"
   "\n"
+  "} // end namespace vtkArrayDispatch\n"
   "#endif // vtkArrayDispatchArrayList_h\n"
 )
 
-CollapseString("${temp}" ${result})
+string(CONCAT ${result} ${temp})
 
 endmacro()

@@ -40,6 +40,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkQuadraticEdge;
 class vtkQuadraticTriangle;
 class vtkTetra;
@@ -82,6 +83,18 @@ public:
    * that it cuts the tetra to produce new tetras.
    */
   void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* tetras, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+
+  /**
+   * Clip this edge using scalar value provided. Like contouring, except
+   * that it cuts the tetra to produce new tetras.
+   *
+   * Returns true if newly inserted cell is a quadratic tetra, false otherwise.
+   *
+   * @see vtkNonLinearCell::StableClip
+   */
+  bool StableClip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* tetras, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
     vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
 
@@ -152,4 +165,5 @@ private:
   void operator=(const vtkQuadraticTetra&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

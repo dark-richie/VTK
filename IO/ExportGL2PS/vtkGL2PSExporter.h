@@ -82,6 +82,7 @@
 
 #include "vtkNew.h" // For vtkNew
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPropCollection;
 
 class VTKIOEXPORTGL2PS_EXPORT vtkGL2PSExporter : public vtkExporter
@@ -373,7 +374,7 @@ private:
   void operator=(const vtkGL2PSExporter&) = delete;
 };
 
-inline const char* vtkGL2PSExporter::GetSortAsString(void)
+inline const char* vtkGL2PSExporter::GetSortAsString()
 {
   if (this->Sort == NO_SORT)
   {
@@ -389,7 +390,7 @@ inline const char* vtkGL2PSExporter::GetSortAsString(void)
   }
 }
 
-inline const char* vtkGL2PSExporter::GetFileFormatAsString(void)
+inline const char* vtkGL2PSExporter::GetFileFormatAsString()
 {
   if (this->FileFormat == PS_FILE)
   {
@@ -413,4 +414,5 @@ inline const char* vtkGL2PSExporter::GetFileFormatAsString(void)
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -26,6 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath, RepelVertices, vtkPoints);
 
@@ -243,6 +244,10 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
   vtkIdType id;
   while (v != startv)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     if (v < 0)
     {
       // Invalid vertex. Path does not exist.
@@ -320,6 +325,10 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath(vtkDataSet* inData, int startv, 
   bool stop = false;
   while ((u = this->Internals->HeapExtractMin()) >= 0 && !stop)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // u is now in ClosedVertices since the shortest path to u is determined
     this->Internals->ClosedVertices[u] = true;
     // remove u from OpenVertices
@@ -408,3 +417,4 @@ void vtkDijkstraGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IdList: " << this->IdList << endl;
   os << indent << "Number of vertices in input data: " << this->NumberOfVertices << endl;
 }
+VTK_ABI_NAMESPACE_END

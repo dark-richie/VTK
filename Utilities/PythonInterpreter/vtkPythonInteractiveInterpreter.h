@@ -39,6 +39,7 @@
 #include "vtkObject.h"
 #include "vtkPythonInterpreterModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkPythonInterpreter;
 
 class VTKPYTHONINTERPRETER_EXPORT vtkPythonInteractiveInterpreter : public vtkObject
@@ -56,7 +57,7 @@ public:
    * return value is True if more input is required, False if the line was dealt
    * with in some way.
    */
-  bool Push(const char* const code);
+  bool Push(const char* code);
 
   /**
    * This destroys the internal code.InteractiveConsole instance. Hence, next
@@ -99,4 +100,5 @@ private:
   vtkInternals* Internals;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

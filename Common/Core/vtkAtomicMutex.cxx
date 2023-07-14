@@ -16,7 +16,7 @@
 
 #if defined(__i386__) || defined(__x86_64__)
 #include <immintrin.h>
-#elif defined(__ARM_FEATURE_SIMD32) || defined(__ARM_NEON)
+#elif (defined(__ARM_FEATURE_SIMD32) || defined(__ARM_NEON)) && __ARM_ARCH_ISA_THUMB > 1
 // https://github.com/DLTcollab/sse2neon
 static inline __attribute__((always_inline)) void _mm_pause()
 {
@@ -25,6 +25,8 @@ static inline __attribute__((always_inline)) void _mm_pause()
 #else
 #define _mm_pause()
 #endif
+
+VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkAtomicMutex::vtkAtomicMutex()
@@ -76,3 +78,4 @@ void vtkAtomicMutex::unlock()
 {
   this->Locked.store(false, std::memory_order_release);
 }
+VTK_ABI_NAMESPACE_END

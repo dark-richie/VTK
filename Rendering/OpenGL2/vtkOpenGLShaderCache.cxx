@@ -27,6 +27,7 @@
 
 #include "vtksys/MD5.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLShaderCache::Private
 {
 public:
@@ -150,7 +151,12 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       "precision mediump sampler2D;\n"
       "precision mediump sampler3D;\n"
       "#endif\n"
+#ifdef GL_ES_VERSION_3_0
+      "#define texelFetchBuffer(a,b) texelFetch(a, Get2DIndexFrom1DIndex(b, textureSize(a, 0)), "
+      "0)\n"
+#else
       "#define texelFetchBuffer texelFetch\n"
+#endif
       "#define texture1D texture\n"
       "#define texture2D texture\n"
       "#define texture3D texture\n"
@@ -206,6 +212,19 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       count++;
     }
   }
+#ifdef GL_ES_VERSION_3_0
+  vtkShaderProgram::Substitute(FSSource, "samplerBuffer", "sampler2D");
+  vtkShaderProgram::Substitute(FSSource, "void main()",
+    "ivec2 Get2DIndexFrom1DIndex(int idx, ivec2 texSize)\n"
+    "{\n"
+    "  float w = float(texSize.x);\n"
+    "  float idx_f = float(idx);\n"
+    "  int i = int(mod(idx_f, w));\n"
+    "  int j = (idx - i) / texSize.x;\n"
+    "  return ivec2(i, j);\n"
+    "}\n"
+    "void main()");
+#endif
   vtkShaderProgram::Substitute(FSSource, "//VTK::Output::Dec", fragDecls);
   return count;
 }
@@ -393,3 +412,4 @@ void vtkOpenGLShaderCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

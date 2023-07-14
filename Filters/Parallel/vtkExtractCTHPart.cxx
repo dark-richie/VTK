@@ -55,6 +55,7 @@
 #include <string>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart, ClipPlane, vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart, Controller, vtkMultiProcessController);
@@ -181,7 +182,7 @@ void vtkExtractCTHPart::AddVolumeArrayName(const char* arrayName)
     std::find(this->Internals->VolumeArrayNames.begin(), this->Internals->VolumeArrayNames.end(),
       std::string(arrayName)) == this->Internals->VolumeArrayNames.end())
   {
-    this->Internals->VolumeArrayNames.push_back(arrayName);
+    this->Internals->VolumeArrayNames.emplace_back(arrayName);
 
     // ensure that the volume arrays are in determinate order. I should just
     // change the code to use a std::set.
@@ -1034,7 +1035,7 @@ void vtkExtractCTHPart::ExecuteFaceQuads(vtkDataSet* input, vtkPolyData* output,
   pInc[0] = 1;
   pInc[1] = (originalExtents[1] - originalExtents[0] + 1);
   pInc[2] = (originalExtents[3] - originalExtents[2] + 1) * pInc[1];
-  // quad increments (cell incraments, but cInc could be confused with c axis).
+  // quad increments (cell increments, but cInc could be confused with c axis).
   qInc[0] = 1;
   qInc[1] = originalExtents[1] - originalExtents[0];
   // The conditions are for when we have one or more degenerate axes (2d or 1d cells).
@@ -1353,3 +1354,4 @@ void vtkExtractCTHPart::PrintSelf(ostream& os, vtkIndent indent)
     os << "No Controller." << endl;
   }
 }
+VTK_ABI_NAMESPACE_END

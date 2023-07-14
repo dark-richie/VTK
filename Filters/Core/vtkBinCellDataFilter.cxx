@@ -33,6 +33,7 @@
 #include <map>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBinCellDataFilter);
 
 //------------------------------------------------------------------------------
@@ -199,9 +200,16 @@ int vtkBinCellDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkCellIterator* srcIt = source->NewCellIterator();
   double pcoords[3], coords[3];
   int subId;
+  vtkIdType checkAbortCounter = 0;
+  vtkIdType checkAbortInterval = std::min(source->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
   // iterate over each cell in the source mesh
   for (srcIt->InitTraversal(); !srcIt->IsDoneWithTraversal(); srcIt->GoToNextCell())
   {
+    if (checkAbortCounter % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
+    checkAbortCounter++;
     if (this->CellOverlapMethod == vtkBinCellDataFilter::CELL_CENTROID)
     {
       // identify the centroid of the source cell
@@ -427,3 +435,4 @@ void vtkBinCellDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Cell Locator: " << this->CellLocator << "\n";
 }
+VTK_ABI_NAMESPACE_END

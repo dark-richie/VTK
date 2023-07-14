@@ -28,6 +28,7 @@
  * depending on the frequency characteristics.
  */
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSGENERAL_EXPORT vtkEqualizerFilter : public vtkTableAlgorithm
 {
 public:
@@ -90,7 +91,6 @@ private:
   void ProcessColumn(
     vtkDataArray* array, vtkTable* spectrumTable, vtkTable* resultTable, vtkTable* normalizedTable);
 
-private:
   vtkEqualizerFilter(const vtkEqualizerFilter&) = delete;
   void operator=(const vtkEqualizerFilter&) = delete;
 
@@ -103,4 +103,5 @@ private:
   vtkInternal* Internal;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

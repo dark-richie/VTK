@@ -36,6 +36,7 @@
 #include <cassert>
 
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkScalarsToColorsItem, HistogramTable, vtkTable);
 
 //------------------------------------------------------------------------------
@@ -113,7 +114,7 @@ void vtkScalarsToColorsItem::ComputeBounds(double bounds[4])
 //------------------------------------------------------------------------------
 bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
 {
-  this->TextureWidth = this->GetScene()->GetViewWidth();
+  this->TextureWidth = this->GetScene()->GetSceneWidth();
   if (this->Texture == nullptr || this->Texture->GetMTime() < this->GetMTime())
   {
     this->ComputeTexture();
@@ -273,3 +274,4 @@ vtkStdString vtkScalarsToColorsItem::GetTooltipLabel(
   }
   return "";
 }
+VTK_ABI_NAMESPACE_END

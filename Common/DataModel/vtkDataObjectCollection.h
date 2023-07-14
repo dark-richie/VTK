@@ -28,6 +28,7 @@
 
 #include "vtkDataObject.h" // Needed for inline methods
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkDataObjectCollection : public vtkCollection
 {
 public:
@@ -67,9 +68,9 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
-private:
   vtkDataObjectCollection(const vtkDataObjectCollection&) = delete;
   void operator=(const vtkDataObjectCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

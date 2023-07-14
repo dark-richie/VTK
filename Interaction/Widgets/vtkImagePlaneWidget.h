@@ -108,6 +108,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataSourceWidget.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkAbstractPropPicker;
 class vtkDataSetMapper;
@@ -322,7 +323,7 @@ public:
    * Satisfies superclass API.  This will change the state of the widget to
    * match changes that have been made to the underlying vtkPolyDataSource
    */
-  void UpdatePlacement(void) override;
+  void UpdatePlacement() override;
 
   /**
    * Convenience method to get the texture used by this widget.  This can be
@@ -723,4 +724,5 @@ private:
   void operator=(const vtkImagePlaneWidget&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

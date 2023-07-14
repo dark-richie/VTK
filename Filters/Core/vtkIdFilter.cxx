@@ -22,6 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIdFilter);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -132,6 +133,8 @@ int vtkIdFilter::RequestData(vtkInformation* vtkNotUsed(request),
   outPD->PassData(inPD);
   outCD->PassData(inCD);
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -149,3 +152,4 @@ void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)
      << "CellIdsArrayName: " << (this->CellIdsArrayName ? this->CellIdsArrayName : "(none)")
      << "\n";
 }
+VTK_ABI_NAMESPACE_END

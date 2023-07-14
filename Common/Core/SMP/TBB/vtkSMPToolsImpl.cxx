@@ -18,6 +18,7 @@
 
 #include <cstdlib> // For std::getenv()
 #include <mutex>   // For std::mutex
+#include <stack>   // For std::stack
 
 #ifdef _MSC_VER
 #pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
@@ -36,9 +37,19 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 static tbb::task_arena taskArena;
 static std::mutex vtkSMPToolsCS;
+static std::stack<int> threadIdStack;
+static std::mutex threadIdStackLock;
+
+//------------------------------------------------------------------------------
+template <>
+vtkSMPToolsImpl<BackendType::TBB>::vtkSMPToolsImpl()
+  : NestedActivated(true)
+{
+}
 
 //------------------------------------------------------------------------------
 template <>
@@ -78,9 +89,19 @@ int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedNumberOfThreads()
 }
 
 //------------------------------------------------------------------------------
+template <>
+bool vtkSMPToolsImpl<BackendType::TBB>::GetSingleThread()
+{
+  return threadIdStack.top() == tbb::this_task_arena::current_thread_index();
+}
+
+//------------------------------------------------------------------------------
 void vtkSMPToolsImplForTBB(vtkIdType first, vtkIdType last, vtkIdType grain,
   ExecuteFunctorPtrType functorExecuter, void* functor)
 {
+  threadIdStackLock.lock();
+  threadIdStack.emplace(tbb::this_task_arena::current_thread_index());
+  threadIdStackLock.unlock();
   if (taskArena.is_active())
   {
     taskArena.execute([&] { functorExecuter(functor, first, last, grain); });
@@ -89,8 +110,12 @@ void vtkSMPToolsImplForTBB(vtkIdType first, vtkIdType last, vtkIdType grain,
   {
     functorExecuter(functor, first, last, grain);
   }
+  threadIdStackLock.lock();
+  threadIdStack.pop();
+  threadIdStackLock.unlock();
 }
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk

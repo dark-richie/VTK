@@ -34,6 +34,7 @@
 #include "vtkImageSlice.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkPropCollection;
 class vtkRenderer;
@@ -110,7 +111,7 @@ public:
    * identity matrix, this will return the same value as
    * GetBounds.
    */
-  double* GetDisplayBounds();
+  double* GetDisplayBounds() VTK_SIZEHINT(6);
   void GetDisplayBounds(double bounds[6]);
   ///@}
 
@@ -190,4 +191,5 @@ private:
   void operator=(const vtkImageActor&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

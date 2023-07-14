@@ -17,7 +17,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiThreader);
+VTK_ABI_NAMESPACE_END
 
 // Need to define "vtkExternCThreadFunctionType" to avoid warning on some
 // platforms about passing function pointer to an argument expecting an
@@ -38,6 +40,7 @@ typedef vtkThreadFunctionType vtkExternCThreadFunctionType;
 #include <sys/types.h>
 #endif
 
+VTK_ABI_NAMESPACE_BEGIN
 // Initialize static member that controls global maximum number of threads
 static int vtkMultiThreaderGlobalMaximumNumberOfThreads = 0;
 
@@ -278,7 +281,7 @@ void vtkMultiThreader::SingleMethodExecute()
   pthread_attr_t attr;
 
   pthread_attr_init(&attr);
-#if !defined(__CYGWIN__)
+#if !defined(__CYGWIN__) && !defined(__EMSCRIPTEN__)
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS);
 #endif
 
@@ -406,7 +409,7 @@ void vtkMultiThreader::MultipleMethodExecute()
   pthread_attr_t attr;
 
   pthread_attr_init(&attr);
-#ifndef __CYGWIN__
+#if !defined(__CYGWIN__) && !defined(__EMSCRIPTEN__)
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS);
 #endif
 
@@ -489,7 +492,7 @@ int vtkMultiThreader::SpawnThread(vtkThreadFunctionType f, void* userdata)
   //
   pthread_attr_t attr;
   pthread_attr_init(&attr);
-#ifndef __CYGWIN__
+#if !defined(__CYGWIN__) && !defined(__EMSCRIPTEN__)
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS);
 #endif
 
@@ -642,3 +645,4 @@ void vtkMultiThreader::PrintSelf(ostream& os, vtkIndent indent)
 #endif
      << endl;
 }
+VTK_ABI_NAMESPACE_END

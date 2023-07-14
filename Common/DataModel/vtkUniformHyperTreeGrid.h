@@ -30,14 +30,15 @@
 #ifndef vtkUniformHyperTreeGrid_h
 #define vtkUniformHyperTreeGrid_h
 
-#include "limits.h" // UINT_MAX
-
-#include <cmath>  // std::round
-#include <memory> // std::shared_ptr
+#include <algorithm> // std::min/std::max
+#include <cmath>     // std::round
+#include <limits>    // std::numeric_limits
+#include <memory>    // std::shared_ptr
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHyperTreeGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkHyperTreeGridScales;
 
@@ -205,32 +206,30 @@ protected:
   bool ComputedZCoordinates;
   ///@}
 
-  unsigned int FindDichotomicX(double value) const override
+  unsigned int FindDichotomic(double value, unsigned char dim, double tol) const
   {
-    if (value < this->Origin[0] ||
-      value > this->Origin[0] + this->GridScale[0] * (this->GetDimensions()[0] - 1))
+    unsigned int maxIdx = this->GetDimensions()[dim] - 1;
+    if (value < (this->Origin[dim] - tol) ||
+      value > (this->Origin[dim] + tol + this->GridScale[dim] * maxIdx))
     {
-      return UINT_MAX;
+      return std::numeric_limits<unsigned int>::max();
     }
-    return std::round((value - this->Origin[0]) / this->GridScale[0]);
+
+    long idx = std::round((value - this->Origin[dim]) / this->GridScale[dim]);
+    return std::min(std::max(idx, 0l), static_cast<long>(maxIdx));
   }
-  unsigned int FindDichotomicY(double value) const override
+
+  unsigned int FindDichotomicX(double value, double tolerance = 0.0) const override
   {
-    if (value < this->Origin[1] ||
-      value > this->Origin[1] + this->GridScale[1] * (this->GetDimensions()[1] - 1))
-    {
-      return UINT_MAX;
-    }
-    return std::round((value - this->Origin[1]) / this->GridScale[1]);
+    return this->FindDichotomic(value, 0, tolerance);
   }
-  unsigned int FindDichotomicZ(double value) const override
+  unsigned int FindDichotomicY(double value, double tolerance = 0.0) const override
   {
-    if (value < this->Origin[2] ||
-      value > this->Origin[2] + this->GridScale[2] * (this->GetDimensions()[2] - 1))
-    {
-      return UINT_MAX;
-    }
-    return std::round((value - this->Origin[2]) / this->GridScale[2]);
+    return this->FindDichotomic(value, 1, tolerance);
+  }
+  unsigned int FindDichotomicZ(double value, double tolerance = 0.0) const override
+  {
+    return this->FindDichotomic(value, 2, tolerance);
   }
 
   /**
@@ -243,4 +242,5 @@ private:
   void operator=(const vtkUniformHyperTreeGrid&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

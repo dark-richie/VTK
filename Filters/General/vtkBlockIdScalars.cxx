@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlockIdScalars);
 //------------------------------------------------------------------------------
 vtkBlockIdScalars::vtkBlockIdScalars() = default;
@@ -61,6 +62,10 @@ int vtkBlockIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   int blockIdx = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), blockIdx++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkDataObject* dObj = iter->GetCurrentDataObject();
     if (dObj)
     {
@@ -129,3 +134,4 @@ void vtkBlockIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

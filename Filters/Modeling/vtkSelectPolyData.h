@@ -99,6 +99,7 @@
 #define VTK_GREEDY_EDGE_SEARCH 0
 #define VTK_DIJKSTRA_EDGE_SEARCH 1
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
 class vtkPoints;
 class vtkIdList;
@@ -127,6 +128,14 @@ public:
   vtkSetMacro(GenerateSelectionScalars, vtkTypeBool);
   vtkGetMacro(GenerateSelectionScalars, vtkTypeBool);
   vtkBooleanMacro(GenerateSelectionScalars, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Name of the Selection Scalars array. Default is "Selection".
+   */
+  vtkSetStringMacro(SelectionScalarsArrayName);
+  vtkGetStringMacro(SelectionScalarsArrayName);
   ///@}
 
   ///@{
@@ -238,13 +247,14 @@ protected:
   void FillMarksInRegion(vtkPolyData* mesh, vtkIdList* edgePointIds, vtkIntArray* pointMarks,
     vtkIntArray* cellMarks, vtkIdType cellIdInSelectedRegion);
 
-  void SetClippedResultToOutput(vtkPointData* originalPointData, vtkPolyData* mesh,
-    vtkIntArray* cellMarks, vtkPolyData* output);
+  void SetClippedResultToOutput(vtkPointData* originalPointData, vtkCellData* originalCellData,
+    vtkPolyData* mesh, vtkIntArray* cellMarks, vtkPolyData* output);
 
   void SetSelectionScalarsToOutput(vtkPointData* originalPointData, vtkCellData* originalCellData,
     vtkPolyData* mesh, vtkIdList* edgeIds, vtkIntArray* pointMarks, vtkPolyData* output);
 
   vtkTypeBool GenerateSelectionScalars;
+  char* SelectionScalarsArrayName;
   vtkTypeBool InsideOut;
   int EdgeSearchMode;
   vtkPoints* Loop;
@@ -259,7 +269,6 @@ private:
   // edgePointIds (as direct neighbors).
   static bool IsBoundaryEdge(vtkIdType pointId1, vtkIdType pointId2, vtkIdList* edgePointIds);
 
-private:
   vtkSelectPolyData(const vtkSelectPolyData&) = delete;
   void operator=(const vtkSelectPolyData&) = delete;
 };
@@ -303,4 +312,5 @@ inline const char* vtkSelectPolyData::GetEdgeSearchModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

@@ -34,20 +34,25 @@
 #include "vtkObject.h"
 
 // Forward declarations
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkPointData;
 class vtkPoints;
+VTK_ABI_NAMESPACE_END
 
 namespace vtk
 {
 namespace detail
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkIndexMap;
 
+VTK_ABI_NAMESPACE_END
 } // END namespace detail
 } // END namespace vtk
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkExtractStructuredGridHelper : public vtkObject
 {
 public:
@@ -77,7 +82,7 @@ public:
    * \param dim the dimension in query
    * \pre dim >= 0 && dim < 3
    */
-  int GetSize(const int dim);
+  int GetSize(int dim);
 
   /**
    * \brief Given a dimension and output index, return the corresponding
@@ -227,4 +232,5 @@ private:
   void operator=(const vtkExtractStructuredGridHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif /* VTKEXTRACTSTRUCTUREDGRIDHELPER_H_ */

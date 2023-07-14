@@ -22,6 +22,7 @@
 
 #include <cmath>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalSnapToTimeStep);
 
 //------------------------------------------------------------------------------
@@ -109,6 +110,8 @@ int vtkTemporalSnapToTimeStep::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  this->CheckAbort();
+
   return 1;
 }
 
@@ -189,3 +192,4 @@ void vtkTemporalSnapToTimeStep::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SnapMode: " << this->SnapMode << endl;
 }
 //------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_END

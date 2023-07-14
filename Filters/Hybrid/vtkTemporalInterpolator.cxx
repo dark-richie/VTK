@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalInterpolator);
 
 //------------------------------------------------------------------------------
@@ -188,6 +189,10 @@ int vtkTemporalInterpolator::RequestInformation(vtkInformation* vtkNotUsed(reque
         OutputTimeValues.push_back(newT);
       }
     }
+
+    // Add the last timestep, as it is never reached
+    OutputTimeValues.push_back(inTimes[numTimes - 1]);
+
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), OutputTimeValues.data(),
       static_cast<int>(OutputTimeValues.size()));
   }
@@ -248,6 +253,10 @@ int vtkTemporalInterpolator::Execute(vtkInformation*,
   originalTimes->SetNumberOfTuples(numTimeSteps);
   for (int i = 0; i < numTimeSteps; i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     originalTimes->SetValue(i, inputs[i]->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
   }
   outData->GetFieldData()->AddArray(originalTimes);
@@ -614,3 +623,4 @@ vtkDataArray* vtkTemporalInterpolator ::InterpolateDataArray(
 
   return output;
 }
+VTK_ABI_NAMESPACE_END

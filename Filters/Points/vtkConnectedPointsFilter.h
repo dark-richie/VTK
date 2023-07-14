@@ -61,6 +61,7 @@
 #define VTK_EXTRACT_ALL_REGIONS 5
 #define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkDataArray;
 class vtkFloatArray;
@@ -257,7 +258,6 @@ private:
   vtkIdList* Wave;
   vtkIdList* Wave2;
 
-private:
   vtkConnectedPointsFilter(const vtkConnectedPointsFilter&) = delete;
   void operator=(const vtkConnectedPointsFilter&) = delete;
 };
@@ -289,4 +289,5 @@ inline const char* vtkConnectedPointsFilter::GetExtractionModeAsString()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

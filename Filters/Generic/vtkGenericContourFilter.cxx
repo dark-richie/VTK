@@ -36,6 +36,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericContourFilter);
 
 vtkCxxSetObjectMacro(vtkGenericContourFilter, Locator, vtkIncrementalPointLocator);
@@ -219,7 +220,7 @@ int vtkGenericContourFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkIdType updateCount = numCells / 20 + 1; // update roughly every 5%
   vtkIdType count = 0;
-  int abortExecute = 0;
+  bool abortExecute = false;
 
   input->GetTessellator()->InitErrorMetrics(input);
 
@@ -228,7 +229,7 @@ int vtkGenericContourFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(count % updateCount))
     {
       this->UpdateProgress(static_cast<double>(count) / numCells);
-      abortExecute = this->GetAbortExecute();
+      abortExecute = this->CheckAbort();
     }
 
     cell = cellIt->GetCell();
@@ -401,3 +402,4 @@ int vtkGenericContourFilter::FillInputPortInformation(int port, vtkInformation* 
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   return 1;
 }
+VTK_ABI_NAMESPACE_END

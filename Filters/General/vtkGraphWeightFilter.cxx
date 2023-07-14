@@ -29,7 +29,8 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
-bool vtkGraphWeightFilter::CheckRequirements(vtkGraph* const vtkNotUsed(graph)) const
+VTK_ABI_NAMESPACE_BEGIN
+bool vtkGraphWeightFilter::CheckRequirements(vtkGraph* vtkNotUsed(graph)) const
 {
   return true;
 }
@@ -69,6 +70,10 @@ int vtkGraphWeightFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   while (edgeListIterator->HasNext())
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     vtkEdgeType edge = edgeListIterator->Next();
 
     float w = this->ComputeWeight(input, edge);
@@ -87,3 +92,4 @@ void vtkGraphWeightFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkGraphAlgorithm::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

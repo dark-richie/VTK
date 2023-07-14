@@ -14,6 +14,7 @@
 =========================================================================*/
 
 #include "PyVTKEnum.h"
+#include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
 
 #include <cstddef>
@@ -25,8 +26,10 @@
 // Add a wrapped enum type
 PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype, const char* name)
 {
+#if PY_VERSION_HEX < 0x030A0000
   // do not allow direct instantiation
   pytype->tp_new = nullptr;
+#endif
   vtkPythonUtil::AddEnumToMap(pytype, name);
   return pytype;
 }
@@ -35,14 +38,8 @@ PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype, const char* name)
 PyObject* PyVTKEnum_New(PyTypeObject* pytype, int val)
 {
   // our enums are subtypes of Python's int() type
-#ifdef VTK_PY3K
   PyObject* args = Py_BuildValue("(i)", val);
   PyObject* obj = PyLong_Type.tp_new(pytype, args, nullptr);
   Py_DECREF(args);
   return obj;
-#else
-  PyIntObject* self = PyObject_New(PyIntObject, pytype);
-  self->ob_ival = val;
-  return (PyObject*)self;
-#endif
 }

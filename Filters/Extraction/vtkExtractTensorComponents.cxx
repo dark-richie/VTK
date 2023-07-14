@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
 //------------------------------------------------------------------------------
@@ -184,9 +185,23 @@ int vtkExtractTensorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     double s = 0.0;
     double v[3];
     double sx, sy, sz, txy, tyz, txz;
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
     for (; ptId < endPtId; ++ptId)
     {
+      if (ptId % checkAbortInterval == 0)
+      {
+        if (isFirst)
+        {
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
+      }
+
       inTensors->GetTuple(ptId, tensor);
       if (inTensors->GetNumberOfComponents() == 6)
       {
@@ -354,3 +369,4 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Precision: " << this->OutputPrecision << "\n";
 }
+VTK_ABI_NAMESPACE_END

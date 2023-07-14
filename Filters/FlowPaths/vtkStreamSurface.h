@@ -29,6 +29,7 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkStreamTracer.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAppendPolyData;
 class vtkRuledSurfaceFilter;
 
@@ -71,7 +72,7 @@ private:
    * loop: 1.advect one step at a time
    * 2. then form surface strip and add it to existing surface
    * 3. then check if points have diverged and insert new ones if necessary
-   * field is the vecotr values dataset in which the streamsurface is advected
+   * field is the vector values dataset in which the streamsurface is advected
    * seeds is the polydata with the start curve
    * output is the final streamsurface
    * @param field: vector field in which the surfave is advected
@@ -92,4 +93,5 @@ private:
   vtkNew<vtkStreamTracer> StreamTracer;
   vtkNew<vtkAppendPolyData> AppendSurfaces;
 };
+VTK_ABI_NAMESPACE_END
 #endif

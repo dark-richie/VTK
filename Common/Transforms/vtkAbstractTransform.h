@@ -42,8 +42,7 @@
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <mutex> // for std::mutex
-
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkMatrix4x4;
 class vtkPoints;
@@ -326,25 +325,10 @@ protected:
   double InternalDoublePoint[3];
 
 private:
-  // We need to record the time of the last update, and we also need
-  // to do mutex locking so updates don't collide.  These are private
-  // because Update() is not virtual.
-  // If DependsOnInverse is set, then this transform object will
-  // check its inverse on every update, and update itself accordingly
-  // if necessary.
+  class vtkInternals;
 
-  vtkTimeStamp UpdateTime;
-  std::mutex UpdateMutex;
-  std::mutex InverseMutex;
-  int DependsOnInverse;
+  vtkInternals* Internals;
 
-  // MyInverse is a transform which is the inverse of this one.
-
-  vtkAbstractTransform* MyInverse;
-
-  int InUnRegister;
-
-private:
   vtkAbstractTransform(const vtkAbstractTransform&) = delete;
   void operator=(const vtkAbstractTransform&) = delete;
 };
@@ -512,4 +496,5 @@ private:
   void operator=(const vtkTransformConcatenationStack&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

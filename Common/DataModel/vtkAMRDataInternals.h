@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h" //for storing smart pointers to blocks
 #include <vector>            //for storing blocks
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformGrid;
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRDataInternals : public vtkObject
 {
@@ -52,8 +53,8 @@ public:
   void Insert(unsigned int index, vtkUniformGrid* grid);
   vtkUniformGrid* GetDataSet(unsigned int compositeIndex);
 
-  virtual void ShallowCopy(vtkObject* src);
-  void RecursiveShallowCopy(vtkObject* src);
+  void CompositeShallowCopy(vtkObject* src);
+  void ShallowCopy(vtkObject* src);
 
   bool Empty() const { return this->GetNumberOfBlocks() == 0; }
 
@@ -77,4 +78,5 @@ private:
   void operator=(const vtkAMRDataInternals&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

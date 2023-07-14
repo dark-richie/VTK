@@ -34,6 +34,7 @@
 
 #include <locale> // For locale settings
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataSet;
@@ -373,7 +374,8 @@ protected:
   bool CanWriteInformationKey(vtkInformation* info, vtkInformationKey* key);
 
   /**
-   * Format is detailed \ref IOLegacyInformationFormat "here".
+   * Format is detailed at
+   * https://docs.vtk.org/en/latest/design_documents/IOLegacyInformationFormat.html
    */
   int WriteInformation(ostream* fp, vtkInformation* info);
 
@@ -382,4 +384,5 @@ private:
   void operator=(const vtkDataWriter&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

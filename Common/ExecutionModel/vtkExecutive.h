@@ -30,6 +30,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkAlgorithmOutput;
 class vtkAlgorithmToExecutiveFriendship;
@@ -245,6 +246,12 @@ protected:
   // construct the error message.
   int CheckAlgorithm(const char* method, vtkInformation* request);
 
+  /**
+   * Checks to see if an inputs have ABORTED set. Returns true if any
+   * ABORTED values true set. Returns false otherwise.
+   */
+  bool CheckAbortedInput(vtkInformationVector** inInfoVec);
+
   virtual int ForwardDownstream(vtkInformation* request);
   virtual int ForwardUpstream(vtkInformation* request);
   virtual void CopyDefaultInformation(vtkInformation* request, int direction,
@@ -282,9 +289,9 @@ private:
 
   friend class vtkAlgorithmToExecutiveFriendship;
 
-private:
   vtkExecutive(const vtkExecutive&) = delete;
   void operator=(const vtkExecutive&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

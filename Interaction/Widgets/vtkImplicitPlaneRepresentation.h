@@ -40,8 +40,10 @@
 
 #include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_2_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLegacy.h"                   // for VTK_LEGACY_REMOVE
 #include "vtkWidgetRepresentation.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkBox;
 class vtkCellPicker;
@@ -192,7 +194,7 @@ public:
 
   ///@{
   /**
-   * Returns true if ContrainedAxis
+   * Returns true if ConstrainedAxis
    **/
   bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
   ///@}
@@ -296,6 +298,21 @@ public:
    */
   vtkGetObjectMacro(EdgesProperty, vtkProperty);
   ///@}
+
+  ///@{
+  /**
+   * Set the color of all the widget's handles (edges, cone1, cone2, line, sphere, selected plane)
+   * and their color during interaction. Foreground color applies to the outlines and unselected
+   * plane.
+   */
+  void SetInteractionColor(double, double, double);
+  void SetInteractionColor(double c[3]) { this->SetInteractionColor(c[0], c[1], c[2]); }
+  void SetHandleColor(double, double, double);
+  void SetHandleColor(double c[3]) { this->SetHandleColor(c[0], c[1], c[2]); }
+  void SetForegroundColor(double, double, double);
+  void SetForegroundColor(double c[3]) { this->SetForegroundColor(c[0], c[1], c[2]); }
+  ///@}
+
   ///@{
   /**
    * Set color to the edge
@@ -563,4 +580,5 @@ private:
   void operator=(const vtkImplicitPlaneRepresentation&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

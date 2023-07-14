@@ -41,6 +41,7 @@
 #include <map>
 #include <sstream>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkWebApplication::vtkInternals
 {
 public:
@@ -205,7 +206,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   w2i->FixBoundaryOn();
   w2i->Update();
 
-  vtkImageData* image = vtkImageData::New();
+  auto image = vtkSmartPointer<vtkImageData>::New();
   image->ShallowCopy(w2i->GetOutput());
 
   // vtkTimerLog::MarkEndEvent("CaptureWindow");
@@ -472,3 +473,4 @@ std::string vtkWebApplication::GetObjectId(vtkObject* obj)
   oss << std::hex << static_cast<void*>(obj);
   return oss.str();
 }
+VTK_ABI_NAMESPACE_END

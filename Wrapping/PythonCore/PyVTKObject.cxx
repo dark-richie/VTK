@@ -30,6 +30,7 @@
 
 #include "PyVTKObject.h"
 #include "PyVTKMethodDescriptor.h"
+#include "vtkABINamespace.h"
 #include "vtkDataArray.h"
 #include "vtkObjectBase.h"
 #include "vtkPythonCommand.h"
@@ -41,6 +42,7 @@
 // This will be set to the python type struct for vtkObjectBase
 static PyTypeObject* PyVTKObject_Type = nullptr;
 
+VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 PyVTKClass::PyVTKClass(
   PyTypeObject* typeobj, PyMethodDef* methods, const char* classname, vtknewfunc constructor)
@@ -50,6 +52,7 @@ PyVTKClass::PyVTKClass(
   this->vtk_name = classname;
   this->vtk_new = constructor;
 }
+VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 // Create a Python "override" method
@@ -57,7 +60,7 @@ PyVTKClass::PyVTKClass(
 static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
 {
   PyTypeObject* typeobj = (PyTypeObject*)cls;
-  std::string clsName = vtkPythonUtil::StripModule(typeobj->tp_name);
+  std::string clsName = vtkPythonUtil::StripModuleFromType(typeobj);
 
   if (Py_TYPE(type) == &PyType_Type)
   {
@@ -65,9 +68,17 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
     if (PyType_IsSubtype(newtypeobj, typeobj))
     {
       // Make sure "type" and intermediate classes aren't wrapped classes
-      for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj; tp = tp->tp_base)
+      for (PyTypeObject* tp = newtypeobj; tp && tp != typeobj;
+           tp =
+#if PY_VERSION_HEX >= 0x030A0000
+             (PyTypeObject*)PyType_GetSlot(tp, Py_tp_base)
+#else
+             tp->tp_base
+#endif
+      )
       {
-        if (vtkPythonUtil::FindClass(vtkPythonUtil::StripModule(tp->tp_name)))
+        PyVTKClass* c = vtkPythonUtil::FindClass(vtkPythonUtil::StripModuleFromType(tp));
+        if (c && tp == c->py_type)
         {
           std::string str("method requires overriding with a pure python subclass of ");
           str += clsName;
@@ -154,7 +165,7 @@ PyTypeObject* PyVTKClass_Add(
   pytype->tp_dict = PyDict_New();
 
   // Add special attribute __vtkname__
-  PyObject* s = PyString_FromString(classname);
+  PyObject* s = PyUnicode_FromString(classname);
   PyDict_SetItemString(pytype->tp_dict, "__vtkname__", s);
   Py_DECREF(s);
 
@@ -192,7 +203,7 @@ PyObject* PyVTKObject_String(PyObject* op)
   std::ostringstream vtkmsg_with_warning_C4701;
   ((PyVTKObject*)op)->vtk_ptr->Print(vtkmsg_with_warning_C4701);
   vtkmsg_with_warning_C4701.put('\0');
-  PyObject* res = PyString_FromString(vtkmsg_with_warning_C4701.str().c_str());
+  PyObject* res = PyUnicode_FromString(vtkmsg_with_warning_C4701.str().c_str());
   return res;
 }
 
@@ -200,7 +211,7 @@ PyObject* PyVTKObject_String(PyObject* op)
 PyObject* PyVTKObject_Repr(PyObject* op)
 {
   PyVTKObject* obj = (PyVTKObject*)op;
-  return PyString_FromFormat("<%s(%p) at %p>", Py_TYPE(op)->tp_name,
+  return PyUnicode_FromFormat("<%s(%p) at %p>", vtkPythonUtil::GetTypeNameForObject(op),
     static_cast<void*>(obj->vtk_ptr), static_cast<void*>(obj));
 }
 
@@ -244,9 +255,10 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 //------------------------------------------------------------------------------
 PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
 {
+  // XXX(python3-abi3): all types will be heap types in abi3
   // If type was subclassed within python, then skip arg checks and
   // simply create a new object.
-  if ((tp->tp_flags & Py_TPFLAGS_HEAPTYPE) == 0)
+  if ((PyType_GetFlags(tp) & Py_TPFLAGS_HEAPTYPE) == 0)
   {
     if (kwds != nullptr && PyDict_Size(kwds))
     {
@@ -255,7 +267,7 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
     }
 
     PyObject* o = nullptr;
-    if (!PyArg_UnpackTuple(args, tp->tp_name, 0, 1, &o))
+    if (!PyArg_UnpackTuple(args, vtkPythonUtil::GetTypeName(tp), 0, 1, &o))
     {
       return nullptr;
     }
@@ -263,7 +275,7 @@ PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* kwds)
     if (o)
     {
       // used to create a VTK object from a SWIG pointer
-      return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModule(tp->tp_name));
+      return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModuleFromType(tp));
     }
   }
 
@@ -321,80 +333,27 @@ static PyObject* PyVTKObject_GetThis(PyObject* op, void*)
   // otherwise, use the pythonic form of the class name
   if (*cp != '\0')
   {
-    classname = vtkPythonUtil::StripModule(Py_TYPE(op)->tp_name);
+    classname = vtkPythonUtil::StripModuleFromObject(op);
   }
   snprintf(buf, sizeof(buf), "p_%.500s", classname);
-  return PyString_FromString(vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
+  return PyUnicode_FromString(vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
 }
 
-PyGetSetDef PyVTKObject_GetSet[] = {
 #if PY_VERSION_HEX >= 0x03070000
-  { "__dict__", PyVTKObject_GetDict, nullptr, "Dictionary of attributes set by user.", nullptr },
-  { "__this__", PyVTKObject_GetThis, nullptr, "Pointer to the C++ object.", nullptr },
+#define pystr(x) x
 #else
-  { const_cast<char*>("__dict__"), PyVTKObject_GetDict, nullptr,
-    const_cast<char*>("Dictionary of attributes set by user."), nullptr },
-  { const_cast<char*>("__this__"), PyVTKObject_GetThis, nullptr,
-    const_cast<char*>("Pointer to the C++ object."), nullptr },
+#define pystr(x) const_cast<char*>(x)
 #endif
-  { nullptr, nullptr, nullptr, nullptr, nullptr }
-};
+
+PyGetSetDef PyVTKObject_GetSet[] = { { pystr("__dict__"), PyVTKObject_GetDict, nullptr,
+                                       pystr("Dictionary of attributes set by user."), nullptr },
+  { pystr("__this__"), PyVTKObject_GetThis, nullptr, pystr("Pointer to the C++ object."), nullptr },
+  { nullptr, nullptr, nullptr, nullptr, nullptr } };
 
 //------------------------------------------------------------------------------
 // The following methods and struct define the "buffer" protocol
 // for PyVTKObject, so that python can read from a vtkDataArray.
 // This is particularly useful for NumPy.
-
-#ifndef VTK_PY3K
-//------------------------------------------------------------------------------
-static Py_ssize_t PyVTKObject_AsBuffer_GetSegCount(PyObject* op, Py_ssize_t* lenp)
-{
-  PyVTKObject* self = (PyVTKObject*)op;
-  vtkDataArray* da = vtkDataArray::SafeDownCast(self->vtk_ptr);
-  if (da)
-  {
-    if (lenp)
-    {
-      *lenp = da->GetNumberOfTuples() * da->GetNumberOfComponents() * da->GetDataTypeSize();
-    }
-
-    return 1;
-  }
-
-  if (lenp)
-  {
-    *lenp = 0;
-  }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-static Py_ssize_t PyVTKObject_AsBuffer_GetReadBuf(PyObject* op, Py_ssize_t segment, void** ptrptr)
-{
-  if (segment != 0)
-  {
-    PyErr_SetString(PyExc_ValueError, "accessing non-existing array segment");
-    return -1;
-  }
-
-  PyVTKObject* self = (PyVTKObject*)op;
-  vtkDataArray* da = vtkDataArray::SafeDownCast(self->vtk_ptr);
-  if (da)
-  {
-    *ptrptr = da->GetVoidPointer(0);
-    return da->GetNumberOfTuples() * da->GetNumberOfComponents() * da->GetDataTypeSize();
-  }
-
-  return -1;
-}
-
-//------------------------------------------------------------------------------
-static Py_ssize_t PyVTKObject_AsBuffer_GetWriteBuf(PyObject* op, Py_ssize_t segment, void** ptrptr)
-{
-  return PyVTKObject_AsBuffer_GetReadBuf(op, segment, ptrptr);
-}
-
-#endif
 
 //------------------------------------------------------------------------------
 // Convert a VTK type to a python type char (struct module)
@@ -489,12 +448,6 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
       view->ndim = (ncomp > 1 ? 2 : 1);
       view->format = const_cast<char*>(format);
 
-#ifndef VTK_PY3K
-      // use "smalltable" for 1D arrays, like memoryobject.c
-      view->shape = view->smalltable;
-      view->strides = &view->smalltable[1];
-      if (view->ndim > 1)
-#endif
       {
         if (self->vtk_buffer && self->vtk_buffer[0] != view->ndim)
         {
@@ -539,7 +492,8 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
     return 0;
   }
 
-  PyErr_Format(PyExc_ValueError, "Cannot get a buffer from %s.", Py_TYPE(obj)->tp_name);
+  PyErr_Format(
+    PyExc_ValueError, "Cannot get a buffer from %s.", vtkPythonUtil::GetTypeNameForObject(obj));
   return -1;
 }
 
@@ -553,22 +507,16 @@ static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
 
 //------------------------------------------------------------------------------
 PyBufferProcs PyVTKObject_AsBuffer = {
-#ifndef VTK_PY3K
-  PyVTKObject_AsBuffer_GetReadBuf,  // bf_getreadbuffer
-  PyVTKObject_AsBuffer_GetWriteBuf, // bf_getwritebuffer
-  PyVTKObject_AsBuffer_GetSegCount, // bf_getsegcount
-  nullptr,                          // bf_getcharbuffer
-#endif
   PyVTKObject_AsBuffer_GetBuffer,    // bf_getbuffer
   PyVTKObject_AsBuffer_ReleaseBuffer // bf_releasebuffer
 };
 
 //------------------------------------------------------------------------------
-PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObjectBase* ptr)
+PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtkObjectBase* ptr)
 {
   // This will be set if we create a new C++ object
   bool created = false;
-  std::string classname = vtkPythonUtil::StripModule(pytype->tp_name);
+  std::string classname = vtkPythonUtil::StripModuleFromType(pytype);
   PyVTKClass* cls = nullptr;
 
   if (ptr)
@@ -584,14 +532,12 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObj
     PyObject* s = PyObject_GetAttrString((PyObject*)pytype, "__vtkname__");
     if (s)
     {
-#ifdef VTK_PY3K
       PyObject* tmp = PyUnicode_AsUTF8String(s);
       if (tmp)
       {
         Py_DECREF(s);
         s = tmp;
       }
-#endif
       const char* vtkname_classname = PyBytes_AsString(s);
       if (vtkname_classname == nullptr)
       {
@@ -656,7 +602,7 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObj
     }
   }
 
-  if ((pytype->tp_flags & Py_TPFLAGS_HEAPTYPE) != 0)
+  if ((PyType_GetFlags(pytype) & Py_TPFLAGS_HEAPTYPE) != 0)
   {
     // Incref if class was declared in python (see PyType_GenericAlloc).
     Py_INCREF(pytype);
@@ -667,7 +613,8 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObj
     pytype = cls->py_type;
   }
 
-  // Create a new dict unless one was provided
+  // Create a new dict unless object is being resurrected from a ghost
+  PyObject* pydict = ghostdict;
   if (pydict)
   {
     Py_INCREF(pydict);
@@ -697,6 +644,18 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* pydict, vtkObj
   if (created)
   {
     ptr->Delete();
+  }
+  else if (ghostdict == nullptr && pytype->tp_init != nullptr)
+  {
+    // Call __init__(self)
+    PyObject* arglist = Py_BuildValue("()");
+    int res = pytype->tp_init((PyObject*)self, arglist, nullptr);
+    Py_DECREF(arglist);
+    if (res < 0)
+    {
+      Py_DECREF(self);
+      self = nullptr;
+    }
   }
 
   return (PyObject*)self;

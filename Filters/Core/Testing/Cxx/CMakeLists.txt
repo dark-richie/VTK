@@ -1,3 +1,10 @@
+set(test_implicit_array)
+if(TARGET VTK::CommonImplicitArrays)
+  list(APPEND test_implicit_array
+    TestContourImplicitArrays.cxx
+  )
+endif()
+
 vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   Test3DLinearGridPlaneCutterCellData.cxx
   TestAppendArcLength.cxx,NO_VALID
@@ -9,6 +16,8 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestArrayCalculator.cxx,NO_VALID
   TestArrayRename.cxx,NO_VALID
   TestAssignAttribute.cxx,NO_VALID
+  TestAttributeDataToTableFilter.cxx,NO_VALID
+  TestAttributeDataToTableHyperTreeGrid.cxx,NO_VALID
   TestBinCellDataFilter.cxx,NO_VALID
   TestCategoricalPointDataToCellData.cxx,NO_VALID
   TestCategoricalResampleWithDataSet.cxx,NO_VALID
@@ -33,8 +42,10 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestExplicitStructuredGridCrop.cxx
   TestExplicitStructuredGridToUnstructuredGrid.cxx
   TestExecutionTimer.cxx,NO_VALID
+  TestExtractCells.cxx,NO_VALID
   TestExtractCellsAlongPolyLine.cxx,NO_VALID
   TestFeatureEdges.cxx,NO_VALID
+  TestFieldDataToDataSetAttribute.cxx,NO_VALID
   TestFlyingEdges.cxx
   TestGlyph3D.cxx
   TestGlyph3DFollowCamera.cxx,NO_VALID
@@ -55,6 +66,8 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestProbeFilter.cxx,NO_VALID
   TestProbeFilterImageInput.cxx
   TestProbeFilterOutputAttributes.cxx,NO_VALID
+  TestQuadricDecimationRegularization.cxx
+  TestQuadricDecimationMapPointData.cxx
   TestResampleToImage.cxx,NO_VALID
   TestResampleToImage2D.cxx,NO_VALID
   TestResampleWithDataSet.cxx,
@@ -79,6 +92,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestVaryRadiusTubeFilter.cxx
   UnitTestMaskPoints.cxx,NO_VALID
   UnitTestMergeFilter.cxx,NO_VALID
+  ${test_implicit_array}
   )
 
 vtk_test_cxx_executable(vtkFiltersCoreCxxTests tests)

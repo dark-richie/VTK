@@ -31,6 +31,7 @@
 #include "vtkPropCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkProp3DCollection : public vtkPropCollection
 {
 public:
@@ -71,7 +72,6 @@ private:
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
 
-private:
   vtkProp3DCollection(const vtkProp3DCollection&) = delete;
   void operator=(const vtkProp3DCollection&) = delete;
 };
@@ -98,4 +98,5 @@ inline vtkProp3D* vtkProp3DCollection::GetLastProp3D()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

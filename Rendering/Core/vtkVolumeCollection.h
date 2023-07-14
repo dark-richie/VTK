@@ -32,6 +32,7 @@
 
 #include "vtkVolume.h" // Needed for static cast
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
 {
 public:
@@ -75,9 +76,9 @@ private:
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
 
-private:
   vtkVolumeCollection(const vtkVolumeCollection&) = delete;
   void operator=(const vtkVolumeCollection&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

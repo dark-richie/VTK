@@ -42,6 +42,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConstrainedPointHandleRepresentation);
 
 vtkCxxSetObjectMacro(vtkConstrainedPointHandleRepresentation, ObliquePlane, vtkPlane);
@@ -219,7 +220,7 @@ void vtkConstrainedPointHandleRepresentation::SetActiveCursorShape(vtkPolyData* 
       this->ActiveCursorShape->Delete();
     }
     this->ActiveCursorShape = shape;
-    if (this->CursorShape)
+    if (this->ActiveCursorShape)
     {
       this->ActiveCursorShape->Register(this);
     }
@@ -645,7 +646,11 @@ void vtkConstrainedPointHandleRepresentation::BuildRepresentation()
 //------------------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::GetActors(vtkPropCollection* pc)
 {
-  this->Actor->GetActors(pc);
+  if (pc != nullptr && this->GetVisibility())
+  {
+    this->Actor->GetActors(pc);
+  }
+  this->Superclass::GetActors(pc);
 }
 
 //------------------------------------------------------------------------------
@@ -734,3 +739,4 @@ void vtkConstrainedPointHandleRepresentation::PrintSelf(ostream& os, vtkIndent i
     os << "(none)\n";
   }
 }
+VTK_ABI_NAMESPACE_END

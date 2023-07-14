@@ -34,6 +34,7 @@ namespace detail
 {
 namespace smp
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 template <typename T>
 class vtkSMPThreadLocalImpl<BackendType::Sequential, T> : public vtkSMPThreadLocalImplAbstract<T>
@@ -101,7 +102,7 @@ public:
     T* GetContentPtr() override { return &*this->Iter; }
 
   protected:
-    virtual ItImpl* CloneImpl() const override { return new ItImpl(*this); };
+    ItImpl* CloneImpl() const override { return new ItImpl(*this); };
 
   private:
     friend class vtkSMPThreadLocalImpl<BackendType::Sequential, T>;
@@ -170,8 +171,10 @@ private:
   void operator=(const vtkSMPThreadLocalImpl&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 } // namespace smp
 } // namespace detail
 } // namespace vtk
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkSMPThreadLocalImpl.h */

@@ -30,6 +30,7 @@
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONMATH_EXPORT vtkMatrix3x3 : public vtkObject
 {
   // Some of the methods in here have a corresponding static (class)
@@ -70,7 +71,7 @@ public:
    */
   void DeepCopy(const double elements[9])
   {
-    this->DeepCopy(*this->Element, elements);
+    vtkMatrix3x3::DeepCopy(*this->Element, elements);
     this->Modified();
   }
 
@@ -215,4 +216,5 @@ inline bool vtkMatrix3x3::IsIdentity()
   }
 }
 
+VTK_ABI_NAMESPACE_END
 #endif

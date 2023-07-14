@@ -77,6 +77,7 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 #include "vtkStringArray.h"  // for vtkStringArray
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCharArray;
 class vtkIdTypeArray;
@@ -823,8 +824,8 @@ private:
   int* ElementVariableTruthTable; // (G) NumBlocks*OrigNumberOfElementVariables
   vtkTypeBool AllVariablesDefinedInAllBlocks;
 
-private:
   vtkModelMetadata(const vtkModelMetadata&) = delete;
   void operator=(const vtkModelMetadata&) = delete;
 };
+VTK_ABI_NAMESPACE_END
 #endif

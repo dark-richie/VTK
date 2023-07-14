@@ -18,6 +18,7 @@
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 // Subclass vector so we can directly call constructor.  This works
 // around problems on Borland C++.
 struct vtkCommonInformationKeyManagerKeysType : public std::vector<vtkInformationKey*>
@@ -92,3 +93,4 @@ void vtkCommonInformationKeyManager::ClassFinalize()
     vtkCommonInformationKeyManagerKeys = nullptr;
   }
 }
+VTK_ABI_NAMESPACE_END

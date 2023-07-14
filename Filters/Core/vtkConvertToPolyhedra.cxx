@@ -28,6 +28,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConvertToPolyhedra);
 
 //------------------------------------------------------------------------------
@@ -77,8 +78,13 @@ int vtkConvertToPolyhedra::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<vtkIdType> faces;
   int cellType = VTK_POLYHEDRON;
   vtkIdType outCellId;
+  vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
   for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
   {
+    if (cellId % checkAbortInterval == 0 && this->CheckAbort())
+    {
+      break;
+    }
     // Grab the input cell.
     input->GetCell(cellId, cell);
 
@@ -125,3 +131,4 @@ void vtkConvertToPolyhedra::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output All Cells: " << (this->OutputAllCells ? "true\n" : "false\n");
 }
+VTK_ABI_NAMESPACE_END

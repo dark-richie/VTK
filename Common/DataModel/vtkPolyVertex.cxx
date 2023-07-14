@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -23,6 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkVertex.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyVertex);
 
 //------------------------------------------------------------------------------
@@ -42,14 +44,23 @@ int vtkPolyVertex::EvaluatePosition(const double x[3], double closestPoint[3], i
   double pcoords[3], double& minDist2, double weights[])
 {
   int numPts = this->Points->GetNumberOfPoints();
-  double X[3];
+  const double* X;
   double dist2;
   int i;
   pcoords[1] = pcoords[2] = -1.0;
 
+  // Efficient point access
+  const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());
+  if (!pointsArray)
+  {
+    vtkErrorMacro(<< "Points should be double type");
+    return 0;
+  }
+  const double* pts = pointsArray->GetPointer(0);
+
   for (minDist2 = VTK_DOUBLE_MAX, i = 0; i < numPts; i++)
   {
-    this->Points->GetPoint(i, X);
+    X = pts + 3 * i;
     dist2 = vtkMath::Distance2BetweenPoints(X, x);
     if (dist2 < minDist2)
     {
@@ -233,3 +244,4 @@ void vtkPolyVertex::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vertex:\n";
   this->Vertex->PrintSelf(os, indent.GetNextIndent());
 }
+VTK_ABI_NAMESPACE_END

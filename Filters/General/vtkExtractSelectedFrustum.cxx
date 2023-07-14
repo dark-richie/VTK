@@ -37,6 +37,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum, Frustum, vtkPlanes);
 
@@ -423,6 +424,10 @@ int vtkExtractSelectedFrustum::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(cellId % updateInterval)) // manage progress reports
       {
         this->UpdateProgress(static_cast<double>(cellId) / numCells);
+        if (this->CheckAbort())
+        {
+          break;
+        }
       }
 
       input->GetCellBounds(cellId, bounds);
@@ -544,6 +549,10 @@ int vtkExtractSelectedFrustum::RequestData(vtkInformation* vtkNotUsed(request),
       if (!(ptId % updateInterval)) // manage progress reports
       {
         this->UpdateProgress(static_cast<double>(ptId) / numPts);
+        if (this->CheckAbort())
+        {
+          break;
+        }
       }
 
       input->GetPoint(ptId, x);
@@ -1124,3 +1133,4 @@ void vtkExtractSelectedFrustum::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "InsideOut: " << (this->InsideOut ? "On\n" : "Off\n");
 }
+VTK_ABI_NAMESPACE_END

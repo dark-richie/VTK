@@ -24,6 +24,12 @@
 #include "vtkCellType.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
+#include "vtkHigherOrderCurve.h"
+#include "vtkHigherOrderHexahedron.h"
+#include "vtkHigherOrderQuadrilateral.h"
+#include "vtkHigherOrderTetra.h"
+#include "vtkHigherOrderTriangle.h"
+#include "vtkHigherOrderWedge.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
@@ -43,6 +49,7 @@
 
 namespace vtkIOSSUtilities
 {
+VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 class Cache::CacheInternals
@@ -298,9 +305,13 @@ int GetCellType(const Ioss::ElementTopology* topology)
 {
   switch (topology->shape())
   {
+    case Ioss::ElementShape::SPHERE:
+      return VTK_VERTEX;
+
     case Ioss::ElementShape::POINT:
       return VTK_POLY_VERTEX;
 
+    case Ioss::ElementShape::SPRING:
     case Ioss::ElementShape::LINE:
       switch (topology->number_nodes())
       {
@@ -309,16 +320,30 @@ int GetCellType(const Ioss::ElementTopology* topology)
         case 3:
           return VTK_QUADRATIC_EDGE;
       }
+      // If we don't have a "fast-path" cell, see if the arbitrary-order
+      // Lagrange cell can handle it.
+      if (vtkHigherOrderCurve::PointCountSupportsUniformOrder(topology->number_nodes()))
+      {
+        return VTK_LAGRANGE_CURVE;
+      }
       break;
 
     case Ioss::ElementShape::TRI:
       switch (topology->number_nodes())
       {
+        case 7:
+          return VTK_BIQUADRATIC_TRIANGLE;
         case 6:
           return VTK_QUADRATIC_TRIANGLE;
         case 4:
         case 3:
           return VTK_TRIANGLE;
+      }
+      // If we don't have a "fast-path" cell, see if the arbitrary-order
+      // Lagrange cell can handle it.
+      if (vtkHigherOrderTriangle::PointCountSupportsUniformOrder(topology->number_nodes()))
+      {
+        return VTK_LAGRANGE_TRIANGLE;
       }
       break;
     case Ioss::ElementShape::QUAD:
@@ -330,6 +355,12 @@ int GetCellType(const Ioss::ElementTopology* topology)
           return VTK_BIQUADRATIC_QUAD;
         case 4:
           return VTK_QUAD;
+      }
+      // If we don't have a "fast-path" cell, see if the arbitrary-order
+      // Lagrange cell can handle it.
+      if (vtkHigherOrderQuadrilateral::PointCountSupportsUniformOrder(topology->number_nodes()))
+      {
+        return VTK_LAGRANGE_QUADRILATERAL;
       }
       break;
     case Ioss::ElementShape::TET:
@@ -343,6 +374,12 @@ int GetCellType(const Ioss::ElementTopology* topology)
         case 8:
         case 4:
           return VTK_TETRA;
+      }
+      // If we don't have a "fast-path" cell, see if the arbitrary-order
+      // Lagrange cell can handle it.
+      if (vtkHigherOrderTetra::PointCountSupportsUniformOrder(topology->number_nodes()))
+      {
+        return VTK_LAGRANGE_TETRAHEDRON;
       }
       break;
     case Ioss::ElementShape::PYRAMID:
@@ -360,14 +397,22 @@ int GetCellType(const Ioss::ElementTopology* topology)
     case Ioss::ElementShape::WEDGE:
       switch (topology->number_nodes())
       {
+        case 6:
+          return VTK_WEDGE;
+        case 12:
+          return VTK_QUADRATIC_LINEAR_WEDGE;
         case 15:
           return VTK_QUADRATIC_WEDGE;
         case 18:
           return VTK_BIQUADRATIC_QUADRATIC_WEDGE;
         case 21:
           return VTK_LAGRANGE_WEDGE;
-        case 6:
-          return VTK_WEDGE;
+      }
+      // If we don't have a "fast-path" cell, see if the arbitrary-order
+      // Lagrange cell can handle it.
+      if (vtkHigherOrderWedge::PointCountSupportsUniformOrder(topology->number_nodes()))
+      {
+        return VTK_LAGRANGE_WEDGE;
       }
       break;
     case Ioss::ElementShape::HEX:
@@ -379,6 +424,12 @@ int GetCellType(const Ioss::ElementTopology* topology)
           return VTK_QUADRATIC_HEXAHEDRON;
         case 27:
           return VTK_TRIQUADRATIC_HEXAHEDRON;
+      }
+      // If we don't have a "fast-path" cell, see if the arbitrary-order
+      // Lagrange cell can handle it.
+      if (vtkHigherOrderHexahedron::PointCountSupportsUniformOrder(topology->number_nodes()))
+      {
+        return VTK_LAGRANGE_HEXAHEDRON;
       }
       break;
 
@@ -673,7 +724,7 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   // case, we need to transform them.
   // Here, using the indexes specified in Ioss docs (which are 1-based), just
   // add them so that the cell is ordered correctly in VTK.
-  // ref: https://gsjaardema.github.io/seacas-docs/html/element_types.html
+  // ref: https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html
   std::vector<int> ordering_transform;
   switch (vtk_topology_type)
   {
@@ -1043,4 +1094,5 @@ void GetEntityAndFieldNames<Ioss::SideSet>(const Ioss::Region* region,
   }
 }
 
+VTK_ABI_NAMESPACE_END
 } // end of namespace.
